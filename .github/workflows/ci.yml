@@ -1,0 +1,55 @@
+name: portal-ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  full:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: make setup
+      - run: make lint
+      - run: npm --prefix web run build
+      - run: make test
+      - run: python scripts/build_bundle.py --out release
+      - name: SHA-256
+        run: sha256sum release/*.zip | tee release/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: portal-bundle
+          path: release/
+
+  cross-platform:
+    needs: full
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm --prefix web ci
+      - run: npm --prefix web run build
+      - name: Server tests
+        run: python -m unittest discover -s server/tests -q
+      - name: Bundle smoke test
+        run: python -m unittest discover -s scripts/tests -q
