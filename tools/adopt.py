@@ -229,7 +229,7 @@ def main() -> None:
         write("workflow.mk", workflow_mk(mk_src, taken, "# Agentic workflow targets (installed by agentic-skeleton tools/adopt.py)."))
         write("Makefile", read(os.path.join(dst, "Makefile")).rstrip() + "\n\n# Agentic workflow: make next, check, backlog, agents, …\ninclude workflow.mk\n", new=False)
     else:
-        write("Makefile", workflow_mk(mk_src, set(), "# Workflow targets (stdlib Python >= 3.11, no dependencies). Stack targets read project.toml [stack]."))
+        write("Makefile", workflow_mk(mk_src, set(), "# Workflow targets (stdlib Python >= 3.14, no dependencies). Stack targets read project.toml [stack]."))
     gi = os.path.join(dst, ".gitignore")
     cur = read(gi) if os.path.exists(gi) else ""
     missing = [x for x in GITIGNORE if x not in cur.splitlines()]

@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agentic Portal — mockup</title>
+<!-- Behavior reference only: sample data, no backend. Look derived from docs/sources/portal-prototype.dc.html -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+body{margin:0}
+.app a{color:#9AA3B2}
+body{margin:0}
+a{color:#9AA3B2}a:hover{color:#E7E9EE}
+.app{--bg:#0C0E12;--panel:#13161C;--panel2:#1A1E26;--line:#262B35;--text:#E7E9EE;--muted:#9AA3B2;--blue:#6CB4FF;--orange:#FFAA55;--green:#5ED3A0;--red:#FF7B6B;--yellow:#E6D06A;--onaccent:#0C0E12;--shade:rgba(4,5,8,.6)}
+.app.light{--bg:#F5F6F8;--panel:#FFFFFF;--panel2:#EEF0F3;--line:#DCE0E6;--text:#14171C;--muted:#535D6D;--blue:#1C66C4;--orange:#A35200;--green:#0E7650;--red:#BF3428;--yellow:#7A6000;--shade:rgba(20,23,28,.35)}
+.app *{box-sizing:border-box}
+.app button{font:inherit;color:inherit;cursor:pointer}
+.app h1,.app h2,.app h3,.app p{margin:0}
+.mono{font-family:'Geist Mono',ui-monospace,SFMono-Regular,Menlo,monospace}
+.h1{font-size:24px;font-weight:600;letter-spacing:-0.01em}
+.h2{font-size:15px;font-weight:600}
+.sub{font-size:13px;color:var(--muted);line-height:20px}
+.eyebrow{font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px}
+.nav{display:flex;align-items:center;gap:10px;width:100%;min-height:36px;padding:0 10px;border:0;border-radius:8px;background:transparent;color:var(--muted);text-align:left;font-size:14px}
+.nav:hover{background:var(--panel2);color:var(--text)}
+.nav.on{background:var(--panel2);color:var(--text);font-weight:500}
+.badge{margin-left:auto;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--orange);color:var(--onaccent);font-size:11px;font-weight:600;display:inline-flex;align-items:center;justify-content:center}
+.app.light .badge{color:#FFFFFF}
+.pill{display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 8px;border-radius:999px;font-size:12px;font-weight:500;white-space:nowrap}
+.pill::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+.p-agent{color:var(--blue);background:color-mix(in srgb,var(--blue) 13%,transparent)}
+.p-human{color:var(--orange);background:color-mix(in srgb,var(--orange) 13%,transparent)}
+.p-done{color:var(--green);background:color-mix(in srgb,var(--green) 13%,transparent)}
+.p-blocked{color:var(--muted);background:var(--panel2)}
+.p-high{color:var(--red);background:color-mix(in srgb,var(--red) 13%,transparent)}
+.p-med{color:var(--yellow);background:color-mix(in srgb,var(--yellow) 14%,transparent)}
+.p-low{color:var(--blue);background:color-mix(in srgb,var(--blue) 13%,transparent)}
+.tag{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:6px;border:1px solid var(--line);font-size:12px;color:var(--muted);white-space:nowrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:36px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--panel);font-size:13px;font-weight:500;color:var(--text);text-decoration:none;white-space:nowrap}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--onaccent)}
+.btn.primary:hover{filter:brightness(1.06)}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--muted)}
+.btn.ghost:hover{color:var(--text);background:var(--panel2)}
+.btn.sm{min-height:30px;padding:0 10px;font-size:12px}
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--muted)}
+.icon-btn:hover{color:var(--text);border-color:var(--muted)}
+.search{display:flex;align-items:center;gap:10px;min-height:36px;width:min(420px,100%);padding:0 10px 0 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--muted);font-size:13px;text-align:left}
+.search:hover{border-color:var(--muted)}
+kbd{margin-left:auto;font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;padding:2px 6px;border-radius:5px;border:1px solid var(--line);color:var(--muted)}
+.row{display:flex;align-items:center;gap:12px;width:100%;min-height:44px;padding:8px 10px;border:0;border-radius:8px;background:transparent;text-align:left;color:var(--text)}
+.row:hover{background:var(--panel2)}
+.row.on{background:var(--panel2);outline:1px solid var(--line)}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--muted);font-size:13px}
+.chip:hover{color:var(--text)}
+.chip.on{background:var(--text);border-color:var(--text);color:var(--bg)}
+.bcard{display:flex;flex-direction:column;gap:8px;width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--panel);text-align:left;color:var(--text)}
+.bcard:hover{border-color:var(--muted)}
+.bar{height:4px;border-radius:2px;background:var(--panel2);overflow:hidden}
+.bar>span{display:block;height:100%;background:var(--accent);border-radius:2px}
+.step{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.step .dot{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-family:'Geist Mono',ui-monospace,monospace}
+.step.done{color:var(--text)}
+.step.done .dot{background:var(--green);border-color:var(--green);color:var(--onaccent)}
+.app.light .step.done .dot{color:#FFFFFF}
+.step.cur{color:var(--text);font-weight:600}
+.step.cur .dot{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 25%,transparent)}
+.doc{font-family:'Geist Mono',ui-monospace,monospace;font-size:12.5px;line-height:22px;white-space:pre-wrap}
+.doc .h{color:var(--text);font-weight:500}
+.doc .t{color:var(--muted)}
+.doc .k{color:var(--blue)}
+.doc .x{color:var(--orange)}
+.term{background:#07080B;border:1px solid var(--line);border-radius:10px;padding:16px;font-family:'Geist Mono',ui-monospace,monospace;font-size:12.5px;line-height:22px;color:#C9CED8;overflow-x:auto;min-height:320px}
+.term .cmd{color:#E7E9EE}
+.term .dim{color:#8B93A1}
+.term .ok{color:#5ED3A0}
+.term .warn{color:#E6D06A}
+.term .queue{color:#E6D06A}
+.term .gate{color:#FFAA55}
+.term .txt{color:#C9CED8;padding-left:16px}
+.caret{display:inline-block;width:8px;height:15px;background:#C9CED8;vertical-align:-2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.diff{font-family:'Geist Mono',ui-monospace,monospace;font-size:12px;line-height:20px;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+.diff .m{padding:2px 10px;color:var(--red);background:color-mix(in srgb,var(--red) 9%,transparent)}
+.diff .p{padding:2px 10px;color:var(--green);background:color-mix(in srgb,var(--green) 9%,transparent)}
+.tile{display:flex;flex-direction:column;gap:6px;padding:14px;border-radius:10px;border:1px solid var(--line);background:var(--panel);text-align:left;color:var(--text);width:100%}
+.tile:hover{border-color:var(--muted)}
+.tab{min-height:32px;padding:0 12px;border:0;border-radius:6px;background:transparent;color:var(--muted);font-size:13px}
+.tab.on{background:var(--panel2);color:var(--text);font-weight:500}
+.toggle{width:40px;height:24px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);position:relative;flex:none}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:var(--muted);transition:left .15s}
+.toggle.on{background:var(--accent);border-color:var(--accent)}
+.toggle.on::after{left:19px;background:var(--onaccent)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.overlay{position:fixed;inset:0;background:var(--shade);display:flex;justify-content:center;align-items:flex-start;padding:12vh 16px 16px;z-index:50}
+.pal-in{width:100%;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--text);font:inherit;font-size:15px;padding:16px 18px;outline:none}
+.dg{position:absolute;box-sizing:border-box;display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--panel);border:1px solid var(--line);border-radius:10px;font-size:13px;line-height:18px;color:var(--text)}
+.dg .s{color:var(--muted);font-size:12px}
+.app{background:radial-gradient(1200px 600px at 85% -10%,color-mix(in srgb,var(--accent) 10%,transparent),transparent 60%),radial-gradient(900px 500px at -10% 110%,color-mix(in srgb,var(--blue) 9%,transparent),transparent 60%),var(--bg)!important;--glass:color-mix(in srgb,var(--panel) 70%,transparent);--shadow:0 1px 0 rgba(255,255,255,.04) inset,0 10px 30px rgba(0,0,0,.28)}
+.app.light{--shadow:0 1px 0 rgba(255,255,255,.7) inset,0 8px 24px rgba(20,23,28,.08)}
+.card,.dg,.overlay>.card{background:var(--glass);backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);box-shadow:var(--shadow);border-radius:8px}
+.bcard{background:var(--glass);backdrop-filter:blur(10px);box-shadow:var(--shadow);border-radius:8px}
+.bcard:hover,.card.hover:hover{border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}
+.btn,.row,.icon-btn,.search,.tab,.diff{border-radius:6px}
+.tag{border-radius:4px}.term{border-radius:8px;box-shadow:var(--shadow)}
+.btn.primary{box-shadow:0 4px 14px color-mix(in srgb,var(--accent) 30%,transparent);font-weight:600}
+#nav{background:var(--glass)!important;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.app header{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 65%,transparent);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.overlay{backdrop-filter:blur(4px)}
+.app .h1{font-weight:700}.app .h2{font-weight:700}.app .eyebrow{font-weight:600}
+.app header{padding:14px 28px}
+.app main{padding:28px}
+#menu{display:none}
+#nav{position:sticky;top:0;height:100vh;overflow-y:auto}
+.split{display:grid;grid-template-columns:minmax(220px,1fr) 2fr;gap:20px;align-items:start}
+.split-b{grid-template-columns:minmax(260px,1fr) 1.4fr}
+.board{display:grid;grid-template-columns:repeat(8,minmax(160px,1fr));gap:10px;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x mandatory}
+.board>div{scroll-snap-align:start}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.diagram{position:relative;height:300px;overflow:auto;padding:0}
+.canvas{position:relative;width:760px;height:260px}
+.row{flex-wrap:wrap;row-gap:4px}
+.h1{overflow-wrap:anywhere}
+.mono{overflow-wrap:anywhere}
+@media (max-width:900px){
+ #menu{display:inline-flex}
+ #nav{position:fixed;top:0;left:0;bottom:0;width:min(280px,84vw);z-index:60;transform:translateX(-105%);transition:transform .2s ease;box-shadow:var(--shadow);visibility:hidden}
+ #nav.open{transform:none;visibility:visible}
+ #scrim{position:fixed;inset:0;background:var(--shade);z-index:55;backdrop-filter:blur(2px)}
+ .split,.split-b{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+ .chips{flex-wrap:nowrap;overflow-x:auto;margin:0 -16px;padding:2px 16px 4px;scrollbar-width:none}
+ .chips>*{flex:none}
+ .row.stack{display:grid;grid-template-columns:64px 1fr;gap:4px 10px;align-items:start}
+ .row.stack>.pill{grid-column:2;justify-self:start}
+ .row.stack2{flex-direction:column;align-items:flex-start;gap:4px}
+ .diagram{height:auto;overflow:visible}
+ .canvas{width:auto;height:auto;display:flex;flex-direction:column;gap:10px;padding:14px}
+ .canvas .dg{position:static}
+ .app header>span.pill{display:none}
+ .app header{padding:10px 16px;gap:8px;flex-wrap:nowrap}
+ .app header .pill{max-width:42vw;overflow:hidden;text-overflow:ellipsis}
+ .hide-sm{display:none}
+ .search{width:40px;min-width:40px;padding:0;justify-content:center}
+ .app main{padding:16px;gap:14px}
+ .h1{font-size:20px}
+ .card{padding:14px}
+ .btn,.btn.sm,.chip,.tab,.row,.icon-btn,.search{min-height:44px}
+ .icon-btn{width:44px;height:44px}
+ .board{grid-template-columns:repeat(8,78vw)}
+ .term{font-size:11.5px;line-height:19px;min-height:220px;padding:12px}
+ .diff{font-size:11px}
+ .overlay{padding:8vh 12px 12px}
+ .actions .btn{flex:1 1 auto}
+}
+@media (prefers-reduced-motion:reduce){#nav{transition:none}}
+.app :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="app" id="app" style="--accent:#C8F169;min-height:100vh;display:flex;align-items:stretch;background:var(--bg);color:var(--text);font-family:'Quicksand',ui-sans-serif,system-ui,sans-serif;font-size:14px">
+<a href="#main" class="sr">Skip to content</a>
+<nav aria-label="Main" id="nav" style="flex:0 0 232px;display:flex;flex-direction:column;gap:2px;padding:16px 12px;background:var(--panel);border-right:1px solid var(--line)"></nav>
+<div id="scrim" hidden></div>
+<div style="flex:1 1 auto;min-width:0;display:flex;flex-direction:column">
+<header style="display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line)">
+<button class="icon-btn" id="menu" aria-label="Open navigation" aria-controls="nav" aria-expanded="false">☰</button><span style="font-weight:600;font-size:15px;white-space:nowrap">Agentic Portal</span><span class="pill p-agent">Inception · Mockup</span><span class="tag hide-sm">sample data</span>
+<div style="flex:1 1 24px"></div>
+<button class="search" id="openPal" aria-haspopup="dialog" aria-label="Search or run a command"><span aria-hidden="true">⌕</span><span class="hide-sm">Search or run a command</span><span class="mono hide-sm" style="margin-left:auto;font-size:11px">Ctrl/⌘ K</span></button>
+<button class="icon-btn" id="theme" aria-label="Toggle light and dark theme">◐</button>
+</header>
+<main id="main" tabindex="-1" style="width:100%;max-width:1360px;display:flex;flex-direction:column;gap:20px"></main>
+</div>
+<div id="pal" class="overlay" hidden role="dialog" aria-modal="true" aria-label="Command palette"><div class="card" style="width:min(560px,100%);padding:0"><input id="palq" class="pal-in" placeholder="Type a screen, story or command…" aria-label="Search commands"><div id="pall" style="padding:8px;max-height:50vh;overflow:auto"></div></div></div>
+<div id="live" class="sr" aria-live="polite"></div>
+</div>
+<script>
+const $=(s,e=document)=>e.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const STAGES=['Story','Analysis','Refined','Brief','Spec','RUN','Review','Closed'];
+const MODELS={anthropic:{fast:'haiku',balanced:'sonnet',deep:'opus'},openai:{fast:'gpt-5-mini',balanced:'gpt-5-codex',deep:'gpt-5'}};
+const CLIS=[{key:'claude-code',name:'Claude Code',bin:'claude -p',vendor:'anthropic',state:'found · default'},{key:'codex',name:'Codex CLI',bin:'codex exec',vendor:'openai',state:'found'}];
+const SCREENS=[['overview','Overview'],['plan','Plan'],['backlog','Backlog'],['approvals','Approvals'],['runs','Agent runs'],['insights','Insights'],['architecture','Architecture'],['journal','Journal'],['settings','Settings']];
+const STORIES=[
+{id:'AP0101',title:'Show workflow state and next step',epic:'Workflow state',size:'M',sprint:'S1',stage:7,owner:'done',status:'Closed',deps:'',fr:'FR-01'},
+{id:'AP0102',title:'Backlog list with filters',epic:'Workflow state',size:'S',sprint:'S1',stage:6,owner:'agent',status:'Next: /review-story',deps:'AP0101',fr:'FR-03'},
+{id:'AP0201',title:'Launch a step with the tier model',epic:'Agent runs',size:'L',sprint:'S2',stage:5,owner:'human',status:'Strategy awaits you',deps:'AP0101',fr:'FR-07, FR-08'},
+{id:'AP0202',title:'Stream a session and stop at gates',epic:'Agent runs',size:'L',sprint:'S2',stage:4,owner:'human',status:'Spec awaits Ready',deps:'AP0201',fr:'FR-10, FR-11'},
+{id:'AP0301',title:'Approve or request changes on a gate',epic:'Human gates',size:'M',sprint:'S2',stage:3,owner:'agent',status:'Next: /brief',deps:'',fr:'FR-13, FR-14'},
+{id:'AP0302',title:'Diff preview before a decision',epic:'Human gates',size:'S',sprint:'S3',stage:2,owner:'agent',status:'Next: /refine',deps:'AP0301',fr:'FR-16'},
+{id:'AP0401',title:'Insights: weak files and untested code',epic:'Codebase health',size:'XL',sprint:'S3',stage:1,owner:'human',status:'Workshop minutes missing',deps:'',fr:'FR-17, FR-19'},
+{id:'AP0402',title:'Security findings from installed scanners',epic:'Codebase health',size:'L',sprint:'S4',stage:0,owner:'blocked',status:'Blocked by ADR (analyzers)',deps:'AP0401',fr:'FR-18'}];
+const DOCS={AP0201:['delivery/30-runs/RUN-AP0201.md',[['h','## Status'],['k','Draft'],['h','## 2. Execution Strategy'],['t','TSK-AP0201-01  Step catalog from workflow.toml'],['t','TSK-AP0201-02  Resolve model from models.toml tier'],['t','TSK-AP0201-03  Headless launch of the configured CLI']]],
+AP0202:['delivery/20-specs/SPEC-AP0202-stream.md',[['h','## Status'],['x','Draft'],['h','## Acceptance criteria'],['t','AC-1  Output appears live while the session runs'],['t','AC-2  The session ends in "waiting for human" at a gate']]]};
+const GEN=(id)=>DOCS[id]||['analysis/10-stories/STORY_'+id+'.md',[['h','## Story'],['t','Sample content for '+id+'.'],['h','## References'],['t','See Backlog']]];
+let APPROVALS=[
+{id:'AP0201',kind:'RUN strategy',title:'Approve the execution strategy for launching steps',file:'delivery/30-runs/RUN-AP0201.md',where:'§2 Execution Strategy',minus:'- [ ] Approved',plus:'+ [x] Approved — Alberto Galimberti, 2026-10-19',since:'2 h ago',act:'Approve strategy'},
+{id:'AP0202',kind:'Spec Ready',title:'Mark the streaming Spec as Ready',file:'delivery/20-specs/SPEC-AP0202-stream.md',where:'## Status',minus:'- Draft',plus:'+ Ready',since:'1 d ago',act:'Mark Ready'},
+{id:'AP0401',kind:'Workshop',title:'Attach the workshop minutes for Insights',file:'analysis/20-analysis/ANALYSIS_AP0401_insights.md',where:'## Workshop',minus:'- minutes: missing',plus:'+ minutes: project-journal/notes/2026-10-16-insights.md',since:'3 d ago',act:'Attach minutes'},
+{id:'ADR-004',kind:'ADR',title:'Accept ADR-004 Skeleton JSON contract',file:'reference/architecture/ADR-004-contract.md',where:'frontmatter',minus:'- status: proposed',plus:'+ status: accepted',since:'4 d ago',act:'Accept'}];
+const RUNS0=[
+{id:14,cmd:'/run AP0201',tier:'balanced',status:'gate',when:'today 09:42',dur:'6 m 12 s',gateText:'RUN strategy for AP0201 needs your approval before any code is written.',lines:[['cmd','$ claude -p "/run AP0201" --model sonnet'],['dim','● make next → developer · run-strategy · AP0201'],['dim','● context.py run-strategy AP0201 → 6 files · FR-07, FR-08 (≈11.2k tokens)'],['ok','✓ wrote delivery/30-runs/RUN-AP0201.md §1 Scope, §2 Execution Strategy'],['txt','TSK-AP0201-01 Step catalog from workflow.toml'],['txt','TSK-AP0201-02 Resolve model from models.toml tier'],['warn','▲ insight: server/launcher.py has 0% coverage — tests scheduled first'],['gate','■ human gate: RUN strategy approval (RUN §2). Session paused.']]},
+{id:13,cmd:'/brief AP0202',tier:'balanced',status:'gate',when:'yesterday',dur:'4 m 05 s',gateText:'Spec AP0202 waits for status Ready.',lines:[['cmd','$ claude -p "/brief AP0202" --model sonnet'],['ok','✓ wrote BRIEF-AP0202-stream.md and SPEC-AP0202-stream.md (Draft)'],['ok','✓ make check — 0 errors'],['gate','■ human gate: Spec Ready.']]},
+{id:12,cmd:'/review-story AP0101',tier:'balanced',status:'done',when:'Oct 16',dur:'3 m 30 s',lines:[['cmd','$ claude -p "/review-story AP0101" --model sonnet'],['ok','✓ Brief ↔ Spec ↔ RUN consistent'],['ok','✓ RUN-AP0101 status → Closed']]},
+{id:11,cmd:'/weekly',tier:'fast',status:'done',when:'Oct 16',dur:'48 s',lines:[['cmd','$ claude -p "/weekly" --model haiku'],['ok','✓ wrote project-journal/weekly/2026-W42.md']]}];
+const FINDINGS=[
+{id:'F1',cat:'security',sev:'high',title:'Hard-coded access key',file:'scripts/deploy.sh:14',tool:'secret patterns',explain:'A string matching a cloud key pattern is committed. Rotate the key first, then move it to the environment.'},
+{id:'F2',cat:'security',sev:'medium',title:'Dependency with a known advisory',file:'requirements-dev.txt · example-lib',tool:'pip-audit',explain:'Upgrade to the fixed release and run the tests.'},
+{id:'F3',cat:'tests',sev:'high',title:'Changed often, never tested',file:'server/launcher.py',tool:'coverage.xml + git log',explain:'No line is covered and the file changed in 9 commits in 30 days. AP0201 will modify it.'},
+{id:'F4',cat:'weak',sev:'medium',title:'Hotspot: large file with high churn',file:'server/state.py',tool:'repo_map + git log',explain:'About 1,200 lines and first in the churn ranking. Splitting reads from writes would make later stories cheaper.'},
+{id:'F6',cat:'weak',sev:'low',title:'Long function with many branches',file:'server/launcher.py',tool:'radon',explain:'launch() has 14 branches. AP0201 adds vendor handling here; extract a resolver first.'},
+{id:'F5',cat:'workflow',sev:'low',title:'ADR still proposed',file:'reference/architecture/ADR-004-contract.md',tool:'make check',explain:'AP0201 depends on it. Accept or revise before its Spec is approved.'}];
+const TOUCH={AP0201:['server/launcher.py','server/models.py'],AP0202:['server/launcher.py','server/stream.py'],AP0301:['server/gates.py'],AP0302:['web/src/approvals'],AP0401:['server/insights.py']};
+const touches=c=>{const m=c.match(/AP\d{4}/);return m?(TOUCH[m[0]]||[]):[]};
+const JOURNAL=[['2026-10-19','context','Kickoff: vision and requirements drafted'],['2026-10-19','decision','Analyzers come from existing language tools'],['2026-10-16','weekly','2026-W42 summary'],['2026-10-12','learning','Skeleton tools need a versioned JSON output']];
+const S={screen:'overview',sel:'AP0201',selRun:14,approved:{},sentBack:{},launched:[],cat:'all',selF:'F1',cli:'claude-code',theme:'dark',view:(window.matchMedia&&matchMedia('(max-width:640px)').matches)?'list':'board',filter:'all',tab:'components',err:false,journalSel:0,diffOpen:{},group:'category',src:'generated',contract:'ok'};
+let timer=null,lastFocus=null;
+const cli=()=>CLIS.find(c=>c.key===S.cli);
+const model=t=>MODELS[cli().vendor][t];
+const tierOf=c=>{const h=c.split(' ')[0];return h==='/next'||h==='/weekly'?'fast':h==='/architecture'?'deep':'balanced'};
+const pill=o=>'pill '+({agent:'p-agent',human:'p-human',done:'p-done',blocked:'p-blocked'}[o]);
+const eff=s=>{const e={...s};if(S.approved[s.id]){if(s.id==='AP0201'){e.owner='agent';e.status='Approved → /run executes'}else{e.stage=5;e.owner='agent';e.status='Next: /run'}}else if(S.sentBack[s.id]){e.owner='agent';e.status='Sent back to agent'}return e};
+const announce=t=>{$('#live').textContent=t};
+const go=(s)=>{S.screen=s;closePal();setNav(false);render();$('#main').focus();window.scrollTo&&window.scrollTo(0,0)};
+function setNav(o){$('#nav').classList.toggle('open',o);$('#scrim').hidden=!o;$('#menu').setAttribute('aria-expanded',o);if(o){const b=$('#nav').querySelector('.nav.on')||$('#nav').querySelector('.nav');b&&b.focus()}}
+const open=id=>{S.sel=id;go('story')};
+function renderNav(){const pend=APPROVALS.filter(a=>!S.approved[a.id]&&!S.sentBack[a.id]).length;const cur=S.screen==='story'?'backlog':S.screen;
+$('#nav').innerHTML=`<div style="display:flex;gap:10px;align-items:center;padding:4px 10px 18px"><b style="color:var(--accent)">◆</b><span style="font-weight:600;font-size:15px">Console</span><span class="mono" style="margin-left:auto;font-size:11px;color:var(--muted)">v0.1</span></div>`+SCREENS.map(([k,n])=>`<button class="nav${cur===k?' on':''}" data-go="${k}" ${cur===k?'aria-current="page"':''}>${n}${k==='approvals'&&pend?`<span class="badge" aria-label="${pend} pending">${pend}</span>`:''}</button>`).join('')+`<div style="margin-top:auto;padding:18px 10px 4px;display:flex;flex-direction:column;gap:8px"><div class="eyebrow">Workspace</div><div style="display:flex;gap:8px;align-items:center;font-size:13px"><span class="pill p-done">make check</span><span style="color:var(--muted)">0 errors · 2 warnings</span></div><div class="mono" style="font-size:12px;color:var(--muted)">~/projects/agentic-portal · main</div></div>`}
+function nextStep(){if(S.approved.AP0201&&!S.launched.some(r=>r.cmd==='/run AP0201'))return{cmd:'/run AP0201',why:'The strategy is approved: the agent can write code, task by task, within the Spec.',mode:'developer',tier:'balanced'};
+return{cmd:'/brief AP0301',why:'AP0301 is refined and in the current sprint. Write its Brief and Spec, then stop for your review.',mode:'developer',tier:'balanced'}}
+const T=(t,x)=>`<span class="${x}">${esc(t)}</span>`;
+function hd(t,s,a=''){return `<div style="display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px"><div><h1 class="h1">${t}</h1><p class="sub">${s}</p></div><div style="flex:1"></div>${a}</div>`}
+function item(s){return `<button class="row stack" data-open="${s.id}"><span class="mono" style="color:var(--muted);width:64px">${s.id}</span><span style="flex:1">${esc(s.title)}</span><span class="${pill(s.owner)}">${esc(s.status)}</span></button>`}
+function renderOverview(){const n=nextStep(),st=STORIES.map(eff),pend=APPROVALS.filter(a=>!S.approved[a.id]&&!S.sentBack[a.id]);
+return hd('Overview','Where the project stands, computed from the repository (make next).')+`
+<div class="card" style="display:flex;flex-direction:column;gap:12px"><div class="eyebrow">Next step</div><div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center"><span class="mono" style="font-size:20px">${esc(n.cmd)}</span><span class="tag">${n.mode}</span><span class="tag">${n.tier} → ${model(n.tier)} via ${cli().bin}</span></div><p class="sub">${esc(n.why)}</p><div><button class="btn primary" data-launch="${esc(n.cmd)}">Run ${esc(n.cmd)}</button></div></div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px">
+<section class="card" aria-labelledby="ov-g"><h2 class="h2" id="ov-g">Waiting for you (${pend.length})</h2>${pend.length?pend.map(a=>`<button class="row stack2" data-go="approvals"><span class="pill p-human">${a.kind}</span><span style="flex:1">${esc(a.title)}</span></button>`).join(''):'<p class="sub" style="margin-top:8px">Nothing is waiting for a human decision.</p>'}</section>
+<section class="card" aria-labelledby="ov-s"><h2 class="h2" id="ov-s">Sprint 2</h2>${st.filter(s=>s.sprint==='S2').map(item).join('')}</section></div>
+<section class="card" aria-labelledby="ov-h"><h2 class="h2" id="ov-h">Health</h2><p class="sub">${FINDINGS.length} findings · 2 high · last scan today 08:10</p><button class="btn sm" data-go="insights" style="margin-top:8px">Open Insights</button></section>`}
+function renderPlan(){const sp=(n,d,c)=>`<div class="card"><div style="display:flex;gap:10px;align-items:center"><h3 class="h2">${n}</h3><span class="sub">${d}</span>${c?'<span class="pill p-agent">current</span>':''}</div>${STORIES.map(eff).filter(s=>s.sprint===n.replace('Sprint ','S')).map(item).join('')}</div>`;
+return hd('Plan','Releases and sprints from PLAN.md.')+`<h2 class="h2">R1 · Workflow core</h2><p class="sub">Dispatch state, runs and gates end to end.</p>${sp('Sprint 1','Oct 5 – Oct 16',false)}${sp('Sprint 2','Oct 19 – Oct 30',true)}<h2 class="h2">R2 · Codebase health</h2>${sp('Sprint 3','Nov 2 – Nov 13')}${sp('Sprint 4','Nov 16 – Nov 27')}`}
+function renderBacklog(){const st=STORIES.map(eff).filter(s=>S.filter==='all'||s.owner===S.filter);
+const chips=['all','agent','human','blocked','done'].map(f=>`<button class="chip${S.filter===f?' on':''}" data-filter="${f}" aria-pressed="${S.filter===f}">${f==='all'?'All':f[0].toUpperCase()+f.slice(1)}</button>`).join('');
+const body=S.view==='board'?`<div class="board" tabindex="0" aria-label="Board, scroll horizontally">${STAGES.map((n,i)=>{const c=st.filter(s=>s.stage===i);return `<div><div class="eyebrow" style="padding:4px 2px">${n} · ${c.length}</div><div style="display:flex;flex-direction:column;gap:8px">${c.map(s=>`<button class="bcard" data-open="${s.id}"><span class="mono" style="color:var(--muted)">${s.id} · ${s.size}</span><span>${esc(s.title)}</span><span class="${pill(s.owner)}">${esc(s.status)}</span></button>`).join('')}</div></div>`}).join('')}</div>`:`<div class="card">${st.map(item).join('')||'<p class="sub">No stories match this filter.</p>'}</div>`;
+return hd('Backlog','Epics and stories from backlog/stories.toml.',`<button class="btn sm" data-view="${S.view==='board'?'list':'board'}">${S.view==='board'?'List view':'Board view'}</button>`)+`<div class="chips" role="group" aria-label="Filter by owner">${chips}</div>`+(st.length||S.view==='board'?body:'')+(st.length?'':'<div class="card"><p class="sub">No stories match this filter.</p></div>')}
+function renderStory(){const b=STORIES.map(eff).find(s=>s.id===S.sel),d=GEN(b.id),ap=APPROVALS.find(a=>a.id===b.id),nx={0:'/analysis',1:'/refine',2:'/refine',3:'/brief',4:'/spec',5:'/run',6:'/review-story'}[b.stage];
+return `<div><button class="btn ghost sm" data-go="backlog">← Backlog</button></div>`+hd(`${b.id} · ${esc(b.title)}`,`${b.epic} · size ${b.size} · Sprint ${b.sprint.slice(1)} · ${b.deps?'depends on '+b.deps:'no dependencies'} · ${b.fr}`,`<span class="${pill(b.owner)}">${esc(b.status)}</span>`)+`
+<div class="card" role="list" aria-label="Artifact chain" style="display:flex;flex-wrap:wrap;gap:16px">${STAGES.map((n,i)=>`<div role="listitem" class="step${b.stage===7||i<b.stage?' done':i===b.stage?' cur':''}"><span class="dot">${i+1}</span>${n}</div>`).join('')}</div>
+${b.owner==='human'&&ap&&!S.approved[b.id]&&!S.sentBack[b.id]?`<div class="card" style="border-color:var(--orange)"><div class="eyebrow">Human gate</div><p>${esc(ap.title)}. <span class="mono">${ap.file}</span> — ${ap.where}</p><div class="actions" style="margin-top:10px"><button class="btn primary" data-approve="${b.id}">${ap.act}</button><button class="btn" data-sendback="${b.id}">Request changes</button></div></div>`:''}
+${b.owner==='agent'&&nx?`<div class="card"><div class="eyebrow">Next action</div><p class="mono">${nx} ${b.id}</p><p class="sub">Runs headless with the ${tierOf(nx)} tier (${model(tierOf(nx))}) and stops at the next human gate.</p><button class="btn primary" data-launch="${nx} ${b.id}" style="margin-top:8px">Run ${nx} ${b.id}</button></div>`:''}
+<div class="card"><div class="eyebrow">${d[0]}</div><div class="doc">${d[1].map(l=>`<div class="${l[0]}">${esc(l[1])}</div>`).join('')}</div></div>`}
+function renderApprovals(){const all=APPROVALS.map(a=>({...a,done:!!(S.approved[a.id]||S.sentBack[a.id])}));const pend=all.filter(a=>!a.done);
+return hd('Approvals','Human gates. Agents can never pass them; each action writes the same change a human would make.')+(pend.length?'':`<div class="card"><p class="sub">All gates passed. Nothing is waiting for you.</p></div>`)+all.map(a=>`<section class="card" style="display:flex;flex-direction:column;gap:10px"><div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="${a.done?(S.approved[a.id]?'pill p-done':'pill p-blocked'):'pill p-human'}">${a.kind}</span><span class="h2">${esc(a.title)}</span><span class="sub" style="margin-left:auto">${a.since}</span></div><div class="mono sub">${a.file} — ${a.where}</div>
+${a.done?`<p class="sub">${S.approved[a.id]?'Done — written to '+a.file+' by Alberto Galimberti (owner in project.toml), 2026-10-19 10:14.':'Sent back — the agent revises it on its next session.'}</p>`:`<button class="btn sm ghost" style="align-self:flex-start" data-diff="${a.id}" aria-expanded="${!!S.diffOpen[a.id]}">${S.diffOpen[a.id]?'Hide':'Show'} diff</button>${S.diffOpen[a.id]?`<div class="diff"><div class="m">${esc(a.minus)}</div><div class="p">${esc(a.plus)}</div></div>`:''}<div class="actions"><button class="btn primary sm" data-approve="${a.id}">${a.act}</button><button class="btn sm" data-sendback="${a.id}">Request changes</button>${/^AP/.test(a.id)?`<button class="btn sm ghost" data-open="${a.id}">View story</button>`:''}</div>`}</section>`).join('')}
+function scriptFor(cmd){const t=tierOf(cmd),m=model(t),h='$ '+cli().bin+' "'+cmd+'" --model '+m;
+const lines=cmd==='/run AP0201'?[['cmd',h],['dim','● RUN-AP0201 §2 approved by owner → execution'],['ok','✓ TSK-AP0201-03 tests first (failing as expected)'],['ok','✓ TSK-AP0201-01 step catalog'],['ok','✓ TSK-AP0201-02 tier → model · 14 tests passing'],['gate','■ human gate: tuning acceptance. Session paused.']]:[['cmd',h],['dim','● make next → context budget for '+cmd],['dim','● working…'],['ok','✓ done · files written are listed in the step report'],['gate','■ human gate: review the artifact. Session paused.']];
+return{cmd,tier:t,model:m,tool:cli().bin,lines,end:'gate',gateText:cmd+' finished and waits for your review.'}}
+function start(r){r.status='running';r.shown=1;r.dur='running';if(!timer)timer=setInterval(tick,520)}
+function tick(){S.launched.filter(x=>x.status==='running').forEach(x=>{x.shown++;if(x.shown>=x.lines.length){x.shown=x.lines.length;x.status=x.end;x.dur=(x.lines.length*.5)+' s (demo)';announce(x.cmd+' stopped at a human gate');release()}});if(!S.launched.some(x=>x.status==='running')){clearInterval(timer);timer=null}render()}
+function conflictOf(r){const p=touches(r.cmd);return S.launched.find(x=>x!==r&&x.status==='running'&&touches(x.cmd).some(f=>p.includes(f)))}
+function release(){S.launched.filter(x=>x.status==='queued').reverse().forEach(q=>{if(!conflictOf(q)){q.lines=q.lines.filter(l=>l[0]!=='queue');start(q)}})}
+function launch(cmd){const r={id:15+S.launched.length,when:'just now',...scriptFor(cmd)};S.launched.unshift(r);S.selRun=r.id;const c=conflictOf(r);
+if(c){const f=touches(cmd).filter(x=>touches(c.cmd).includes(x));r.status='queued';r.dur='queued';r.lines=[r.lines[0],['queue','◌ queued: overlaps run #'+c.id+' ('+c.cmd+') on '+f.join(', ')+' — starts when it ends']];r.shown=2;announce('Run queued: conflicts with run '+c.id)}else{start(r);announce('Run started: '+cmd)}
+S.screen='runs';closePal();render()}
+function cancel(id){const x=S.launched.find(r=>r.id===id);if(!x||!['running','queued'].includes(x.status))return;x.status='cancelled';x.lines=x.lines.slice(0,x.shown).concat([['warn','▲ cancelled by user']]);x.shown=x.lines.length;x.dur='cancelled';announce('Run cancelled');release();render()}
+function renderRuns(){const all=S.launched.concat(RUNS0.map(r=>({shown:r.lines.length,...r,model:model(r.tier)}))),SL={running:'Running',queued:'Queued',gate:'At gate',done:'Done',cancelled:'Cancelled'},SP={running:'pill p-agent',queued:'pill p-med',gate:'pill p-human',done:'pill p-done',cancelled:'pill p-blocked'},nRun=S.launched.filter(r=>r.status==='running').length;
+const c=all.find(r=>r.id===S.selRun)||all[0];
+return hd('Agent runs',`Headless sessions through ${cli().bin}. The model comes from the step tier in models.toml. ${nRun} running · runs go in parallel unless they touch the same files.`,`<button class="btn sm" data-launch="make check">Run make check</button>`)+`<div class="split"><div class="card" aria-label="Run history">${all.map(r=>`<button class="row${r.id===c.id?' on':''}" data-run="${r.id}"><span style="flex:1"><span class="mono">${esc(r.cmd)}</span><br><span class="sub">${r.when} · ${r.model||''}</span></span><span class="${SP[r.status]}">${SL[r.status]}</span></button>`).join('')}</div>
+<div style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><span class="mono h2">${esc(c.cmd)}</span><span class="tag">${c.tier} → ${c.model}</span><span class="tag">${c.dur}</span>${['running','queued'].includes(c.status)?`<button class="btn sm" data-cancel="${c.id}" style="margin-left:auto">Cancel run</button>`:''}</div>
+<div class="term" role="log" aria-label="Session output">${c.lines.slice(0,c.shown).map(l=>`<div class="${l[0]}">${esc(l[1])}</div>`).join('')}${c.status==='running'?'<span class="caret"></span>':''}</div>
+${c.status==='gate'?`<div class="card" style="border-color:var(--orange)"><div class="eyebrow">Waiting for human</div><p>${esc(c.gateText)}</p><button class="btn primary sm" data-go="approvals" style="margin-top:8px">Go to Approvals</button></div>`:''}</div></div>`}
+function renderInsights(){const L={all:'All',security:'Security',tests:'Untested code',weak:'Weak files',workflow:'Workflow'},f=FINDINGS.filter(x=>S.cat==='all'||x.cat===S.cat),sel=FINDINGS.find(x=>x.id===S.selF)||FINDINGS[0];
+return hd('Insights','Codebase health from analyzers installed for the project languages.',`<button class="btn sm" data-scan="1">Scan all analyzers</button>`)+(S.err?`<div class="card" role="alert" style="border-color:var(--orange)"><b>Scanner not installed:</b> <span class="mono">gitleaks</span> was skipped. Install it for the project language, then scan again.</div>`:'')+`<div class="toolbar"><div class="chips" role="group" aria-label="Category">${Object.keys(L).map(k=>`<button class="chip${S.cat===k?' on':''}" data-cat="${k}" aria-pressed="${S.cat===k}">${L[k]}</button>`).join('')}</div><div role="group" aria-label="Group by" style="display:flex;gap:4px;align-items:center"><span class="sub">Group by</span>${['category','file'].map(k=>`<button class="tab${S.group===k?' on':''}" data-group="${k}" aria-pressed="${S.group===k}">${k[0].toUpperCase()+k.slice(1)}</button>`).join('')}</div></div>
+<div class="split split-b"><div class="card">${(()=>{const row=x=>`<button class="row${x.id===sel.id?' on':''}" data-find="${x.id}"><span class="pill ${x.sev==='high'?'p-high':x.sev==='medium'?'p-med':'p-low'}">${x.sev}</span><span style="flex:1">${esc(x.title)}</span>${S.group==='file'?`<span class="tag">${L[x.cat]}</span>`:''}</button>`;if(!f.length)return '<p class="sub">No findings in this category.</p>';if(S.group==='category')return f.map(row).join('');const g={};f.forEach(x=>{const k=x.file.split(':')[0];(g[k]=g[k]||[]).push(x)});return Object.keys(g).sort((a,b)=>g[b].length-g[a].length).map(k=>`<div class="eyebrow mono" style="padding:10px 10px 4px;text-transform:none">${esc(k)} · ${g[k].length}</div>`+g[k].map(row).join('')).join('')})()}</div>
+<div class="card" style="display:flex;flex-direction:column;gap:10px"><h2 class="h2">${esc(sel.title)}</h2><div class="mono sub">${esc(sel.file)} · ${sel.tool}</div><p>${esc(sel.explain)}</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary sm" data-launch="/backlog from-finding ${sel.id}">Create a story (agent run)</button><button class="btn sm" data-launch="/review ${sel.id}">Ask the agent to explain</button></div></div></div>`}
+function renderArchitecture(){const tabs=['components','infrastructure'],box=(t,x,y)=>`<div class="dg" style="left:${x}px;top:${y}px">${t}</div>`;
+const srcs=[['generated','Generated from code'],['adr','From ADRs']];
+return hd('Architecture',S.src==='generated'?'Generated from the repository map and infra/ files.':'As documented in reference/architecture/ (ADR diagrams).',`<div role="group" aria-label="Diagram source" style="display:flex;gap:4px">${srcs.map(([k,n])=>`<button class="chip${S.src===k?' on':''}" data-src="${k}" aria-pressed="${S.src===k}">${n}</button>`).join('')}</div>`)+`<div role="tablist" style="display:flex;gap:4px">${tabs.map(t=>`<button role="tab" class="tab${S.tab===t?' on':''}" aria-selected="${S.tab===t}" data-tab="${t}">${t[0].toUpperCase()+t.slice(1)}</button>`).join('')}</div>
+<div class="card diagram" role="img" aria-label="${S.tab} diagram, ${S.src==='adr'?'from ADRs':'generated'}">${S.src==='adr'?`<span class="tag" style="position:absolute;right:12px;bottom:12px">ADR-002 · ADR-004 · 1 difference from code</span>`:''}<div class="canvas">${S.tab==='components'?box('Browser UI<span class=s>React bundle</span>',20,30)+box('Local server<span class=s>Python stdlib</span>',280,30)+box('Skeleton tools<span class=s>JSON contract</span>',540,30)+box('Repository files<span class=s>source of truth</span>',540,150)+box('Agent CLI<span class=s>headless</span>',280,150)+(S.src==='generated'?box('Scanners<span class=s>found on PATH</span>',20,150):''):box('Developer machine',20,30)+box('localhost:port + token',280,30)+box('Agent CLI process',540,30)+box('Scanners on PATH',280,150)}</div></div>`}
+function renderJournal(){const j=JOURNAL[S.journalSel];
+return hd('Journal','Project memory from project-journal/.')+`<div class="split"><div class="card">${JOURNAL.map((e,i)=>`<button class="row${i===S.journalSel?' on':''}" data-j="${i}"><span class="tag">${e[1]}</span><span style="flex:1">${esc(e[2])}</span><span class="sub mono">${e[0]}</span></button>`).join('')}</div><div class="card"><div class="eyebrow">project-journal/${j[1]}/${j[0]}</div><h2 class="h2" style="margin:8px 0">${esc(j[2])}</h2><p class="sub">Sample entry content.</p></div></div>`}
+function renderSettings(){return hd('Settings','Edits are written to project.toml and models.toml.')+`<div class="card" role="radiogroup" aria-label="Agent CLI"><h2 class="h2">Agent CLI</h2>${CLIS.map(c=>`<button class="row${c.key===S.cli?' on':''}" role="radio" aria-checked="${c.key===S.cli}" data-cli="${c.key}"><span style="flex:1">${c.name} <span class="mono sub">${c.bin}</span></span><span class="tag">${c.state}</span></button>`).join('')}</div>
+<div class="card" ${S.contract==='mismatch'?'role="alert" style="border-color:var(--orange)"':''}><h2 class="h2">Skeleton contract</h2>${S.contract==='ok'?`<div class="row"><span class="pill p-done">compatible</span><span>skeleton tools emit contract <span class="mono">v1.2</span>; portal expects <span class="mono">v1.x</span></span></div>`:`<div class="row"><span class="pill p-human">mismatch</span><span>skeleton tools emit contract <span class="mono">v2.0</span>; portal expects <span class="mono">v1.x</span>. Views that need changed fields are read-only until the portal bundle is updated (<span class="mono">make portal</span> pins the version).</span></div>`}<button class="btn sm ghost" style="margin-top:6px" data-contract="1">Simulate ${S.contract==='ok'?'mismatch':'compatible'}</button></div>
+<div class="card"><h2 class="h2">Models per tier</h2>${['fast','balanced','deep'].map(t=>`<div class="row"><span style="width:90px">${t}</span><span class="mono">${model(t)}</span></div>`).join('')}</div>
+<div class="card"><h2 class="h2">Project</h2><div class="row"><span style="width:120px">Language</span><span class="mono">en</span></div><div class="row"><span style="width:120px">ID prefix</span><span class="mono">AP</span></div><div class="row"><span style="width:120px">Owner</span><span class="mono">Alberto Galimberti</span></div><div class="row"><span style="width:120px">Theme</span><button class="btn sm" data-theme="1">Toggle ${S.theme==='dark'?'light':'dark'}</button></div></div>`}
+const R={overview:renderOverview,plan:renderPlan,backlog:renderBacklog,story:renderStory,approvals:renderApprovals,runs:renderRuns,insights:renderInsights,architecture:renderArchitecture,journal:renderJournal,settings:renderSettings};
+function render(){$('#app').classList.toggle('light',S.theme==='light');renderNav();$('#main').innerHTML=R[S.screen]()}
+// palette
+const cmds=()=>SCREENS.map(([k,n])=>({l:'Go to '+n,f:()=>go(k)})).concat(STORIES.map(s=>({l:s.id+' '+s.title,f:()=>open(s.id)})),[{l:'Run '+nextStep().cmd,f:()=>launch(nextStep().cmd)},{l:'Run make check',f:()=>launch('make check')},{l:'Toggle theme',f:()=>{S.theme=S.theme==='dark'?'light':'dark';closePal();render()}}]);
+let pi=0,pf=[];
+function palList(){const q=$('#palq').value.toLowerCase();pf=cmds().filter(c=>c.l.toLowerCase().includes(q));pi=Math.min(pi,Math.max(pf.length-1,0));$('#pall').innerHTML=pf.map((c,i)=>`<button class="row${i===pi?' on':''}" data-pc="${i}">${esc(c.l)}</button>`).join('')||'<p class="sub" style="padding:10px">No results.</p>'}
+function openPal(){lastFocus=document.activeElement;$('#pal').hidden=false;$('#palq').value='';pi=0;palList();$('#palq').focus()}
+function closePal(){if(!$('#pal').hidden){$('#pal').hidden=true;lastFocus&&lastFocus.focus&&lastFocus.focus()}}
+document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();$('#pal').hidden?openPal():closePal();return}
+if(e.key==='Escape'&&$('#nav').classList.contains('open')){setNav(false);$('#menu').focus();return}
+if($('#pal').hidden)return;if(e.key==='Escape')closePal();if(e.key==='ArrowDown'){e.preventDefault();pi=Math.min(pi+1,pf.length-1);palList()}if(e.key==='ArrowUp'){e.preventDefault();pi=Math.max(pi-1,0);palList()}if(e.key==='Enter'&&pf[pi]){const f=pf[pi].f;$('#pal').hidden=true;f()}});
+$('#palq').addEventListener('input',()=>{pi=0;palList()});
+document.addEventListener('click',e=>{const t=e.target.closest('[data-go],[data-open],[data-launch],[data-approve],[data-sendback],[data-filter],[data-view],[data-run],[data-cat],[data-find],[data-tab],[data-j],[data-cli],[data-theme],[data-diff],[data-cancel],[data-group],[data-src],[data-contract],[data-scan],[data-pc],#openPal,#theme');if(e.target.closest('#menu'))return setNav(true);if(e.target.id==='scrim')return setNav(false);
+if(!t){if(e.target.id==='pal')closePal();return}
+const d=t.dataset;if(t.id==='openPal')return openPal();if(t.id==='theme'||d.theme){S.theme=S.theme==='dark'?'light':'dark';return render()}
+if(d.pc!==undefined){const f=pf[+d.pc].f;$('#pal').hidden=true;return f()}
+if(d.go)return go(d.go);if(d.open)return open(d.open);if(d.launch)return launch(d.launch);
+if(d.approve){S.approved[d.approve]=true;announce('Approved and written to the artifact');return render()}
+if(d.sendback){S.sentBack[d.sendback]=true;announce('Changes requested');return render()}
+if(d.filter){S.filter=d.filter}else if(d.view){S.view=d.view}else if(d.run){S.selRun=+d.run}else if(d.cat){S.cat=d.cat}else if(d.find){S.selF=d.find}else if(d.tab){S.tab=d.tab}else if(d.j){S.journalSel=+d.j}else if(d.cli){S.cli=d.cli}else if(d.diff){S.diffOpen[d.diff]=!S.diffOpen[d.diff]}else if(d.cancel){return cancel(+d.cancel)}else if(d.scan){S.err=true}else if(d.group){S.group=d.group}else if(d.src){S.src=d.src}else if(d.contract){S.contract=S.contract==='ok'?'mismatch':'ok'}
+render()});
+render();
+</script>
+</body>
+</html>

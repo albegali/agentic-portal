@@ -54,7 +54,7 @@ backlog/stories.toml → STORY_CP0101_… → ANALYSIS_CP0101_… → REFINED_CP
 
 | Need | Why | Check |
 |---|---|---|
-| Python ≥ 3.11 | workflow tools (stdlib only, nothing to install) | `python3 --version` |
+| Python ≥ 3.14 | workflow tools (stdlib only, nothing to install) | `python3 --version` |
 | `make` | entry points | `make --version` |
 | git | versioning, `git diff` for reviews | `git --version` |
 | At least one agent tool | Claude Code, Codex CLI, GitHub Copilot (VS Code) or Cursor | see §4 |
@@ -506,7 +506,7 @@ Resolve generated files by running `make agents` rather than merging them by han
 | Copilot: wrong or unknown model | the labels in `models.toml` `[tools.copilot] models` must match your Copilot model picker; fix them, then `make agents` |
 | Copilot: prompts not listed | use agent mode in Copilot Chat; enable prompt files in the VS Code settings |
 | `make setup/test/lint`: "not defined yet" | run `/architecture`, or fill `project.toml` `[stack]` |
-| `tomllib` not found | Python < 3.11: upgrade |
+| `tomllib` not found | Python < 3.14: upgrade |
 
 ---
 

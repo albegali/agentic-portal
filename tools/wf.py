@@ -1,4 +1,4 @@
-"""Shared helpers for the workflow tools (stdlib only, Python >= 3.11).
+"""Shared helpers for the workflow tools (stdlib only, Python >= 3.14).
 
 The repository root is the parent of tools/, or $WF_ROOT when set (used by the tests).
 """

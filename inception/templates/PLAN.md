@@ -25,7 +25,7 @@ last_updated: YYYY-MM-DD
 | Sprint | Dates | Goal | Stories |
 |---|---|---|---|
 | S0 | DD/MM – DD/MM | Analysis | Analysis and workshops of S1–S2 |
-| S1 | DD/MM – DD/MM | Foundations | PR0101 |
+| S1 | DD/MM – DD/MM | Foundations | AP0101 |
 
 ## 4. Risks and assumptions
 - …

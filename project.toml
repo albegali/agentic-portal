@@ -2,13 +2,13 @@
 # Scripts read this file: keep keys in English.
 
 [project]
-initialized = false          # set to true by tools/init_project.py
+initialized = true          # set to true by tools/init_project.py
 origin = "greenfield"        # greenfield | brownfield (existing codebase, set by tools/adopt.py)
-name = "my-project"
-description = ""
-id_prefix = "PR"             # story IDs: <prefix><epic 2 digits><story 2 digits>, e.g. PR0101
+name = "Agentic Portal"
+description = "Local developer-experience portal on top of the agentic-skeleton workflow: state, plan, backlog, agent runs, human gates and codebase health."
+id_prefix = "AP"             # story IDs: <prefix><epic 2 digits><story 2 digits>, e.g. PR0101
 language = "en"              # language of artifact content (templates/headings stay English)
-owner = ""                   # product owner / approver, recorded in approvals
+owner = "Alberto Galimberti"                   # product owner / approver, recorded in approvals
 tracker = "local"            # local | <adapter name>; see tools/README.md "Tracker adapters"
 
 [inception]
@@ -17,7 +17,7 @@ mockup = true                # include the /mockup step in the lifecycle
 [stack]
 # Filled by /architecture once the ADRs are approved. Used by Makefile targets setup / test / lint.
 decided = false
-summary = ""
-setup = ""
-test = ""
-lint = ""
+summary = "Local web app: Python >=3.14 stdlib server (server/) + React/Vite/TypeScript static bundle (web/); skeleton tools via versioned JSON contract; SSE; .portal/ state. See reference/architecture/."
+setup = "npm --prefix web ci"
+test = "python3 -m unittest discover -s server/tests -q && npm --prefix web test -- --run"
+lint = "python3 -m compileall -q server && npm --prefix web run lint && npm --prefix web run typecheck"

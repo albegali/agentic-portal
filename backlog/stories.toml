@@ -1,0 +1,770 @@
+# Backlog source of truth. Generate the views with `make backlog`; check with `make check`.
+# Story ID: <id_prefix><epic 2 digits><story 2 digits>, e.g. AP0101 (project.toml → id_prefix).
+# Ordering rule: every dependency has a lower ID than the story that needs it (no back-and-forth).
+
+status = "approved"   # draft | approved
+
+[[epic]]
+id = "EP-01"
+name = "Technical foundations"
+description = "Walking skeleton, local security baseline, skeleton contract, distribution bundle and launcher, app shell."
+
+[[epic]]
+id = "EP-02"
+name = "Workflow state and navigation"
+description = "Read-only views of project state: overview, plan, backlog, story chain, journal, palette."
+
+[[epic]]
+id = "EP-03"
+name = "Agent runs"
+description = "Launch workflow steps through agent CLIs headless, stream, audit, cancel, stop at gates."
+
+[[epic]]
+id = "EP-04"
+name = "Human gates"
+description = "Approvals inbox, preview with diff, approve and request changes, agents never pass gates."
+
+[[epic]]
+id = "EP-05"
+name = "Codebase health"
+description = "Analyzer framework and insights: weak files, security, untested code, diagrams, findings to actions."
+
+[[epic]]
+id = "EP-06"
+name = "Settings and preferences"
+description = "Edit project and model settings, theme."
+
+[[story]]
+id = "AP0101"
+epic = "EP-01"
+slug = "walking-skeleton"
+title = "Walking skeleton"
+type = "technical"
+as_a = "development team"
+i_want = "a Python stdlib server on 127.0.0.1 serving a Vite/React page and GET /api/health, with build, tests and CI that produce a release bundle zip"
+so_that = "every later story has its place ready and a runnable artifact exists from day one"
+priority = "Must"
+release = "R1"
+size = "M"
+fr = []
+nfr = ["NFR-01", "NFR-08", "NFR-09"]
+deps = []
+ac = [
+  ["the cloned repository", "I run `make setup && make test`", "server and web tests pass"],
+  ["a merge on main", "the pipeline runs", "build, lint, tests are green and a bundle zip with SHA-256 is produced"],
+  ["the server started from the bundle", "I open its URL without Node installed", "the page loads and /api/health returns portal, contract and skeleton versions"],
+  ["the dependency check in CI", "server/ imports a third-party package", "the pipeline fails"],
+]
+notes = "Layout per architecture.md §2 (server/, web/). Health shape per architecture §6."
+out_of_scope = "Domain features, authentication."
+
+[[story]]
+id = "AP0102"
+epic = "EP-01"
+slug = "local-security-baseline"
+title = "Local security baseline"
+type = "technical"
+as_a = "owner at the machine"
+i_want = "loopback-only binding, a per-session token, Host/Origin checks and CSRF protection on every API route"
+so_that = "no other process or web page can read or change my repository through the portal"
+priority = "Must"
+release = "R1"
+size = "M"
+fr = []
+nfr = ["NFR-01", "NFR-02", "NFR-03"]
+deps = ["AP0101"]
+ac = [
+  ["the server running", "I scan listeners", "only 127.0.0.1 is bound"],
+  ["a request without or with a wrong token", "it reaches any /api route", "it is rejected and logged to stderr without the token"],
+  ["a state-changing request with a foreign Origin or Host", "it reaches the server", "it is rejected"],
+  ["a write path outside the repo root, including traversal", "a write is attempted", "it is refused and nothing is written"],
+]
+notes = "ADR-006. Token travels URL fragment → sessionStorage → bearer header; gate nonce is handled in EP-04."
+out_of_scope = "Gate confirm nonce, agent allow-list."
+
+[[story]]
+id = "AP0103"
+epic = "EP-01"
+slug = "upstream-json-envelope"
+title = "Upstream: --json envelope and JSON Schemas"
+type = "technical"
+as_a = "portal (consumer of agentic-skeleton)"
+i_want = "the skeleton tools the portal reads (next, backlog, check, plan, journal, story chain) to emit a versioned --json envelope with published JSON Schemas"
+so_that = "the portal reads state without parsing Markdown"
+priority = "Must"
+release = "R1"
+size = "L"
+fr = ["FR-27", "FR-25"]
+nfr = ["NFR-13", "NFR-14"]
+deps = []
+ac = [
+  ["a skeleton tool with --json", "it runs", "it prints an envelope with `contract: 1.x` that validates against its schema"],
+  ["a breaking output change", "it is released", "the contract major version is bumped"],
+  ["the skeleton CI", "it runs", "schema tests for every envelope are green and a tagged release exists"],
+]
+notes = "ADR-002. Delivered in the agentic-skeleton repository (NFR-14); the portal pins the released skeleton version."
+out_of_scope = "Write commands, launcher."
+
+[[story]]
+id = "AP0104"
+epic = "EP-01"
+slug = "skeleton-contract-client"
+title = "Skeleton contract client"
+type = "technical"
+as_a = "portal server"
+i_want = "to call skeleton tools through the versioned --json envelope, validate it against the JSON Schemas and check the contract version"
+so_that = "the portal never parses Markdown and detects incompatible skeleton versions"
+priority = "Must"
+release = "R1"
+size = "L"
+fr = ["FR-27", "FR-25"]
+nfr = ["NFR-13"]
+deps = ["AP0101", "AP0103"]
+ac = [
+  ["a recorded envelope of every contract tool", "the contract tests run", "each validates against its schema"],
+  ["a skeleton whose contract major differs", "the portal starts", "a clear incompatibility message is shown and data calls are refused"],
+  ["a compatible minor version with unknown extra fields", "the portal reads it", "it works"],
+]
+notes = "ADR-002. Consumes the envelope released by AP0103."
+out_of_scope = "Gate writes, run launching."
+
+[[story]]
+id = "AP0105"
+epic = "EP-01"
+slug = "upstream-gates-tool"
+title = "Upstream: gates.py"
+type = "technical"
+as_a = "portal (consumer of agentic-skeleton)"
+i_want = "a gates.py tool that lists pending human gates and records approve or request-changes exactly as a human edit, attributed to the project.toml owner with date"
+so_that = "the portal never edits workflow files directly"
+priority = "Must"
+release = "R1"
+size = "M"
+fr = ["FR-13", "FR-14"]
+nfr = ["NFR-03", "NFR-14"]
+deps = ["AP0103"]
+ac = [
+  ["a repository with pending gates", "I run `gates.py list --json`", "each gate is listed with artifact, gate type and age in the envelope"],
+  ["a pending gate", "I run `gates.py approve`", "only the gate field changes and owner and date are recorded"],
+  ["a pending gate", "I run `gates.py request-changes` with a comment", "the comment is recorded and no approval is written"],
+]
+notes = "ADR-002, ADR-006. Delivered in the agentic-skeleton repository (NFR-14); the portal pins the released skeleton version."
+out_of_scope = "Portal UI, agent-caller checks."
+
+[[story]]
+id = "AP0106"
+epic = "EP-01"
+slug = "upstream-portal-launcher"
+title = "Upstream: portal.py launcher and make portal"
+type = "technical"
+as_a = "portal (consumer of agentic-skeleton)"
+i_want = "tools/portal.py and the `make portal` target in the skeleton to download the pinned bundle, verify SHA-256, cache it in .portal/<version>/ and start it"
+so_that = "every workflow repository can start the portal"
+priority = "Must"
+release = "R1"
+size = "M"
+fr = ["FR-23"]
+nfr = ["NFR-09", "NFR-10", "NFR-14"]
+deps = []
+ac = [
+  ["project.toml [portal] version set", "I run `make portal`", "the bundle is downloaded, verified, cached and started"],
+  ["a tampered download", "the checksum is compared", "launch aborts with a message"],
+  ["Windows without make", "I run `python tools/portal.py`", "the same happens"],
+  ["Python older than 3.14", "the launcher runs", "it stops and states the requirement"],
+]
+notes = "ADR-003. Delivered in the agentic-skeleton repository (NFR-14); the portal pins the released skeleton version."
+out_of_scope = "Bundle build (portal release pipeline)."
+
+[[story]]
+id = "AP0107"
+epic = "EP-01"
+slug = "bundle-launcher"
+title = "Release bundle for make portal"
+type = "technical"
+as_a = "developer using the workflow"
+i_want = "the portal release pipeline to publish a versioned bundle zip with SHA-256 manifest that the skeleton launcher starts"
+so_that = "I get the portal with zero setup and no Node"
+priority = "Must"
+release = "R1"
+size = "M"
+fr = ["FR-23"]
+nfr = ["NFR-09", "NFR-10"]
+deps = ["AP0101", "AP0106"]
+ac = [
+  ["a tag on main", "the release pipeline runs", "a GitHub Release with the bundle zip and SHA-256 manifest is published"],
+  ["the published version pinned in a fixture repository", "I run `make portal`", "the portal starts for that repo without Node"],
+  ["a bundle built for one contract major", "the skeleton reports another", "the portal shows an incompatibility message"],
+]
+notes = "ADR-003. Launcher is AP0106."
+out_of_scope = "Launcher code, auto-update."
+
+[[story]]
+id = "AP0108"
+epic = "EP-01"
+slug = "app-shell-accessibility"
+title = "App shell and accessibility baseline"
+type = "technical"
+as_a = "developer using the workflow"
+i_want = "a keyboard-operable shell with navigation, CSS tokens from the mockup, and automated accessibility checks"
+so_that = "every screen starts accessible and consistent"
+priority = "Must"
+release = "R1"
+size = "M"
+fr = []
+nfr = ["NFR-11", "NFR-06"]
+deps = ["AP0101"]
+ac = [
+  ["the shell", "I use only the keyboard", "all navigation is reachable with visible focus"],
+  ["any screen in light and dark tokens", "axe-core runs in Playwright", "no WCAG 2.2 AA violations"],
+  ["a 375 px viewport", "the shell renders", "no horizontal scroll and navigation remains usable"],
+]
+notes = "Tokens and behaviors per reference/product/mockup-reference.md."
+out_of_scope = "Individual screens."
+
+[[story]]
+id = "AP0201"
+epic = "EP-02"
+slug = "overview-next-step"
+title = "Overview with next step"
+type = "feature"
+as_a = "developer using the workflow"
+i_want = "to see lifecycle stage, next command, mode and tier on the overview"
+so_that = "I know what to do without exploring files"
+priority = "Must"
+release = "R1"
+size = "S"
+fr = ["FR-01"]
+nfr = ["NFR-06"]
+deps = ["AP0104", "AP0108"]
+ac = [
+  ["a repository in a given state", "I open Overview", "stage, next command, mode and tier match `make next`"],
+  ["state changes on disk", "I reload", "the new state shows"],
+  ["the contract call fails", "I open Overview", "an error state with the reason is shown"],
+]
+notes = ""
+out_of_scope = "Launching the step."
+
+[[story]]
+id = "AP0202"
+epic = "EP-02"
+slug = "plan-view"
+title = "Plan view"
+type = "feature"
+as_a = "developer using the workflow"
+i_want = "to see releases and sprints from PLAN.md"
+so_that = "I see delivery sequence and dependencies"
+priority = "Must"
+release = "R1"
+size = "S"
+fr = ["FR-02"]
+nfr = ["NFR-06"]
+deps = ["AP0104", "AP0108"]
+ac = [
+  ["a PLAN.md with releases and sprints", "I open Plan", "they render in order"],
+  ["a story in a sprint", "I click it", "I go to its detail"],
+  ["no PLAN.md yet", "I open Plan", "an empty state points to /release-plan"],
+]
+notes = ""
+out_of_scope = "Editing the plan."
+
+[[story]]
+id = "AP0203"
+epic = "EP-02"
+slug = "backlog-view"
+title = "Backlog view"
+type = "feature"
+as_a = "developer using the workflow"
+i_want = "to list epics and stories with status, filters and sorting"
+so_that = "I have one backlog overview"
+priority = "Must"
+release = "R1"
+size = "M"
+fr = ["FR-03"]
+nfr = ["NFR-06"]
+deps = ["AP0104", "AP0108"]
+ac = [
+  ["backlog/stories.toml", "I open Backlog", "epics and stories show with counts equal to `make backlog`"],
+  ["the list", "I filter by epic, status or owner mode and sort", "only matching stories show"],
+  ["a story row", "I open it", "its detail opens"],
+]
+notes = ""
+out_of_scope = "Editing stories."
+
+[[story]]
+id = "AP0204"
+epic = "EP-02"
+slug = "story-detail"
+title = "Story detail and chain"
+type = "feature"
+as_a = "developer using the workflow"
+i_want = "to see Story, Analysis, Refined Story, Brief, Spec, RUN and tasks of one ID with status and content"
+so_that = "I follow one story end to end"
+priority = "Must"
+release = "R1"
+size = "M"
+fr = ["FR-04"]
+nfr = ["NFR-06"]
+deps = ["AP0203"]
+ac = [
+  ["a story with some chain artifacts", "I open its detail", "each existing artifact is reachable with status and rendered content"],
+  ["a step with no artifact yet", "I open the detail", "it shows as pending"],
+  ["a Markdown artifact with a table and code", "it renders", "it is readable and safe (no script execution)"],
+]
+notes = ""
+out_of_scope = "Editing artifacts."
+
+[[story]]
+id = "AP0205"
+epic = "EP-02"
+slug = "journal-view"
+title = "Journal view"
+type = "feature"
+as_a = "developer using the workflow"
+i_want = "to browse context, decisions, learnings, weekly and monthly entries"
+so_that = "project memory is browsable"
+priority = "Should"
+release = "R2"
+size = "S"
+fr = ["FR-05"]
+nfr = []
+deps = ["AP0104", "AP0108"]
+ac = [
+  ["entries in project-journal/", "I open Journal", "they are listed by date and type"],
+  ["an entry", "I open it", "its content renders"],
+]
+notes = ""
+out_of_scope = "Writing entries."
+
+[[story]]
+id = "AP0206"
+epic = "EP-02"
+slug = "command-palette"
+title = "Command palette"
+type = "feature"
+as_a = "developer using the workflow"
+i_want = "a keyboard palette to navigate screens, stories and actions"
+so_that = "I work with console-like speed"
+priority = "Should"
+release = "R2"
+size = "S"
+fr = ["FR-06"]
+nfr = ["NFR-11"]
+deps = ["AP0203"]
+ac = [
+  ["any screen", "I press the shortcut", "the palette opens and traps focus"],
+  ["the palette", "I type a story ID or screen name", "matching results show and Enter navigates"],
+  ["the palette", "I press Escape", "it closes and focus returns"],
+]
+notes = "Launch actions are added by EP-03 stories."
+out_of_scope = "Launching runs."
+
+[[story]]
+id = "AP0207"
+epic = "EP-02"
+slug = "any-repository"
+title = "Works in greenfield and adopted repositories"
+type = "feature"
+as_a = "developer using the workflow"
+i_want = "the portal to run on a greenfield and on a repo adopted with `make adopt`, keeping no state of its own about the project"
+so_that = "I can use it in any workflow repository"
+priority = "Must"
+release = "R1"
+size = "M"
+fr = ["FR-24", "FR-25"]
+nfr = []
+deps = ["AP0201", "AP0203"]
+ac = [
+  ["a greenfield fixture repository", "I start the portal", "overview and backlog work"],
+  ["an adopted (brownfield) fixture repository", "I start the portal", "overview and backlog work"],
+  ["I delete .portal/", "I restart", "project state shown is unchanged"],
+]
+notes = "Both fixtures live in server/tests and e2e."
+out_of_scope = "New views."
+
+[[story]]
+id = "AP0301"
+epic = "EP-03"
+slug = "launch-workflow-step"
+title = "Launch workflow step"
+type = "feature"
+as_a = "developer using the workflow"
+i_want = "to launch a step (kickoff, requirements, brief, run…) on a story or gate through an allow-listed agent CLI headless, claude -p or codex exec"
+so_that = "I run the workflow without a terminal"
+priority = "Must"
+release = "R1"
+size = "L"
+fr = ["FR-07", "FR-09"]
+nfr = ["NFR-04"]
+deps = ["AP0102", "AP0104", "AP0201"]
+ac = [
+  ["a step whose preconditions hold", "I launch it", "the configured CLI starts with that step's command in the repo"],
+  ["preconditions fail (e.g. no approved RUN strategy)", "I launch", "it is refused with the reason"],
+  ["project.toml tools switched from claude to codex", "I launch", "the launched command changes accordingly"],
+  ["a request naming a command not on the allow-list", "it reaches the API", "it is rejected"],
+]
+notes = "ADR-004: queue, scope locks, adapters. Streaming is AP0303. Agents never receive the portal token."
+out_of_scope = "Streaming UI, cancel."
+
+[[story]]
+id = "AP0302"
+epic = "EP-03"
+slug = "tier-model-selection"
+title = "Tier model selection"
+type = "feature"
+as_a = "developer using the workflow"
+i_want = "the model to come from the step's tier in models.toml for the configured vendor and be shown before launch"
+so_that = "token discipline is respected"
+priority = "Must"
+release = "R1"
+size = "S"
+fr = ["FR-08"]
+nfr = []
+deps = ["AP0301"]
+ac = [
+  ["a step of tier balanced", "the launch dialog opens", "the model from models.toml for the vendor is displayed"],
+  ["models.toml changed", "I open the dialog again", "the new model shows"],
+  ["a tier or vendor missing in models.toml", "I launch", "it is refused with a clear message"],
+]
+notes = ""
+out_of_scope = "Editing models.toml (AP0601)."
+
+[[story]]
+id = "AP0303"
+epic = "EP-03"
+slug = "session-streaming-history"
+title = "Session streaming and run history"
+type = "feature"
+as_a = "developer using the workflow"
+i_want = "live output of a running session and a history of runs with status, step, model, duration and trigger"
+so_that = "I observe and audit runs"
+priority = "Must"
+release = "R1"
+size = "L"
+fr = ["FR-10"]
+nfr = ["NFR-05", "NFR-07", "NFR-12"]
+deps = ["AP0301", "AP0108"]
+ac = [
+  ["a running session", "it prints output", "the UI shows it live over SSE and a reload replays it"],
+  ["output containing a seeded secret pattern", "it is stored and streamed", "the secret is redacted in both"],
+  ["a finished run", "I open History", "step, model, start/end, outcome and who triggered it are listed"],
+  ["a fake CLI in tests", "it ends", "a run record exists for 100% of runs"],
+]
+notes = "Records in .portal/runs/ (ADR-008)."
+out_of_scope = "Cancel, gates."
+
+[[story]]
+id = "AP0304"
+epic = "EP-03"
+slug = "cancel-run"
+title = "Cancel run"
+type = "feature"
+as_a = "developer using the workflow"
+i_want = "to cancel a running session"
+so_that = "I control cost and mistakes"
+priority = "Must"
+release = "R1"
+size = "S"
+fr = ["FR-12"]
+nfr = ["NFR-12"]
+deps = ["AP0303"]
+ac = [
+  ["a running session", "I cancel it", "the process tree is terminated"],
+  ["the cancel", "it completes", "the run is marked cancelled and the log is kept"],
+  ["a finished run", "I try to cancel", "the action is not offered"],
+]
+notes = ""
+out_of_scope = "Resume of cancelled runs."
+
+[[story]]
+id = "AP0305"
+epic = "EP-03"
+slug = "stop-at-gates"
+title = "Stop at human gates"
+type = "feature"
+as_a = "developer using the workflow"
+i_want = "a run to end in a 'waiting for human' state at every gate"
+so_that = "gates are never bypassed"
+priority = "Must"
+release = "R1"
+size = "M"
+fr = ["FR-11"]
+nfr = []
+deps = ["AP0105", "AP0303"]
+ac = [
+  ["a run reaching a human gate (e.g. Spec Ready)", "the agent stops", "the run ends in state waiting for human with the gate reference from gates.py"],
+  ["a waiting run", "the gate is later decided through gates.py", "the run record shows the outcome"],
+]
+notes = "Gate detection via gates.py (AP0105). Listing in the inbox is AP0401."
+out_of_scope = "Auto-continue after approval."
+
+[[story]]
+id = "AP0401"
+epic = "EP-04"
+slug = "approvals-inbox"
+title = "Approvals inbox"
+type = "feature"
+as_a = "developer using the workflow"
+i_want = "to list all pending gates: inception approvals, workshop, Spec Ready, RUN strategy, tuning acceptance"
+so_that = "I never miss a gate"
+priority = "Must"
+release = "R1"
+size = "M"
+fr = ["FR-13"]
+nfr = ["NFR-06"]
+deps = ["AP0104", "AP0105", "AP0108", "AP0305"]
+ac = [
+  ["pending gates in the repository", "I open Approvals", "each shows artifact, what is approved and age"],
+  ["no pending gate", "I open Approvals", "an empty state is shown"],
+  ["a gate row", "I open it", "I see its preview (AP0402)"],
+  ["a run waiting for human", "I open Approvals", "its gate links to the run"],
+]
+notes = ""
+out_of_scope = "Deciding gates."
+
+[[story]]
+id = "AP0402"
+epic = "EP-04"
+slug = "artifact-preview-diff"
+title = "Artifact preview and diff"
+type = "feature"
+as_a = "developer using the workflow"
+i_want = "to see the artifact and its diff since last review before deciding"
+so_that = "I approve with full information"
+priority = "Must"
+release = "R1"
+size = "M"
+fr = ["FR-16"]
+nfr = []
+deps = ["AP0401"]
+ac = [
+  ["a gate on a modified artifact", "I open it", "content and diff since the last review show"],
+  ["a new artifact", "I open it", "full content shows with no diff"],
+]
+notes = "Diff base from git or recorded review point, per ADR-008."
+out_of_scope = "Deciding."
+
+[[story]]
+id = "AP0403"
+epic = "EP-04"
+slug = "approve-request-changes"
+title = "Approve and request changes"
+type = "feature"
+as_a = "developer using the workflow"
+i_want = "approve and request-changes actions that write exactly what a human edit would, attributed to the project.toml owner with date"
+so_that = "gates are explicit actions"
+priority = "Must"
+release = "R1"
+size = "L"
+fr = ["FR-14"]
+nfr = ["NFR-03", "NFR-02"]
+deps = ["AP0102", "AP0105", "AP0402"]
+ac = [
+  ["a pending gate", "I confirm Approve", "only the gate field changes (e.g. status: approved) with owner and date recorded"],
+  ["a pending gate", "I request changes with a comment", "the comment is recorded and no approval is written"],
+  ["a gate action without the UI confirm nonce", "it is sent", "it is rejected"],
+]
+notes = "Writes go through gates.py (AP0105)."
+out_of_scope = "Approving on behalf of other users."
+
+[[story]]
+id = "AP0404"
+epic = "EP-04"
+slug = "agents-cannot-pass-gates"
+title = "Agents cannot pass gates"
+type = "technical"
+as_a = "owner"
+i_want = "gate endpoints to reject any call originating from an agent session"
+so_that = "the hard boundary of AGENTS.md §3 holds"
+priority = "Must"
+release = "R1"
+size = "M"
+fr = ["FR-15"]
+nfr = ["NFR-02", "NFR-04"]
+deps = ["AP0301", "AP0403"]
+ac = [
+  ["a process launched by the run manager", "it calls a gate endpoint", "the call is rejected"],
+  ["the agent environment", "it is inspected", "it holds no portal token or nonce"],
+  ["the test suite", "it simulates an agent caller on every gate path", "all are rejected"],
+]
+notes = ""
+out_of_scope = "New gate types."
+
+[[story]]
+id = "AP0501"
+epic = "EP-05"
+slug = "analyzer-framework"
+title = "Analyzer framework"
+type = "technical"
+as_a = "portal server"
+i_want = "a finding model and adapters that call analyzers present on PATH or read their report files"
+so_that = "insight screens share one pipeline and a missing scanner is reported, not fatal"
+priority = "Should"
+release = "R2"
+size = "L"
+fr = ["FR-22"]
+nfr = ["NFR-08"]
+deps = ["AP0104", "AP0108"]
+ac = [
+  ["an analyzer not installed", "the scan runs", "the missing tool is reported and other analyzers continue"],
+  ["a recorded SARIF/JSON output", "it is parsed", "findings with severity, location and source analyzer are stored in .portal/findings.json"],
+  ["an installed analyzer", "it exits non-zero or times out", "the failure is reported, not fatal"],
+]
+notes = "ADR-007; analyzers chosen per stack from /architecture."
+out_of_scope = "Specific insight screens."
+
+[[story]]
+id = "AP0502"
+epic = "EP-05"
+slug = "weak-files"
+title = "Weak files"
+type = "feature"
+as_a = "developer using the workflow"
+i_want = "a ranked list of large, complex or frequently changed files"
+so_that = "I find risk hotspots"
+priority = "Should"
+release = "R2"
+size = "M"
+fr = ["FR-17"]
+nfr = []
+deps = ["AP0501"]
+ac = [
+  ["a repository with git history", "I open Insights", "files rank by the chosen metric with rationale"],
+  ["a metric tool is missing", "I open Insights", "that metric is reported unavailable"],
+]
+notes = ""
+out_of_scope = "Refactoring actions (AP0506)."
+
+[[story]]
+id = "AP0503"
+epic = "EP-05"
+slug = "security-findings"
+title = "Security findings"
+type = "feature"
+as_a = "developer using the workflow"
+i_want = "security findings with severity, location and source analyzer"
+so_that = "I watch repository security"
+priority = "Should"
+release = "R2"
+size = "M"
+fr = ["FR-18"]
+nfr = ["NFR-05"]
+deps = ["AP0501"]
+ac = [
+  ["an analyzer report with findings", "I open Security", "findings list with severity, location and analyzer"],
+  ["a finding that contains a secret value", "it is stored or shown", "the value is redacted"],
+]
+notes = ""
+out_of_scope = "Auto-fix."
+
+[[story]]
+id = "AP0504"
+epic = "EP-05"
+slug = "untested-code"
+title = "Untested code"
+type = "feature"
+as_a = "developer using the workflow"
+i_want = "coverage gaps by file and package"
+so_that = "I watch test debt"
+priority = "Should"
+release = "R2"
+size = "M"
+fr = ["FR-19"]
+nfr = []
+deps = ["AP0501"]
+ac = [
+  ["a coverage report", "I open Coverage", "gaps show by file and package"],
+  ["no coverage report", "I open Coverage", "the screen explains how to produce one"],
+]
+notes = ""
+out_of_scope = "Running tests."
+
+[[story]]
+id = "AP0505"
+epic = "EP-05"
+slug = "architecture-diagrams"
+title = "Architecture diagrams"
+type = "feature"
+as_a = "developer using the workflow"
+i_want = "architecture and infrastructure diagrams of the repository rendered from reference/architecture/"
+so_that = "I understand the structure"
+priority = "Should"
+release = "R2"
+size = "S"
+fr = ["FR-20"]
+nfr = ["NFR-11"]
+deps = ["AP0104", "AP0108"]
+ac = [
+  ["Mermaid blocks in reference/architecture/", "I open Architecture", "each diagram renders"],
+  ["an invalid diagram", "it renders", "an error with the source is shown"],
+  ["a diagram", "I use the keyboard", "it is reachable and has a text alternative"],
+]
+notes = ""
+out_of_scope = "Editing diagrams."
+
+[[story]]
+id = "AP0506"
+epic = "EP-05"
+slug = "findings-to-actions"
+title = "Findings to actions"
+type = "feature"
+as_a = "developer using the workflow"
+i_want = "to turn a finding into an agent action or a backlog story draft"
+so_that = "AI acts on findings"
+priority = "Could"
+release = "R3"
+size = "M"
+fr = ["FR-21"]
+nfr = ["NFR-04"]
+deps = ["AP0301", "AP0503"]
+ac = [
+  ["a finding", "I choose Create action", "a launch request is prepared and awaits my confirmation"],
+  ["a finding", "I choose Create story", "a story draft is created without approval"],
+]
+notes = ""
+out_of_scope = "Auto-approval."
+
+[[story]]
+id = "AP0601"
+epic = "EP-06"
+slug = "settings-view"
+title = "Settings view"
+type = "feature"
+as_a = "developer using the workflow"
+i_want = "to show and edit project.toml and models.toml (tiers, tools, language)"
+so_that = "I configure without editing files"
+priority = "Should"
+release = "R2"
+size = "M"
+fr = ["FR-26"]
+nfr = ["NFR-03"]
+deps = ["AP0102", "AP0104"]
+ac = [
+  ["settings files", "I open Settings", "current values show"],
+  ["a valid edit", "I save", "the file is written and valid"],
+  ["an invalid value", "I save", "it is rejected with the reason and nothing is written"],
+]
+notes = ""
+out_of_scope = "Editing workflow files."
+
+[[story]]
+id = "AP0602"
+epic = "EP-06"
+slug = "theme"
+title = "Dark and light theme"
+type = "feature"
+as_a = "developer using the workflow"
+i_want = "a dark and a light theme toggle that persists locally"
+so_that = "the portal matches my preference"
+priority = "Could"
+release = "R2"
+size = "S"
+fr = ["FR-28"]
+nfr = ["NFR-11"]
+deps = ["AP0108"]
+ac = [
+  ["the toggle", "I switch theme", "all screens change"],
+  ["a reload", "it happens", "the choice persists in localStorage"],
+  ["both themes", "axe-core runs", "contrast passes WCAG 2.2 AA"],
+]
+notes = ""
+out_of_scope = "Custom themes."
