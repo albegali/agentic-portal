@@ -187,7 +187,7 @@ command = "weekly"
 tier = "fast"
 session = "fresh"
 read = ["project-journal/templates/weekly.md", "project-journal/notes/current-week.md"]
-run = ["git log --since='7 days ago' --oneline", "python3 tools/next_step.py"]
+run = ["git log --since='7 days ago' --format='%h %ad %s' --date=short", "python3 tools/next_step.py", "python3 tools/usage.py --days 7"]
 
 # ================================================================== commands
 # body: the prompt. $ARGUMENTS is replaced with each tool's argument syntax.

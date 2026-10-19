@@ -1,6 +1,6 @@
 # Workflow tools
 
-Stdlib Python ≥ 3.11, no dependencies. Every script resolves the repository root from its own location (or `$WF_ROOT`).
+Stdlib Python ≥ 3.14, no dependencies. Every script resolves the repository root from its own location (or `$WF_ROOT`).
 
 | Script | Make | What |
 |---|---|---|
@@ -12,6 +12,7 @@ Stdlib Python ≥ 3.11, no dependencies. Every script resolves the repository ro
 | `init_project.py` | (via `/kickoff`) | Writes `project.toml` / `models.toml` settings, re-prefixes template examples, renders adapters. |
 | `adopt.py` | `make adopt TARGET=…` | Installs the workflow into an existing repository without overwriting its files (marked blocks in `AGENTS.md` / `CLAUDE.md`, `include workflow.mk`, permissions union), detects the `[stack]` commands, sets `origin = "brownfield"`. Conflicts → nothing written. `--dry-run` prints the plan. Not installed in the target. |
 | `repo_map.py` | `context.py --repo-map` | Cheap map of the codebase for `/onboard`: languages, tree with sizes, manifests, CI/infra, docs, entry points, tests, largest files, git hot spots. No file contents. |
+| `usage.py` | `make usage DAYS=…` | Agent sessions of this repository from the local logs of Claude Code (`~/.claude/projects/…`) and Codex (`~/.codex/sessions`): step, step tier vs main model, prompts, interrupts, rejected tool calls, tokens per model, lines, cost (Claude Code records it). Counts only, never prompt text. `--since/--until`, `--json`. Used by `/weekly`. |
 | `rename_id.py` | — | Replace a story ID everywhere (e.g. adopting tracker IDs). |
 | `wf.py` | — | Shared helpers. |
 

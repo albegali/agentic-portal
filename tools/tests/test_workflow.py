@@ -265,6 +265,39 @@ class WorkflowTest(unittest.TestCase):
         self.assertTrue(os.path.exists(os.path.join(r.dir, "analysis/10-stories/STORY_DM0199_export.md")))
         self.assertIn("DM0199", r.read("PLAN.md"))
 
+    def test_usage_reads_agent_logs_of_this_repository_only(self):
+        r = self.r
+        home = os.path.join(r.dir, ".home")
+        r.env.update(CLAUDE_CONFIG_DIR=os.path.join(home, "claude"), CODEX_HOME=os.path.join(home, "codex"))
+        slug = "".join(c if c.isalnum() else "-" for c in os.path.abspath(r.dir))
+        msg = lambda i, model, out: {"type": "assistant", "sessionId": "s1", "timestamp": "2026-10-14T09:00:0%dZ" % i, "requestId": f"q{i}",
+                                     "message": {"id": f"m{i}", "model": model, "usage": {"input_tokens": 1, "output_tokens": out,
+                                                 "cache_creation_input_tokens": 10, "cache_read_input_tokens": 100}}}
+        user = lambda content, **k: {"type": "user", "sessionId": "s1", "userType": "external", "timestamp": "2026-10-14T09:00:00Z",
+                                     "message": {"role": "user", "content": content}, **k}
+        claude = [user("<command-name>/weekly</command-name>"), user([{"type": "text", "text": "<!-- step body -->"}], isMeta=True),
+                  msg(1, "claude-opus-5-5", 50), msg(1, "claude-opus-5-5", 50), msg(2, "claude-haiku-5-5", 5),
+                  user([{"type": "tool_result", "content": "The user doesn't want to proceed with this tool use. The tool use was rejected"}]),
+                  user([{"type": "text", "text": "[Request interrupted by user]"}]), user([{"type": "text", "text": "go on"}])]
+        codex = [{"type": "session_meta", "timestamp": "2026-10-15T10:00:00Z", "payload": {"id": "c1", "cwd": r.dir}},
+                 {"type": "turn_context", "payload": {"model": "gpt-5-codex"}},
+                 {"type": "event_msg", "payload": {"type": "user_message", "message": "/prompts:analysis DM0101"}},
+                 {"type": "event_msg", "payload": {"type": "token_count", "info": {"total_token_usage": {
+                     "input_tokens": 900, "cached_input_tokens": 600, "output_tokens": 70}}}}]
+        other = [{**codex[0], "payload": {"id": "c2", "cwd": "/elsewhere"}}, *codex[1:]]
+        r.write(f".home/claude/projects/{slug}/s1.jsonl", "\n".join(map(json.dumps, claude)) + "\n")
+        r.write(".home/codex/sessions/2026/10/15/rollout-a.jsonl", "\n".join(map(json.dumps, codex)) + "\n")
+        r.write(".home/codex/sessions/2026/10/15/rollout-b.jsonl", "\n".join(map(json.dumps, other)) + "\n")
+        rows = json.loads(r.run("tools/usage.py", "--since", "2026-10-12", "--until", "2026-10-19", "--json").stdout)
+        cc, cx = rows
+        self.assertEqual((cc["step"], cc["tier"], cc["main"], cc["main_tier"], cc["mismatch"]),
+                         ("weekly", "fast", "claude-opus-5-5", "deep", True))
+        self.assertEqual((cc["prompts"], cc["interrupts"], cc["rejected"]), (2, 1, 1))
+        self.assertEqual(cc["models"]["claude-opus-5-5"]["output"], 50)  # duplicate message counted once
+        self.assertEqual((cx["step"], cx["main"], cx["models"]["gpt-5-codex"]["cache_read"]), ("analysis", "gpt-5-codex", 600))
+        self.assertIn("2 sessions", r.run("tools/usage.py", "--since", "2026-10-12", "--until", "2026-10-19").stdout)
+        self.assertIn("No sessions", r.run("tools/usage.py", "--since", "2026-11-01", "--until", "2026-11-07").stdout)
+
 
 LEGACY = {  # a 10-year-old AngularJS frontend, no backend, its own rules and tooling
     "bower.json": '{"name": "legacy", "dependencies": {"angular": "1.5.8"}}',
