@@ -8,7 +8,7 @@
 ---
 
 ## Status
-Ready
+Done
 
 ---
 
@@ -134,10 +134,12 @@ Stop and ask for supervision if:
 
 To be completed before marking Done.
 
-- [ ] Acceptance criteria still aligned
-- [ ] Tasks completed or explicitly deferred
-- [ ] Specs updated if needed
-- [ ] RUN completed and persisted
+- [x] Acceptance criteria still aligned
+- [x] Tasks completed or explicitly deferred
+- [x] Specs updated if needed
+- [x] RUN completed and persisted
 
 Summary:
-- …
+- Delivered in agentic-skeleton branch `feat/contract-1.0-envelope` (commit aa8652f, not pushed): envelope and error envelope, `wf.py version --json`, `next_step.py --json` in the envelope, 9 schema files, 9 contract tests, CI on Python 3.11 and 3.14.
+- Final state differs from §3/§4 as decided by the owner: tools keep Python >= 3.11; the `v1.0.0` tag and the CI-green part of AC5 move to the end of AP0109; `adopt.py` also installs `VERSION` and `schemas/`.
+- TSK-AP0103-09 (tag) deferred. AC1-AC4 and AC6 met locally (29 tests, Python 3.12 and 3.14); AC5 open until push, CI and tag.

@@ -3,16 +3,16 @@
 ## References
 - Story ID: AP0103
 - Spec: SPEC-AP0103
-- Started at (datetime):
+- Started at (datetime): 2026-10-19T22:10
   - Fill only when execution starts after human approval, immediately before the first code or test change.
-- Completed at (datetime):
+- Completed at (datetime): 2026-10-19T22:30
   - Fill only when the RUN is ready to close after verification, tuning and persistence.
   - If tuning or follow-up changes happen before closure, update this to the latest completion datetime.
 
 ---
 
 ## Status
-Draft
+Persisted
 
 > A RUN MUST NOT be Closed before Persisted.
 
@@ -67,17 +67,17 @@ Draft
 
 # 2. Human Approval
 
-- [ ] Strategy reviewed
-- [ ] Scope correctly understood
-- [ ] No out-of-scope work detected
+- [x] Strategy reviewed
+- [x] Scope correctly understood
+- [x] No out-of-scope work detected
 
 Decision:
-- [ ] Approved
+- [x] Approved
 - [ ] Revisions requested
 - [ ] Stopped
 
 Notes:
-- 2026-10-19 owner decisions (not yet strategy approval): breaking change of `next_step.py --json` approved; skeleton stays on Python >= 3.11.
+- 2026-10-19 owner decisions; strategy approved with `/run AP0103 approve` (no "tag here" given: no tag in this RUN): breaking change of `next_step.py --json` approved; skeleton stays on Python >= 3.11.
 
-Reviewer:
-Date:
+Reviewer: Alberto Galimberti
+Date: 2026-10-19

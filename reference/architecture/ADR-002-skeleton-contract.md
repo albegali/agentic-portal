@@ -32,7 +32,7 @@ Contract surface (v1.0, upstreamed to agentic-skeleton; revised after the 2026-1
 | journal `--json` | context, decisions, learnings, weekly and monthly entries | AP0109 |
 | story chain `--json` | artifacts of one ID (Story → RUN, tasks) with status and paths | AP0109 |
 
-Schemas (JSON Schema 2020-12) for every v1.0 tool ship in the skeleton under `schemas/` with AP0103; `jsonschema` is a CI/test dependency only; at runtime the portal checks only the `contract` version against its `CONTRACT_BUILT_FOR` constant. Skeleton tools require Python 3.14 (owner, 2026-10-19). Exact tool names for plan, journal and story chain are fixed in the AP0103 Spec.
+Schemas (JSON Schema 2020-12) for every v1.0 tool ship in the skeleton under `schemas/` with AP0103; `jsonschema` is a CI/test dependency only; at runtime the portal checks only the `contract` version against its `CONTRACT_BUILT_FOR` constant. The skeleton tools keep the Python >= 3.11 baseline, tested in CI on 3.11 and 3.14 (owner, 2026-10-19, AP0103); only the portal and its launcher require 3.14. Schema and `tool` names: `version`, `next`, `next-story` (`next_step.py <ID>`), `backlog`, `check`, `plan`, `journal`, `story` (story chain). Released as skeleton `VERSION` 1.0.0 on branch `feat/contract-1.0-envelope`; `check` and `backlog` still print the flat `"schema": 1` form and `plan`, `journal`, `story` have no emitter until AP0109; the `v1.0.0` tag follows AP0109.
 
 Later minor versions (not in v1.0):
 | Tool | Output | Story |
@@ -46,7 +46,7 @@ Later minor versions (not in v1.0):
 - Positive: portal and skeleton evolve separately; mismatch is a clear message (Settings); gates are applied by the same code humans and agents use.
 - Negative / trade-offs: upstream work in agentic-skeleton before the portal can show some screens; contract tests needed on both sides.
 - Follow-up stories: AP0103 (envelope, version, next, all v1.0 schemas); AP0109 (remaining v1.0 tools); AP0105 (`gates.py`); AP0104 (portal contract client and tests, NFR-13); context and repo_map stories still to be created.
-- Revision 2026-10-19, owner decisions in `analysis/workshops/WORKSHOP_2026-10-19_AP0101-AP0103-AP0106-AP0108.md`: v1.0 surface follows the Story list (plan, journal, story chain added; context, repo_map, gates moved to later minors); error envelope and Python 3.14 added.
+- Revision 2026-10-19, owner decisions in `analysis/workshops/WORKSHOP_2026-10-19_AP0101-AP0103-AP0106-AP0108.md`: v1.0 surface follows the Story list (plan, journal, story chain added; context, repo_map, gates moved to later minors); error envelope and the Python baseline (kept at >= 3.11 for the tools, AP0103 decision) added.
 
 ## Reversibility
 High: every screen depends on the contract. Additions are cheap (minor versions); a new major needs a coordinated release.

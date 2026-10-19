@@ -5,12 +5,12 @@
 - Source: `analysis/30-refined/REFINED_AP0103_upstream_json_envelope.md` · external tracker URL: n/a
 - Captured at (datetime): 2026-10-19T21:35
 - Captured by: Alberto Galimberti (with Claude)
-- Closed at (datetime):
+- Closed at (datetime): 2026-10-19T22:30
 
 ---
 
 ## Status
-Captured
+Refined into Spec
 
 ---
 
@@ -87,5 +87,6 @@ Envelope helper module, `wf.py version`, schemas for all seven v1.0 outputs, sch
 
 # 9. Derived Artifacts
 
-- Spec: SPEC-AP0103
+- Spec: SPEC-AP0103-upstream-json-envelope
 - RUN: RUN-AP0103
+- Code: agentic-skeleton branch `feat/contract-1.0-envelope` (aa8652f)
