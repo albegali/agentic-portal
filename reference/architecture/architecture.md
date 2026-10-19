@@ -49,7 +49,7 @@ Server modules (inside `server/portal_server/`): `http` (routing, auth, SSE), `c
 ADR-006: loopback bind, per-session 256-bit token (URL fragment → `sessionStorage` → bearer header), Host/Origin checks, writes only via skeleton commands inside the repo root, allow-listed agent commands, agents never get the token, gate actions need a UI confirm nonce, approvals attributed to `project.toml` owner. Run logs redacted for secrets before storing/streaming. No telemetry; nothing leaves the machine except agent CLI traffic (the CLI's own) and the bundle download.
 
 ## 6. Observability
-Server log to stderr (requests without tokens, errors); run audit records in `.portal/runs/` (NFR-12); `GET /api/health` with versions (portal, contract, skeleton). No external telemetry.
+Server log to stderr (requests without tokens, errors); run audit records in `.portal/runs/` (NFR-12); `GET /api/health` returns datetime and status, optionally an error code and message, plus portal, contract (built-for) and skeleton versions; skeleton and contract are "unknown" until `wf.py version --json` is available (AP0101, AP0103; owner decision in `analysis/workshops/WORKSHOP_2026-10-19_AP0101-AP0103-AP0106-AP0108.md`). No external telemetry.
 
 ## 7. Build, environments and distribution
 - Development: `web/` with Vite dev server proxying `/api` to the Python server; `PORTAL_BUNDLE` points the launcher at the local build.

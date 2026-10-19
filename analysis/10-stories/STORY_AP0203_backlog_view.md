@@ -9,7 +9,7 @@ As a developer using the workflow, I want to list epics and stories with status,
 - Epic: EP-02 — Workflow state and navigation
 - Priority (MoSCoW): Must · Release: R1 · Size: M · Type: feature
 - Requirements: FR-03, NFR-06
-- Depends on: AP0104, AP0108
+- Depends on: AP0104, AP0108, AP0109
 - Notes: —
 - Out of scope: Editing stories.
 

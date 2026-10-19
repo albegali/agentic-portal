@@ -89,21 +89,23 @@ slug = "upstream-json-envelope"
 title = "Upstream: --json envelope and JSON Schemas"
 type = "technical"
 as_a = "portal (consumer of agentic-skeleton)"
-i_want = "the skeleton tools the portal reads (next, backlog, check, plan, journal, story chain) to emit a versioned --json envelope with published JSON Schemas"
-so_that = "the portal reads state without parsing Markdown"
+i_want = "a versioned --json envelope, an error envelope, `wf.py version --json`, `next_step.py --json` in the envelope, and published JSON Schemas for every contract 1.0 tool (next, backlog, check, plan, journal, story chain, version)"
+so_that = "the portal can be built and tested against a released contract and report skeleton and contract versions"
 priority = "Must"
 release = "R1"
-size = "L"
+size = "M"
 fr = ["FR-27", "FR-25"]
 nfr = ["NFR-13", "NFR-14"]
 deps = []
 ac = [
-  ["a skeleton tool with --json", "it runs", "it prints an envelope with `contract: 1.x` that validates against its schema"],
+  ["`next_step.py --json`", "it runs", "it prints an envelope with `contract: 1.x` that validates against its schema"],
+  ["`wf.py version --json`", "it runs", "it reports skeleton version and contract version in the envelope"],
+  ["a tool failure with --json", "it runs", "it prints the error envelope and exits non-zero"],
   ["a breaking output change", "it is released", "the contract major version is bumped"],
-  ["the skeleton CI", "it runs", "schema tests for every envelope are green and a tagged release exists"],
+  ["the skeleton CI on Python 3.14", "it runs", "schema tests for every published schema are green and a tagged release exists"],
 ]
-notes = "ADR-002. Delivered in the agentic-skeleton repository (NFR-14); the portal pins the released skeleton version."
-out_of_scope = "Write commands, launcher."
+notes = "ADR-002. Refined: analysis/30-refined/REFINED_AP0103_upstream_json_envelope.md. Delivered in the agentic-skeleton repository (NFR-14); AI implements and tags, human + AI review. Remaining tools are AP0109."
+out_of_scope = "Write commands, launcher, --json of backlog/check/plan/journal/story chain (AP0109), context/repo_map/gates (later stories)."
 
 [[story]]
 id = "AP0104"
@@ -222,6 +224,29 @@ notes = "Tokens and behaviors per reference/product/mockup-reference.md."
 out_of_scope = "Individual screens."
 
 [[story]]
+id = "AP0109"
+epic = "EP-01"
+slug = "upstream-json-read-tools"
+title = "Upstream: --json for backlog, check, plan, journal, story chain"
+type = "technical"
+as_a = "portal (consumer of agentic-skeleton)"
+i_want = "the skeleton tools for backlog, check, plan, journal and story chain to emit the contract 1.x envelope against the schemas published by AP0103"
+so_that = "the portal views read state without parsing Markdown"
+priority = "Must"
+release = "R1"
+size = "M"
+fr = ["FR-25"]
+nfr = ["NFR-13", "NFR-14"]
+deps = ["AP0103"]
+ac = [
+  ["each of backlog, check, plan, journal, story chain with --json", "it runs", "it prints an envelope that validates against its published schema"],
+  ["an empty state (e.g. no journal entries)", "the tool runs with --json", "it returns valid data with empty lists"],
+  ["the skeleton CI on Python 3.14", "it runs", "schema tests for every envelope are green and a tagged release exists"],
+]
+notes = "ADR-002. Split from AP0103 (workshop 2026-10-19). Delivered in the agentic-skeleton repository (NFR-14)."
+out_of_scope = "Write commands, context/repo_map/gates, schema changes beyond minor additions."
+
+[[story]]
 id = "AP0201"
 epic = "EP-02"
 slug = "overview-next-step"
@@ -258,7 +283,7 @@ release = "R1"
 size = "S"
 fr = ["FR-02"]
 nfr = ["NFR-06"]
-deps = ["AP0104", "AP0108"]
+deps = ["AP0104", "AP0108", "AP0109"]
 ac = [
   ["a PLAN.md with releases and sprints", "I open Plan", "they render in order"],
   ["a story in a sprint", "I click it", "I go to its detail"],
@@ -281,7 +306,7 @@ release = "R1"
 size = "M"
 fr = ["FR-03"]
 nfr = ["NFR-06"]
-deps = ["AP0104", "AP0108"]
+deps = ["AP0104", "AP0108", "AP0109"]
 ac = [
   ["backlog/stories.toml", "I open Backlog", "epics and stories show with counts equal to `make backlog`"],
   ["the list", "I filter by epic, status or owner mode and sort", "only matching stories show"],
@@ -327,7 +352,7 @@ release = "R2"
 size = "S"
 fr = ["FR-05"]
 nfr = []
-deps = ["AP0104", "AP0108"]
+deps = ["AP0104", "AP0108", "AP0109"]
 ac = [
   ["entries in project-journal/", "I open Journal", "they are listed by date and type"],
   ["an entry", "I open it", "its content renders"],

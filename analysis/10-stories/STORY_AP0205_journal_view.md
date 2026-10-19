@@ -9,7 +9,7 @@ As a developer using the workflow, I want to browse context, decisions, learning
 - Epic: EP-02 — Workflow state and navigation
 - Priority (MoSCoW): Should · Release: R2 · Size: S · Type: feature
 - Requirements: FR-05
-- Depends on: AP0104, AP0108
+- Depends on: AP0104, AP0108, AP0109
 - Notes: —
 - Out of scope: Writing entries.
 

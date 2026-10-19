@@ -9,7 +9,7 @@ As a developer using the workflow, I want to see releases and sprints from PLAN.
 - Epic: EP-02 — Workflow state and navigation
 - Priority (MoSCoW): Must · Release: R1 · Size: S · Type: feature
 - Requirements: FR-02, NFR-06
-- Depends on: AP0104, AP0108
+- Depends on: AP0104, AP0108, AP0109
 - Notes: —
 - Out of scope: Editing the plan.
 
