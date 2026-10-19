@@ -19,17 +19,23 @@ Stdlib Python ≥ 3.11, no dependencies. Every script resolves the repository ro
 Tests: `make test-tools` (unittest, fixture repositories in temp dirs).
 
 ## JSON contract
-For portals, CI and agents that prefer structured output (fewer tokens than the text views). Every `--json` output is one compact JSON object with `"schema": 1`; fields are only added within a schema version, a breaking change bumps it (`wf.SCHEMA`).
+For portals, CI and agents that prefer structured output (fewer tokens than the text views). Contract **1.0**: every contract `--json` output is one compact object `{"contract": "1.0", "tool": "<name>", "data": {…}}`. On failure the tool prints `{"contract", "tool", "error": {"code", "message"}}` (no `data`) and exits non-zero. Empty states are valid `data` with empty lists.
 
-| Command | Top-level fields |
+Versioning (semver on `contract`, `wf.CONTRACT_VERSION`): a minor version only adds fields; removing or changing a field bumps the major. Consumers accept the same major and any minor at or above the one they were built for. `python3 tools/wf.py version [--json]` reports the skeleton version (`VERSION`) and the contract version. JSON Schemas (2020-12) are in `schemas/`; `jsonschema` is only a test dependency (`WF_REQUIRE_JSONSCHEMA=1` in CI).
+
+Migration from the former `"schema": 1` output: `next_step.py --json` moved to the envelope (fields unchanged, now under `data`). The other tools below still print the flat `"schema": 1` object until they move to the envelope; their schemas in `schemas/` describe the target shape.
+
+| Command (`tool`) | Fields of `data` |
 |---|---|
-| `next_step.py --json` | `step`, `ids`, `owner`, `why`, `phase`, `tier`, `models`, `command`, `weekly_due`, `current_sprint`, `next_sprint`, `human_gates`; inception: `files`, `after` when an approval is pending; delivery: `stories` (`id`, `stage`, `detail`, `owner` for every backlog story), `optional` |
-| `next_step.py <ID> --json` | `step`, `ids`, `why`, `owner`, `deps`, `deps_done` |
-| `check_workflow.py --json` | `ok`, `errors`, `warnings`, `counts`, `issues` (`level`, `area`: inception/backlog/chain/adapters, `message`); exit code as the text view |
-| `gen_backlog.py --json` | `status`, `epics`, `stories` (TOML fields + `artifacts`: paths of story/analysis/refined/brief/spec/run or null); writes nothing |
-| `context.py <step> [IDs] --json` | `step`, `tier`, `ids`, `needs_ids`, `read` (`path`, `lines`, `tokens`, `long`), `missing`, `design`, `cited` (`path`, `exists`, `lines`, `tokens`, `long`), `sections` (`ref`, `file`, `text`), `dependencies`, `runs`, `tokens` (estimate of the whole budget) |
-| `context.py --index <file> --json` · `--package-rules --json` | `file`, `headings` · `rules` |
-| `repo_map.py --json` (= `context.py --repo-map --json`) | `name`, counts, `languages`, `other_types`, `signals`, `dirs`, `root_files`, `docs`, `migrations`, `entry_points`, `tests`, `source_sizes`, `git` (`commits`, `first`, `last`, `authors`, `churn_180d`) or null, `stack` |
+| `wf.py version --json` (`version`) | `skeleton`, `contract` |
+| `next_step.py --json` (`next`) | `step`, `ids`, `owner`, `why`, `phase`, `tier`, `models`, `command`, `weekly_due`, `current_sprint`, `next_sprint`, `human_gates`; inception: `files`, `after` when an approval is pending; delivery: `stories` (`id`, `stage`, `detail`, `owner` for every backlog story), `optional` |
+| `next_step.py <ID> --json` (`next-story`) | `step`, `ids`, `why`, `owner`, `deps`, `deps_done` |
+| `check_workflow.py --json` (`check`) · *flat for now* | `ok`, `errors`, `warnings`, `counts`, `issues` (`level`, `area`: inception/backlog/chain/adapters, `message`); exit code as the text view |
+| `gen_backlog.py --json` (`backlog`) · *flat for now* | `status`, `epics`, `stories` (TOML fields + `artifacts`: paths of story/analysis/refined/brief/spec/run or null); writes nothing |
+| plan, journal, story chain (`plan`, `journal`, `story`) · *schema only, no emitter yet* | see `schemas/` |
+| `context.py <step> [IDs] --json` · *flat, not in contract 1.0* | `step`, `tier`, `ids`, `needs_ids`, `read` (`path`, `lines`, `tokens`, `long`), `missing`, `design`, `cited` (`path`, `exists`, `lines`, `tokens`, `long`), `sections` (`ref`, `file`, `text`), `dependencies`, `runs`, `tokens` (estimate of the whole budget) |
+| `context.py --index <file> --json` · `--package-rules --json` · *flat* | `file`, `headings` · `rules` |
+| `repo_map.py --json` (= `context.py --repo-map --json`) · *flat* | `name`, counts, `languages`, `other_types`, `signals`, `dirs`, `root_files`, `docs`, `migrations`, `entry_points`, `tests`, `source_sizes`, `git` (`commits`, `first`, `last`, `authors`, `churn_180d`) or null, `stack` |
 
 ## Kickoff sources and existing design
 `project.toml [inception]` records `sources` (brief, transcripts, notes) and `design` (an existing mockup or prototype), written by `init_project.py --sources … --design …` during `/kickoff`. Budgets with `sources = true` (requirements, mockup, architecture) read the sources; `design = true` (mockup) points to the design's outline (`context.py --index`, which also outlines HTML) so `/mockup` maps it instead of rebuilding it. `make check` warns when a recorded file is missing.

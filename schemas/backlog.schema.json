@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schemas/backlog.schema.json",
+  "title": "gen_backlog.py --json (read-only)",
+  "type": "object",
+  "required": [
+    "contract",
+    "tool",
+    "data"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "contract": {
+      "$ref": "envelope.schema.json#/$defs/contract"
+    },
+    "tool": {
+      "const": "backlog"
+    },
+    "data": {
+      "type": "object",
+      "required": [
+        "status",
+        "epics",
+        "stories"
+      ],
+      "properties": {
+        "status": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "epics": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "stories": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "artifacts"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "epic": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "priority": {
+                "type": "string"
+              },
+              "size": {
+                "type": "string"
+              },
+              "release": {
+                "type": "string"
+              },
+              "deps": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "artifacts": {
+                "type": "object",
+                "required": [
+                  "story",
+                  "analysis",
+                  "refined",
+                  "brief",
+                  "spec",
+                  "run"
+                ],
+                "properties": {
+                  "story": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "analysis": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "refined": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "brief": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "spec": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "run": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                },
+                "additionalProperties": true
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

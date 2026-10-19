@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schemas/next.schema.json",
+  "title": "next_step.py --json",
+  "type": "object",
+  "required": [
+    "contract",
+    "tool",
+    "data"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "contract": {
+      "$ref": "envelope.schema.json#/$defs/contract"
+    },
+    "tool": {
+      "const": "next"
+    },
+    "data": {
+      "type": "object",
+      "required": [
+        "step",
+        "owner",
+        "ids",
+        "why",
+        "phase",
+        "tier",
+        "models",
+        "command",
+        "weekly_due",
+        "current_sprint",
+        "next_sprint",
+        "human_gates"
+      ],
+      "properties": {
+        "step": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "why": {
+          "type": "string"
+        },
+        "phase": {
+          "enum": [
+            "inception",
+            "delivery"
+          ]
+        },
+        "tier": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "models": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "command": {
+          "type": "string"
+        },
+        "weekly_due": {
+          "type": "boolean"
+        },
+        "current_sprint": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "next_sprint": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "human_gates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "stage",
+              "detail"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "stage": {
+                "type": "string"
+              },
+              "detail": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "after": {
+          "type": "string"
+        },
+        "stories": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "stage",
+              "detail",
+              "owner"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "stage": {
+                "type": "string"
+              },
+              "detail": {
+                "type": "string"
+              },
+              "owner": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "optional": {}
+      },
+      "additionalProperties": true
+    }
+  }
+}
