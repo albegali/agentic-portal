@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schemas/version.schema.json",
+  "title": "wf.py version --json",
+  "type": "object",
+  "required": [
+    "contract",
+    "tool",
+    "data"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "contract": {
+      "$ref": "envelope.schema.json#/$defs/contract"
+    },
+    "tool": {
+      "const": "version"
+    },
+    "data": {
+      "type": "object",
+      "required": [
+        "skeleton",
+        "contract"
+      ],
+      "properties": {
+        "skeleton": {
+          "type": "string"
+        },
+        "contract": {
+          "$ref": "envelope.schema.json#/$defs/contract"
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

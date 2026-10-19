@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schemas/journal.schema.json",
+  "title": "journal --json (project-journal/)",
+  "type": "object",
+  "required": [
+    "contract",
+    "tool",
+    "data"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "contract": {
+      "$ref": "envelope.schema.json#/$defs/contract"
+    },
+    "tool": {
+      "const": "journal"
+    },
+    "data": {
+      "type": "object",
+      "required": [
+        "context",
+        "decisions",
+        "learnings",
+        "weekly",
+        "monthly"
+      ],
+      "properties": {
+        "context": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "decisions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "file"
+            ],
+            "properties": {
+              "file": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "date": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "learnings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "file"
+            ],
+            "properties": {
+              "file": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "date": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "weekly": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "file"
+            ],
+            "properties": {
+              "file": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "date": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "monthly": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "file"
+            ],
+            "properties": {
+              "file": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "date": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

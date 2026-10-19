@@ -97,7 +97,9 @@ class Repo:
             return f.read()
 
     def next(self, *a: str) -> dict:
-        return json.loads(self.run("tools/next_step.py", "--json", *a).stdout)
+        env = json.loads(self.run("tools/next_step.py", "--json", *a).stdout)
+        assert env["contract"].startswith("1.") and env["tool"] in ("next", "next-story"), env
+        return env["data"]
 
     def toml_set(self, f: str, section: str, key: str, value) -> None:
         self.write(f, set_key(self.read(f), section, key, value))
@@ -308,7 +310,6 @@ class WorkflowTest(unittest.TestCase):
         r.through_inception()
         r.write("analysis/20-analysis/ANALYSIS_DM0101_walking_skeleton.md", ANALYSIS_MD.format(i="DM0101"))
         n = r.next()
-        self.assertEqual(n["schema"], 1)
         self.assertEqual({s["id"]: s["stage"] for s in n["stories"]}, {"DM0101": "workshop", "DM0102": "analysis"})
         chk = json.loads(r.run("tools/check_workflow.py", "--json").stdout)
         self.assertTrue(chk["ok"])
@@ -353,6 +354,36 @@ LEGACY = {  # a 10-year-old AngularJS frontend, no backend, its own rules and to
     ".claude/settings.json": '{"permissions": {"allow": ["Bash(grunt test)"]}, "model": "opus"}',
     "Makefile": "test:\n\tgrunt test\ncheck:\n\tgrunt jshint\n",
 }
+
+
+class LaunchTest(unittest.TestCase):
+    def setUp(self) -> None:
+        self.r = Repo()
+        self.r.env["BROWSER"] = "true"  # webbrowser runs `true <url>`: nothing opens
+
+    def tearDown(self) -> None:
+        self.r.cleanup()
+
+    def test_run_not_defined(self):
+        out = self.r.run("tools/launch.py", ok=False)
+        self.assertEqual(out.returncode, 1)
+        self.assertIn("run not defined", out.stdout)
+
+    def test_starts_and_waits_for_url(self):
+        import socket
+        with socket.socket() as s:
+            s.bind(("127.0.0.1", 0))
+            port = s.getsockname()[1]
+        self.r.write("serve_once.py", "import http.server as h, sys\n"
+                     f"h.HTTPServer(('127.0.0.1', {port}), h.SimpleHTTPRequestHandler).handle_request()\n")
+        self.r.toml_set("project.toml", "stack", "run", f'"{sys.executable}" serve_once.py')
+        self.r.toml_set("project.toml", "stack", "url", f"http://127.0.0.1:{port}/")
+        out = self.r.run("tools/launch.py", "--timeout", "20")
+        self.assertIn(f"http://127.0.0.1:{port}/", out.stdout)
+
+    def test_returns_the_app_exit_code(self):
+        self.r.toml_set("project.toml", "stack", "run", f'"{sys.executable}" -c "raise SystemExit(3)"')
+        self.assertEqual(self.r.run("tools/launch.py", ok=False).returncode, 3)
 
 
 class AdoptTest(unittest.TestCase):
@@ -427,7 +458,7 @@ class AdoptTest(unittest.TestCase):
         self.assertIn('owner = "Pat Owner"', p)
         self.assertIn('test = "make test"', p)
         self.tool("tools/check_workflow.py")
-        n = json.loads(self.tool("tools/next_step.py", "--json").stdout)
+        n = json.loads(self.tool("tools/next_step.py", "--json").stdout)["data"]
         self.assertEqual((n["step"], n["models"]["claude-code"]), ("onboard", "opus"))
         m = self.tool("tools/context.py", "onboard").stdout
         self.assertIn("app/scripts/app.js", m)
@@ -443,12 +474,12 @@ class AdoptTest(unittest.TestCase):
         self.write("reference/product/vision.md", "---\nstatus: approved\n---\n")
         self.write("reference/product/functional-requirements.md", "---\nstatus: approved\n---\n### FR-01 — Orders\n- **Status**: existing\n")
         self.write("reference/architecture/architecture.md", "---\nstatus: draft\n---\n")
-        n = json.loads(self.tool("tools/next_step.py", "--json").stdout)
+        n = json.loads(self.tool("tools/next_step.py", "--json").stdout)["data"]
         self.assertEqual((n["step"], n["after"]), ("approve", "onboard"))
         self.write("reference/architecture/architecture.md", "---\nstatus: approved\n---\n")
-        self.assertEqual(json.loads(self.tool("tools/next_step.py", "--json").stdout)["files"], ["project.toml [stack] decided = true"])
+        self.assertEqual(json.loads(self.tool("tools/next_step.py", "--json").stdout)["data"]["files"], ["project.toml [stack] decided = true"])
         self.write("project.toml", set_key(self.read("project.toml"), "stack", "decided", True))
-        self.assertEqual(json.loads(self.tool("tools/next_step.py", "--json").stdout)["step"], "backlog")
+        self.assertEqual(json.loads(self.tool("tools/next_step.py", "--json").stdout)["data"]["step"], "backlog")
         self.tool("tools/check_workflow.py")
 
     def test_conflicts_and_guards(self):
