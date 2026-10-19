@@ -13,11 +13,15 @@ tracker = "local"            # local | <adapter name>; see tools/README.md "Trac
 
 [inception]
 mockup = true                # include the /mockup step in the lifecycle
+sources = []                 # kickoff sources (brief, transcripts, notes): read by steps with `sources = true`
+design = ""                  # existing design or prototype: /mockup maps it instead of building a new one
 
 [stack]
-# Filled by /architecture once the ADRs are approved. Used by Makefile targets setup / test / lint.
+# Filled by /architecture once the ADRs are approved. Used by Makefile targets setup / test / lint / run.
 decided = false
 summary = "Local web app: Python >=3.14 stdlib server (server/) + React/Vite/TypeScript static bundle (web/); skeleton tools via versioned JSON contract; SSE; .portal/ state. See reference/architecture/."
 setup = "npm --prefix web ci"
 test = "python3 -m unittest discover -s server/tests -q && npm --prefix web test -- --run"
 lint = "python3 -m compileall -q server && npm --prefix web run lint && npm --prefix web run typecheck"
+run = ""                     # starts the app locally in the foreground (make run)
+url = ""                     # optional: opened in the browser once it answers

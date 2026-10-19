@@ -246,15 +246,89 @@ class WorkflowTest(unittest.TestCase):
         warn = r.run("tools/context.py", "analysis").stdout
         self.assertIn("needs story IDs", warn)
 
-    def test_gen_backlog_keeps_analyzed_stories(self):
+    def test_context_lists_cited_files_and_architecture_sections(self):
+        r = self.r
+        r.through_inception()
+        r.write("reference/architecture/architecture.md", "---\nstatus: approved\n---\n# Arch\n## 5. Security\nsec body\n## 6. Observability\nhealth body\n## 7. Build\n")
+        r.write("backlog/stories.toml", STORIES.format(st="approved").replace(
+            'ac = [["a", "b", "c"]]', 'ac = [["a", "b", "c"]]\nnotes = "Health per architecture §6. Tokens per reference/product/mockup-reference.md and reference/product/missing.md."', 1))
+        r.run("tools/gen_backlog.py")
+        out = r.run("tools/context.py", "analysis", "DM0101").stdout
+        self.assertIn("- read reference/product/mockup-reference.md (", out)
+        self.assertIn("- reference/product/missing.md: missing", out)
+        self.assertIn("### architecture §6", out)
+        self.assertIn("health body", out)
+        self.assertNotIn("sec body", out)
+
+    def test_gen_backlog_regenerates_stories_and_reports_drift(self):
+        r = self.r
+        r.through_inception()
+        r.run("tools/gen_backlog.py")
+        r.write("analysis/20-analysis/ANALYSIS_DM0101_walking_skeleton.md", ANALYSIS_MD.format(i="DM0101"))
+        self.assertIn("Story written 0, unchanged 2", r.run("tools/gen_backlog.py").stdout)
+        r.write("backlog/stories.toml", STORIES.format(st="approved").replace('title = "Walking skeleton"', 'title = "Skeleton v2"', 1)
+                .replace('title = "Export"', 'title = "Export v2"', 1))
+        out = r.run("tools/gen_backlog.py").stdout
+        self.assertIn("Story written 2, unchanged 0", out)
+        self.assertIn("Changed after Analysis (align Analysis/Refined Story): DM0101\n", out)
+        self.assertIn("# Skeleton v2", r.read("analysis/10-stories/STORY_DM0101_walking_skeleton.md"))
+        r.write("analysis/10-stories/STORY_DM0102_export.md", "# Hand-written story\n")
+        out = r.run("tools/gen_backlog.py").stdout
+        self.assertIn("hand-written, not overwritten: DM0102", out)
+        self.assertEqual("# Hand-written story\n", r.read("analysis/10-stories/STORY_DM0102_export.md"))
+        self.assertIn("| DM0101 |", r.read("analysis/output/consolidated/backlog_overview.md"))
+        deps = r.run("tools/gen_backlog.py", "--deps").stdout
+        self.assertIn("DM0102 [EP-01 Should S ] Export v2 ← DM0101", deps)
+
+    def test_kickoff_sources_and_design_reach_the_budgets(self):
+        r = self.r
+        r.write("docs/brief.md", "# Brief\nWhy now.\n")
+        r.write("docs/proto.html", "<title>Proto</title><h1>Home</h1><div><h2>Orders <b>list</b></h2></div>")
+        r.run("tools/init_project.py", "--name", "Demo", "--prefix", "DM", "--sources", "docs/brief.md", "docs/proto.html",
+              "--design", "docs/proto.html")
+        p = r.read("project.toml")
+        self.assertIn('sources = ["docs/brief.md"]', p)
+        self.assertIn('design = "docs/proto.html"', p)
+        self.assertIn("# kickoff sources", p)  # comment kept
+        req = r.run("tools/context.py", "requirements").stdout
+        self.assertIn("- docs/brief.md (", req)
+        self.assertNotIn("proto.html", req)
+        mock = json.loads(r.run("tools/context.py", "mockup", "--json").stdout)
+        self.assertEqual(mock["design"], "docs/proto.html")
+        self.assertIn("docs/brief.md", [x["path"] for x in mock["read"]])
+        self.assertGreater(mock["tokens"], 0)
+        self.assertEqual(r.run("tools/context.py", "--index", "docs/proto.html").stdout.split("\n")[:3],
+                         ["title: Proto", "# Home", "## Orders list"])
+        os.remove(os.path.join(r.dir, "docs/brief.md"))
+        self.assertIn("source not found: docs/brief.md", r.run("tools/check_workflow.py").stdout)
+        self.assertNotEqual(r.run("tools/init_project.py", "--name", "x", "--prefix", "DM", "--sources", "nope.md", ok=False).returncode, 0)
+
+    def test_json_contract(self):
         r = self.r
         r.through_inception()
         r.write("analysis/20-analysis/ANALYSIS_DM0101_walking_skeleton.md", ANALYSIS_MD.format(i="DM0101"))
-        out = r.run("tools/gen_backlog.py").stdout
-        self.assertIn("Story written 1, skipped 1", out)
-        self.assertIn("| DM0101 |", r.read("analysis/output/consolidated/backlog_overview.md"))
-        deps = r.run("tools/gen_backlog.py", "--deps").stdout
-        self.assertIn("DM0102 [EP-01 Should S ] Export ← DM0101", deps)
+        n = r.next()
+        self.assertEqual(n["schema"], 1)
+        self.assertEqual({s["id"]: s["stage"] for s in n["stories"]}, {"DM0101": "workshop", "DM0102": "analysis"})
+        chk = json.loads(r.run("tools/check_workflow.py", "--json").stdout)
+        self.assertTrue(chk["ok"])
+        self.assertEqual(chk["counts"]["stories"], 2)
+        r.write("backlog/stories.toml", STORIES.format(st="approved").replace('fr = ["FR-02"]', 'fr = ["FR-09"]'))
+        bad = r.run("tools/check_workflow.py", "--json", ok=False)
+        self.assertEqual(bad.returncode, 1)
+        self.assertIn({"level": "error", "area": "backlog", "message": "DM0102: unknown FR-09"}, json.loads(bad.stdout)["issues"])
+        bl = json.loads(r.run("tools/gen_backlog.py", "--json").stdout)
+        self.assertEqual(bl["stories"][0]["artifacts"]["analysis"], "analysis/20-analysis/ANALYSIS_DM0101_walking_skeleton.md")
+        self.assertIsNone(bl["stories"][1]["artifacts"]["spec"])
+        self.assertFalse(os.path.exists(os.path.join(r.dir, "analysis/10-stories/STORY_DM0102_export.md")))  # --json writes nothing
+        r.write("backlog/stories.toml", STORIES.format(st="approved"))
+        r.run("tools/gen_backlog.py")
+        ctx = json.loads(r.run("tools/context.py", "analysis", "DM0102", "--json").stdout)
+        self.assertEqual([s["ref"] for s in ctx["sections"]], ["FR-02"])
+        self.assertEqual(ctx["dependencies"][0]["id"], "DM0101")
+        rm = json.loads(r.run("tools/context.py", "--repo-map", "--json").stdout)
+        self.assertIn("tools/wf.py", rm["source_sizes"])
+        self.assertIn("languages", rm)
 
     def test_rename_id(self):
         r = self.r
@@ -312,6 +386,36 @@ LEGACY = {  # a 10-year-old AngularJS frontend, no backend, its own rules and to
     ".claude/settings.json": '{"permissions": {"allow": ["Bash(grunt test)"]}, "model": "opus"}',
     "Makefile": "test:\n\tgrunt test\ncheck:\n\tgrunt jshint\n",
 }
+
+
+class LaunchTest(unittest.TestCase):
+    def setUp(self) -> None:
+        self.r = Repo()
+        self.r.env["BROWSER"] = "true"  # webbrowser runs `true <url>`: nothing opens
+
+    def tearDown(self) -> None:
+        self.r.cleanup()
+
+    def test_run_not_defined(self):
+        out = self.r.run("tools/launch.py", ok=False)
+        self.assertEqual(out.returncode, 1)
+        self.assertIn("run not defined", out.stdout)
+
+    def test_starts_and_waits_for_url(self):
+        import socket
+        with socket.socket() as s:
+            s.bind(("127.0.0.1", 0))
+            port = s.getsockname()[1]
+        self.r.write("serve_once.py", "import http.server as h, sys\n"
+                     f"h.HTTPServer(('127.0.0.1', {port}), h.SimpleHTTPRequestHandler).handle_request()\n")
+        self.r.toml_set("project.toml", "stack", "run", f'"{sys.executable}" serve_once.py')
+        self.r.toml_set("project.toml", "stack", "url", f"http://127.0.0.1:{port}/")
+        out = self.r.run("tools/launch.py", "--timeout", "20")
+        self.assertIn(f"http://127.0.0.1:{port}/", out.stdout)
+
+    def test_returns_the_app_exit_code(self):
+        self.r.toml_set("project.toml", "stack", "run", f'"{sys.executable}" -c "raise SystemExit(3)"')
+        self.assertEqual(self.r.run("tools/launch.py", ok=False).returncode, 3)
 
 
 class AdoptTest(unittest.TestCase):
