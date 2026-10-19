@@ -1,0 +1,790 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Agentic Console</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#9AA3B2}a:hover{color:#E7E9EE}
+.app{--bg:#0C0E12;--panel:#13161C;--panel2:#1A1E26;--line:#262B35;--text:#E7E9EE;--muted:#9AA3B2;--blue:#6CB4FF;--orange:#FFAA55;--green:#5ED3A0;--red:#FF7B6B;--yellow:#E6D06A;--onaccent:#0C0E12;--shade:rgba(4,5,8,.6)}
+.app.light{--bg:#F5F6F8;--panel:#FFFFFF;--panel2:#EEF0F3;--line:#DCE0E6;--text:#14171C;--muted:#535D6D;--blue:#1C66C4;--orange:#A35200;--green:#0E7650;--red:#BF3428;--yellow:#7A6000;--shade:rgba(20,23,28,.35)}
+.app *{box-sizing:border-box}
+.app button{font:inherit;color:inherit;cursor:pointer}
+.app h1,.app h2,.app h3,.app p{margin:0}
+.mono{font-family:'Geist Mono',ui-monospace,SFMono-Regular,Menlo,monospace}
+.h1{font-size:24px;font-weight:600;letter-spacing:-0.01em}
+.h2{font-size:15px;font-weight:600}
+.sub{font-size:13px;color:var(--muted);line-height:20px}
+.eyebrow{font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px}
+.nav{display:flex;align-items:center;gap:10px;width:100%;min-height:36px;padding:0 10px;border:0;border-radius:8px;background:transparent;color:var(--muted);text-align:left;font-size:14px}
+.nav:hover{background:var(--panel2);color:var(--text)}
+.nav.on{background:var(--panel2);color:var(--text);font-weight:500}
+.badge{margin-left:auto;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--orange);color:var(--onaccent);font-size:11px;font-weight:600;display:inline-flex;align-items:center;justify-content:center}
+.app.light .badge{color:#FFFFFF}
+.pill{display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 8px;border-radius:999px;font-size:12px;font-weight:500;white-space:nowrap}
+.pill::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+.p-agent{color:var(--blue);background:color-mix(in srgb,var(--blue) 13%,transparent)}
+.p-human{color:var(--orange);background:color-mix(in srgb,var(--orange) 13%,transparent)}
+.p-done{color:var(--green);background:color-mix(in srgb,var(--green) 13%,transparent)}
+.p-blocked{color:var(--muted);background:var(--panel2)}
+.p-high{color:var(--red);background:color-mix(in srgb,var(--red) 13%,transparent)}
+.p-med{color:var(--yellow);background:color-mix(in srgb,var(--yellow) 14%,transparent)}
+.p-low{color:var(--blue);background:color-mix(in srgb,var(--blue) 13%,transparent)}
+.tag{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:6px;border:1px solid var(--line);font-size:12px;color:var(--muted);white-space:nowrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:36px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--panel);font-size:13px;font-weight:500;color:var(--text);text-decoration:none;white-space:nowrap}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--onaccent)}
+.btn.primary:hover{filter:brightness(1.06)}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--muted)}
+.btn.ghost:hover{color:var(--text);background:var(--panel2)}
+.btn.sm{min-height:30px;padding:0 10px;font-size:12px}
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--muted)}
+.icon-btn:hover{color:var(--text);border-color:var(--muted)}
+.search{display:flex;align-items:center;gap:10px;min-height:36px;width:min(420px,100%);padding:0 10px 0 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--muted);font-size:13px;text-align:left}
+.search:hover{border-color:var(--muted)}
+kbd{margin-left:auto;font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;padding:2px 6px;border-radius:5px;border:1px solid var(--line);color:var(--muted)}
+.row{display:flex;align-items:center;gap:12px;width:100%;min-height:44px;padding:8px 10px;border:0;border-radius:8px;background:transparent;text-align:left;color:var(--text)}
+.row:hover{background:var(--panel2)}
+.row.on{background:var(--panel2);outline:1px solid var(--line)}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--muted);font-size:13px}
+.chip:hover{color:var(--text)}
+.chip.on{background:var(--text);border-color:var(--text);color:var(--bg)}
+.bcard{display:flex;flex-direction:column;gap:8px;width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--panel);text-align:left;color:var(--text)}
+.bcard:hover{border-color:var(--muted)}
+.bar{height:4px;border-radius:2px;background:var(--panel2);overflow:hidden}
+.bar>span{display:block;height:100%;background:var(--accent);border-radius:2px}
+.step{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.step .dot{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-family:'Geist Mono',ui-monospace,monospace}
+.step.done{color:var(--text)}
+.step.done .dot{background:var(--green);border-color:var(--green);color:var(--onaccent)}
+.app.light .step.done .dot{color:#FFFFFF}
+.step.cur{color:var(--text);font-weight:600}
+.step.cur .dot{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 25%,transparent)}
+.doc{font-family:'Geist Mono',ui-monospace,monospace;font-size:12.5px;line-height:22px;white-space:pre-wrap}
+.doc .h{color:var(--text);font-weight:500}
+.doc .t{color:var(--muted)}
+.doc .k{color:var(--blue)}
+.doc .x{color:var(--orange)}
+.term{background:#07080B;border:1px solid var(--line);border-radius:10px;padding:16px;font-family:'Geist Mono',ui-monospace,monospace;font-size:12.5px;line-height:22px;color:#C9CED8;overflow-x:auto;min-height:320px}
+.term .cmd{color:#E7E9EE}
+.term .dim{color:#8B93A1}
+.term .ok{color:#5ED3A0}
+.term .warn{color:#E6D06A}
+.term .gate{color:#FFAA55}
+.term .txt{color:#C9CED8;padding-left:16px}
+.caret{display:inline-block;width:8px;height:15px;background:#C9CED8;vertical-align:-2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.diff{font-family:'Geist Mono',ui-monospace,monospace;font-size:12px;line-height:20px;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+.diff .m{padding:2px 10px;color:var(--red);background:color-mix(in srgb,var(--red) 9%,transparent)}
+.diff .p{padding:2px 10px;color:var(--green);background:color-mix(in srgb,var(--green) 9%,transparent)}
+.tile{display:flex;flex-direction:column;gap:6px;padding:14px;border-radius:10px;border:1px solid var(--line);background:var(--panel);text-align:left;color:var(--text);width:100%}
+.tile:hover{border-color:var(--muted)}
+.tab{min-height:32px;padding:0 12px;border:0;border-radius:6px;background:transparent;color:var(--muted);font-size:13px}
+.tab.on{background:var(--panel2);color:var(--text);font-weight:500}
+.toggle{width:40px;height:24px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);position:relative;flex:none}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:var(--muted);transition:left .15s}
+.toggle.on{background:var(--accent);border-color:var(--accent)}
+.toggle.on::after{left:19px;background:var(--onaccent)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.overlay{position:fixed;inset:0;background:var(--shade);display:flex;justify-content:center;align-items:flex-start;padding:12vh 16px 16px;z-index:50}
+.pal-in{width:100%;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--text);font:inherit;font-size:15px;padding:16px 18px;outline:none}
+.dg{position:absolute;box-sizing:border-box;display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--panel);border:1px solid var(--line);border-radius:10px;font-size:13px;line-height:18px;color:var(--text)}
+.dg .s{color:var(--muted);font-size:12px}
+</style>
+</helmet>
+<div class="app {{themeCls}}" style="--accent: {{accent}}; min-height: 100vh; display: flex; flex-wrap: wrap; align-items: stretch; background: var(--bg); color: var(--text); font-family: 'Geist', ui-sans-serif, system-ui, sans-serif; font-size: 14px">
+
+<nav aria-label="Main" style="flex: 1 1 220px; display: flex; flex-direction: column; gap: 2px; padding: 16px 12px; background: var(--panel); border-right: 1px solid var(--line)">
+<div style="display: flex; align-items: center; gap: 10px; padding: 4px 10px 18px">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color: var(--accent)"><path d="M4 8l8-4 8 4-8 4z"></path><path d="M4 12l8 4 8-4"></path><path d="M4 16l8 4 8-4"></path></svg>
+<span style="font-weight: 600; font-size: 15px; letter-spacing: -0.01em">Console</span>
+<span class="mono" style="margin-left: auto; font-size: 11px; color: var(--muted)">v0.1</span>
+</div>
+<button class="{{nav.overview}}" onClick="{{go.overview}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg>Overview</button>
+<button class="{{nav.plan}}" onClick="{{go.plan}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg>Plan</button>
+<button class="{{nav.backlog}}" onClick="{{go.backlog}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="5" height="16" rx="1.5"></rect><rect x="10" y="4" width="5" height="11" rx="1.5"></rect><rect x="17" y="4" width="4" height="7" rx="1.5"></rect></svg>Backlog</button>
+<button class="{{nav.approvals}}" onClick="{{go.approvals}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8 12.5l2.5 2.5L16 9.5"></path></svg>Approvals<sc-if value="{{hasPending}}" hint-placeholder-val="{{true}}"><span class="badge">{{pendingCount}}</span></sc-if></button>
+<button class="{{nav.runs}}" onClick="{{go.runs}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M7 9l3 3-3 3M13 15h4"></path></svg>Agent runs<sc-if value="{{isRunning}}" hint-placeholder-val="{{false}}"><span class="pill p-agent" style="margin-left: auto">live</span></sc-if></button>
+<button class="{{nav.insights}}" onClick="{{go.insights}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"></path><path d="M12 8v5M12 16h.01"></path></svg>Insights</button>
+<button class="{{nav.architecture}}" onClick="{{go.architecture}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="6" rx="1.5"></rect><rect x="14" y="15" width="7" height="6" rx="1.5"></rect><path d="M6.5 9v4a2 2 0 0 0 2 2H14"></path></svg>Architecture</button>
+<button class="{{nav.journal}}" onClick="{{go.journal}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"></path><path d="M5 17a3 3 0 0 1 3-3h11"></path></svg>Journal</button>
+<button class="{{nav.settings}}" onClick="{{go.settings}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"></path><circle cx="16" cy="7" r="2"></circle><circle cx="10" cy="17" r="2"></circle></svg>Settings</button>
+<div style="margin-top: auto; padding: 18px 10px 4px; display: flex; flex-direction: column; gap: 8px">
+<div class="eyebrow">Workspace</div>
+<div style="display: flex; align-items: center; gap: 8px; font-size: 13px"><span class="pill p-done">make check</span><span style="color: var(--muted)">{{checkLabel}}</span></div>
+<div class="mono" style="font-size: 12px; color: var(--muted)">~/projects/fieldline · main</div>
+</div>
+</nav>
+
+<div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+<header style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 14px 28px; border-bottom: 1px solid var(--line)">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; min-width: 0">
+<span style="font-weight: 600; font-size: 15px">Fieldline</span>
+<span class="pill p-agent">Delivery · R1 · Sprint 2</span>
+<span class="tag">sample data</span>
+</div>
+<div style="flex: 1 1 24px"></div>
+<button class="search" onClick="{{openPalette}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>Run a command, find a story or file<kbd>⌘K</kbd></button>
+<button class="icon-btn" aria-label="Toggle light and dark theme" onClick="{{toggleTheme}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"></path></svg></button>
+</header>
+
+<main style="padding: 28px; width: 100%; max-width: 1360px; display: flex; flex-direction: column; gap: 20px">
+
+<sc-if value="{{is.overview}}" hint-placeholder-val="{{true}}">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<h1 class="h1">Good morning</h1>
+<p class="sub">Release 1 · Dispatch MVP · Sprint 2 runs Oct 12 – Oct 23. The workflow state below is computed from the repository files.</p>
+</div>
+<section class="card" style="display: flex; flex-wrap: wrap; align-items: center; gap: 20px; justify-content: space-between; padding: 22px">
+<div style="display: flex; flex-direction: column; gap: 8px; min-width: 0">
+<div class="eyebrow">Next step · make next</div>
+<div class="mono" style="font-size: 22px; font-weight: 500">{{next.cmd}}</div>
+<p class="sub">{{next.why}}</p>
+<div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px"><span class="tag">{{next.mode}} mode</span><span class="tag">{{next.tier}} → {{next.model}}</span><span class="tag">fresh session</span></div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<button class="btn" onClick="{{copyNext}}">{{copyLabel}}</button>
+<button class="btn primary" onClick="{{next.launch}}"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5l12 7-12 7z"></path></svg>Launch agent</button>
+</div>
+</section>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(380px, 100%), 1fr)); gap: 20px">
+<section class="card" style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 8px"><h2 class="h2">Waiting for you</h2><span class="tag">{{pendingCount}}</span><button class="btn ghost sm" style="margin-left: auto" onClick="{{go.approvals}}">All approvals</button></div>
+<sc-if value="{{noPending}}" hint-placeholder-val="{{false}}"><p class="sub">Nothing is waiting for a human gate. Agents can keep going.</p></sc-if>
+<sc-for list="{{pending}}" as="a" hint-placeholder-count="3">
+<button class="row" onClick="{{go.approvals}}"><span class="pill p-human">{{a.kind}}</span><span style="flex: 1; min-width: 0">{{a.title}}</span><span class="sub">{{a.since}}</span></button>
+</sc-for>
+</section>
+<section class="card" style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 8px"><h2 class="h2">Sprint 2</h2><span class="sub">3 stories · ends Oct 23</span><button class="btn ghost sm" style="margin-left: auto" onClick="{{go.plan}}">Plan</button></div>
+<sc-for list="{{sprint2}}" as="s" hint-placeholder-count="3">
+<button class="row" onClick="{{s.open}}" style="flex-wrap: wrap">
+<span class="mono" style="font-size: 12px; color: var(--muted); width: 56px">{{s.id}}</span>
+<span style="flex: 1 1 160px; min-width: 0">{{s.title}}</span>
+<span class="{{s.pillCls}}">{{s.stageName}}</span>
+<span class="bar" style="flex: 1 1 100%; margin-left: 68px"><span style="width: {{s.pct}}%"></span></span>
+</button>
+</sc-for>
+</section>
+<section class="card" style="display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: center; gap: 8px"><h2 class="h2">Codebase health</h2><span class="sub">last scan 08:10</span><button class="btn ghost sm" style="margin-left: auto" onClick="{{go.insights}}">Insights</button></div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr)); gap: 10px">
+<sc-for list="{{health}}" as="h" hint-placeholder-count="4">
+<button class="tile" onClick="{{h.open}}"><span class="eyebrow">{{h.label}}</span><span style="font-size: 22px; font-weight: 600">{{h.value}}</span><span class="sub">{{h.detail}}</span></button>
+</sc-for>
+</div>
+</section>
+<section class="card" style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 8px"><h2 class="h2">Recent agent runs</h2><button class="btn ghost sm" style="margin-left: auto" onClick="{{go.runs}}">All runs</button></div>
+<sc-for list="{{recentRuns}}" as="r" hint-placeholder-count="3">
+<button class="row" onClick="{{r.open}}"><span class="mono" style="flex: 1; min-width: 0; font-size: 13px">{{r.cmd}}</span><span class="{{r.pillCls}}">{{r.statusLabel}}</span><span class="sub" style="width: 76px; text-align: right">{{r.when}}</span></button>
+</sc-for>
+</section>
+</div>
+</sc-if>
+
+<sc-if value="{{is.plan}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 4px"><h1 class="h1">Release plan</h1><p class="sub">From PLAN.md · approved Oct 2 · dependencies from backlog/stories.toml</p></div>
+<div style="margin-left: auto; display: flex; gap: 8px"><button class="btn" onClick="{{launchPlan}}">Re-plan with /release-plan</button></div>
+</div>
+<sc-for list="{{releases}}" as="rel" hint-placeholder-count="2">
+<section class="card" style="display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px"><h2 class="h2">{{rel.name}}</h2><span class="sub">{{rel.goal}}</span></div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 12px">
+<sc-for list="{{rel.sprints}}" as="sp" hint-placeholder-count="2">
+<div style="display: flex; flex-direction: column; gap: 8px; padding: 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg)">
+<div style="display: flex; align-items: center; gap: 8px"><span style="font-weight: 600">{{sp.name}}</span><span class="sub">{{sp.dates}}</span><sc-if value="{{sp.current}}" hint-placeholder-val="{{false}}"><span class="pill p-agent" style="margin-left: auto">current</span></sc-if></div>
+<sc-for list="{{sp.items}}" as="it" hint-placeholder-count="2">
+<button class="row" onClick="{{it.open}}" style="flex-wrap: wrap; gap: 8px">
+<span class="mono" style="font-size: 12px; color: var(--muted)">{{it.id}}</span>
+<span style="flex: 1 1 140px; min-width: 0">{{it.title}}</span>
+<span class="{{it.pillCls}}">{{it.stageName}}</span>
+<sc-if value="{{it.hasDeps}}" hint-placeholder-val="{{false}}"><span class="sub mono" style="flex: 1 1 100%; font-size: 12px">needs {{it.deps}}</span></sc-if>
+</button>
+</sc-for>
+</div>
+</sc-for>
+</div>
+</section>
+</sc-for>
+</sc-if>
+
+<sc-if value="{{is.backlog}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 4px"><h1 class="h1">Backlog</h1><p class="sub">Each story moves through the artifact chain. Columns are computed from the files in analysis/ and delivery/.</p></div>
+<div style="margin-left: auto; display: flex; flex-wrap: wrap; gap: 8px; align-items: center"><span class="pill p-agent">agent</span><span class="pill p-human">waiting for you</span><span class="pill p-done">done</span><span class="pill p-blocked">blocked</span></div>
+</div>
+<div style="overflow-x: auto; padding-bottom: 8px">
+<div style="display: grid; grid-template-columns: repeat(8, minmax(220px, 1fr)); gap: 12px; min-width: 1820px">
+<sc-for list="{{columns}}" as="col" hint-placeholder-count="8">
+<div style="display: flex; flex-direction: column; gap: 8px; padding: 10px; border-radius: 12px; background: var(--panel2); min-height: 420px">
+<div style="display: flex; align-items: center; gap: 8px; padding: 2px 4px 6px"><span style="font-weight: 600; font-size: 13px">{{col.name}}</span><span class="sub">{{col.count}}</span></div>
+<sc-for list="{{col.cards}}" as="c" hint-placeholder-count="1">
+<button class="bcard" onClick="{{c.open}}">
+<div style="display: flex; align-items: center; gap: 8px"><span class="mono" style="font-size: 12px; color: var(--muted)">{{c.id}}</span><span class="tag" style="margin-left: auto">{{c.size}}</span></div>
+<span style="font-size: 13px; line-height: 19px">{{c.title}}</span>
+<span class="{{c.pillCls}}" style="align-self: flex-start">{{c.status}}</span>
+</button>
+</sc-for>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{is.story}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 10px">
+<button class="btn ghost sm" style="align-self: flex-start" onClick="{{go.backlog}}">← Backlog</button>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px"><span class="mono" style="color: var(--muted)">{{st.id}}</span><h1 class="h1">{{st.title}}</h1><span class="{{st.pillCls}}">{{st.status}}</span></div>
+<p class="sub">{{st.epic}} · size {{st.size}} · {{st.sprintLabel}} · {{st.depsLabel}}</p>
+</div>
+<section class="card" style="display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center">
+<sc-for list="{{st.chain}}" as="ch" hint-placeholder-count="8">
+<div class="{{ch.cls}}"><span class="dot">{{ch.n}}</span>{{ch.name}}</div>
+</sc-for>
+</section>
+<div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
+<section class="card" style="flex: 999 1 480px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px"><span class="mono" style="font-size: 12px; color: var(--muted)">{{st.file}}</span><button class="btn ghost sm" style="margin-left: auto">Open in editor</button></div>
+<div class="doc"><sc-for list="{{st.doc}}" as="ln" hint-placeholder-count="6"><div class="{{ln.c}}">{{ln.t}}</div></sc-for></div>
+</section>
+<aside style="flex: 1 1 300px; display: flex; flex-direction: column; gap: 16px">
+<sc-if value="{{st.isHuman}}" hint-placeholder-val="{{true}}">
+<section class="card" style="display: flex; flex-direction: column; gap: 12px; border-color: var(--orange)">
+<div class="eyebrow" style="color: var(--orange)">Human gate</div>
+<p style="line-height: 21px">{{st.gateText}}</p>
+<div style="display: flex; flex-wrap: wrap; gap: 8px"><button class="btn primary" onClick="{{st.approve}}">{{st.gateAct}}</button><button class="btn" onClick="{{st.sendBack}}">Request changes</button></div>
+<p class="sub">Your decision is written to the file and recorded with your name. Agents can never pass this gate.</p>
+</section>
+</sc-if>
+<sc-if value="{{st.hasNext}}" hint-placeholder-val="{{false}}">
+<section class="card" style="display: flex; flex-direction: column; gap: 12px">
+<div class="eyebrow">Next agent step</div>
+<div class="mono" style="font-size: 16px">{{st.next}}</div>
+<p class="sub">{{st.nextWhy}}</p>
+<button class="btn primary" style="align-self: flex-start" onClick="{{st.launch}}"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5l12 7-12 7z"></path></svg>Launch</button>
+</section>
+</sc-if>
+<section class="card" style="display: flex; flex-direction: column; gap: 10px">
+<div class="eyebrow">Context budget</div>
+<p class="mono" style="font-size: 12px; color: var(--muted)">context.py {{st.step}} {{st.id}}</p>
+<sc-for list="{{st.budget}}" as="b" hint-placeholder-count="4"><div style="display: flex; gap: 8px; font-size: 13px"><span class="mono" style="flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{b.f}}</span><span class="sub">{{b.n}}</span></div></sc-for>
+</section>
+</aside>
+</div>
+</sc-if>
+
+<sc-if value="{{is.approvals}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 4px"><h1 class="h1">Approvals</h1><p class="sub">Every human gate of the workflow in one inbox. Each decision is a small, visible change to a file in the repository.</p></div>
+<sc-for list="{{approvals}}" as="a" hint-placeholder-count="4">
+<section class="card" style="display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px"><span class="{{a.pillCls}}">{{a.kind}}</span><span class="mono" style="font-size: 12px; color: var(--muted)">{{a.ref}}</span><span class="sub" style="margin-left: auto">{{a.since}}</span></div>
+<h2 class="h2" style="font-size: 16px">{{a.title}}</h2>
+<div style="display: flex; flex-direction: column; gap: 6px"><span class="mono" style="font-size: 12px; color: var(--muted)">{{a.file}} · {{a.where}}</span><div class="diff"><div class="m">{{a.minus}}</div><div class="p">{{a.plus}}</div></div></div>
+<sc-if value="{{a.open}}" hint-placeholder-val="{{true}}">
+<div style="display: flex; flex-wrap: wrap; gap: 8px"><button class="btn primary" onClick="{{a.approve}}">{{a.act}}</button><button class="btn" onClick="{{a.sendBack}}">Request changes</button><button class="btn ghost" onClick="{{a.view}}">Open story</button></div>
+</sc-if>
+<sc-if value="{{a.done}}" hint-placeholder-val="{{false}}"><p class="sub">{{a.result}}</p></sc-if>
+</section>
+</sc-for>
+</sc-if>
+
+<sc-if value="{{is.runs}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 4px"><h1 class="h1">Agent runs</h1><p class="sub">Headless sessions of the agent CLI, one per command, with the model of the step's tier. Runs stop at every human gate.</p></div>
+<button class="btn" style="margin-left: auto" onClick="{{openPalette}}">New run</button>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
+<section class="card" style="flex: 1 1 300px; display: flex; flex-direction: column; gap: 4px; padding: 10px">
+<sc-for list="{{runs}}" as="r" hint-placeholder-count="5">
+<button class="{{r.rowCls}}" onClick="{{r.open}}" style="flex-direction: column; align-items: stretch; gap: 6px">
+<div style="display: flex; align-items: center; gap: 8px"><span class="mono" style="font-size: 13px; flex: 1; min-width: 0">{{r.cmd}}</span><span class="{{r.pillCls}}">{{r.statusLabel}}</span></div>
+<span class="sub">#{{r.id}} · {{r.model}} · {{r.when}}</span>
+</button>
+</sc-for>
+</section>
+<section style="flex: 999 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px"><span class="mono" style="font-size: 15px">{{run.cmd}}</span><span class="{{run.pillCls}}">{{run.statusLabel}}</span><span class="tag">{{run.tool}}</span><span class="tag">{{run.tier}} → {{run.model}}</span><span class="tag">{{run.dur}}</span></div>
+<div class="term" role="log" aria-label="Agent session output"><sc-for list="{{run.lines}}" as="l" hint-placeholder-count="8"><div class="{{l.c}}">{{l.t}}</div></sc-for><sc-if value="{{run.live}}" hint-placeholder-val="{{false}}"><span class="caret"></span></sc-if></div>
+<sc-if value="{{run.atGate}}" hint-placeholder-val="{{false}}">
+<div class="card" style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; border-color: var(--orange)"><span class="pill p-human">gate</span><span style="flex: 1 1 240px">{{run.gateText}}</span><button class="btn primary" onClick="{{go.approvals}}">Review in Approvals</button></div>
+</sc-if>
+</section>
+</div>
+</sc-if>
+
+<sc-if value="{{is.insights}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 4px"><h1 class="h1">Insights</h1><p class="sub">Findings from built-in checks and the scanners installed on this machine. Any finding can become a story that follows the workflow.</p></div>
+<button class="btn" style="margin-left: auto" onClick="{{launchScan}}">Rescan</button>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 12px">
+<sc-for list="{{health}}" as="h" hint-placeholder-count="4">
+<button class="tile" onClick="{{h.open}}"><span class="eyebrow">{{h.label}}</span><span style="font-size: 22px; font-weight: 600">{{h.value}}</span><span class="sub">{{h.detail}}</span></button>
+</sc-for>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<sc-for list="{{cats}}" as="ct" hint-placeholder-count="5"><button class="{{ct.cls}}" onClick="{{ct.pick}}">{{ct.label}} <span style="opacity: .7">{{ct.n}}</span></button></sc-for>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
+<section class="card" style="flex: 999 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 2px; padding: 8px">
+<sc-for list="{{findings}}" as="f" hint-placeholder-count="6">
+<button class="{{f.rowCls}}" onClick="{{f.pick}}" style="flex-wrap: wrap">
+<span class="{{f.sevCls}}" style="width: 76px">{{f.sev}}</span>
+<span style="flex: 1 1 200px; min-width: 0">{{f.title}}</span>
+<span class="mono" style="flex: 1 1 220px; min-width: 0; font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{f.file}}</span>
+</button>
+</sc-for>
+</section>
+<aside class="card" style="flex: 1 1 320px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center"><span class="{{fd.sevCls}}">{{fd.sev}}</span><span class="tag">{{fd.catLabel}}</span></div>
+<h2 class="h2" style="font-size: 17px">{{fd.title}}</h2>
+<div style="display: flex; flex-direction: column; gap: 4px"><span class="mono" style="font-size: 12px">{{fd.file}}</span><span class="sub">Source: {{fd.tool}}</span></div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px"><button class="btn" onClick="{{fd.explain}}">Explain with AI</button><button class="btn primary" onClick="{{fd.toStory}}">Turn into story</button></div>
+<sc-if value="{{fd.explained}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 6px; padding: 12px; border-radius: 8px; background: var(--panel2)"><span class="eyebrow">Explanation · fast tier → haiku</span><p style="line-height: 21px">{{fd.explain_text}}</p></div>
+</sc-if>
+<sc-if value="{{fd.created}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 6px; padding: 12px; border-radius: 8px; border: 1px solid var(--green)"><span class="pill p-done" style="align-self: flex-start">story added</span><p class="mono" style="font-size: 12px; line-height: 20px">{{fd.storyText}}</p><p class="sub">Written to backlog/stories.toml with the {{fd.fix}} guide. Next: /analysis or straight to /brief for a hotfix.</p></div>
+</sc-if>
+</aside>
+</div>
+</sc-if>
+
+<sc-if value="{{is.architecture}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 4px"><h1 class="h1">Architecture</h1><p class="sub">Generated from repo_map.py, the import graph, infrastructure files and the ADRs. Regenerated on every scan.</p></div>
+<div style="margin-left: auto; display: flex; gap: 4px; padding: 4px; border-radius: 8px; border: 1px solid var(--line)"><button class="{{arch.compCls}}" onClick="{{arch.comp}}">Components</button><button class="{{arch.infraCls}}" onClick="{{arch.infra}}">Infrastructure</button></div>
+</div>
+<sc-if value="{{arch.isComp}}" hint-placeholder-val="{{true}}">
+<section class="card" style="overflow-x: auto; padding: 0">
+<div style="position: relative; width: 816px; height: 352px">
+<svg width="111" height="8" viewBox="0 0 111 8" preserveAspectRatio="none" style="position: absolute; left: 208px; top: 60px; width: 111px; height: 8px; overflow: visible; fill: none; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><defs><marker id="dc-arrow-head-filled-1" orient="auto" markerWidth="5" markerHeight="5" refX="2" refY="2" overflow="visible"><path d="M0 0 L4 2 L0 4 Z" fill="#9AA3B2" stroke="none" style="stroke: none; fill: #9AA3B2; fill: context-stroke"></path></marker></defs><path d="M 0 4 L 107 4" marker-end="url(#dc-arrow-head-filled-1)"></path></svg>
+<svg width="111" height="8" viewBox="0 0 111 8" preserveAspectRatio="none" style="position: absolute; left: 208px; top: 172px; width: 111px; height: 8px; overflow: visible; fill: none; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><defs><marker id="dc-arrow-head-filled-2" orient="auto" markerWidth="5" markerHeight="5" refX="2" refY="2" overflow="visible"><path d="M0 0 L4 2 L0 4 Z" fill="#9AA3B2" stroke="none" style="stroke: none; fill: #9AA3B2; fill: context-stroke"></path></marker></defs><path d="M 0 4 L 107 4" marker-end="url(#dc-arrow-head-filled-2)"></path></svg>
+<svg width="111" height="8" viewBox="0 0 111 8" preserveAspectRatio="none" style="position: absolute; left: 496px; top: 60px; width: 111px; height: 8px; overflow: visible; fill: none; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><defs><marker id="dc-arrow-head-filled-3" orient="auto" markerWidth="5" markerHeight="5" refX="2" refY="2" overflow="visible"><path d="M0 0 L4 2 L0 4 Z" fill="#9AA3B2" stroke="none" style="stroke: none; fill: #9AA3B2; fill: context-stroke"></path></marker></defs><path d="M 0 4 L 107 4" marker-end="url(#dc-arrow-head-filled-3)"></path></svg>
+<svg width="111" height="8" viewBox="0 0 111 8" preserveAspectRatio="none" style="position: absolute; left: 496px; top: 172px; width: 111px; height: 8px; overflow: visible; fill: none; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><defs><marker id="dc-arrow-head-filled-4" orient="auto" markerWidth="5" markerHeight="5" refX="2" refY="2" overflow="visible"><path d="M0 0 L4 2 L0 4 Z" fill="#9AA3B2" stroke="none" style="stroke: none; fill: #9AA3B2; fill: context-stroke"></path></marker></defs><path d="M 0 4 L 107 4" marker-end="url(#dc-arrow-head-filled-4)"></path></svg>
+<svg width="8" height="47" viewBox="0 0 8 47" preserveAspectRatio="none" style="position: absolute; left: 692px; top: 208px; width: 8px; height: 47px; overflow: visible; fill: none; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><defs><marker id="dc-arrow-head-filled-5" orient="auto" markerWidth="5" markerHeight="5" refX="2" refY="2" overflow="visible"><path d="M0 0 L4 2 L0 4 Z" fill="#9AA3B2" stroke="none" style="stroke: none; fill: #9AA3B2; fill: context-stroke"></path></marker></defs><path d="M 4 0 L 4 43" marker-end="url(#dc-arrow-head-filled-5)"></path></svg>
+<svg width="8" height="47" viewBox="0 0 8 47" preserveAspectRatio="none" style="position: absolute; left: 404px; top: 208px; width: 8px; height: 47px; overflow: visible; fill: none; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 6 6"><defs><marker id="dc-arrow-head-filled-6" orient="auto" markerWidth="5" markerHeight="5" refX="2" refY="2" overflow="visible"><path d="M0 0 L4 2 L0 4 Z" fill="#9AA3B2" stroke="none" style="stroke: none; fill: #9AA3B2; fill: context-stroke"></path></marker></defs><path d="M 4 0 L 4 43" marker-end="url(#dc-arrow-head-filled-6)"></path></svg>
+<div class="dg" style="left: 32px; top: 32px; width: 176px; height: 64px"><span><b>Web app</b><br><span class="s">React · packages/web</span></span></div>
+<div class="dg" style="left: 32px; top: 144px; width: 176px; height: 64px"><span><b>Technician app</b><br><span class="s">Expo · packages/mobile</span></span></div>
+<div class="dg" style="left: 320px; top: 32px; width: 176px; height: 176px; border-color: var(--accent)"><span><b>API</b><br><span class="s">FastAPI · packages/api<br>ADR-002</span></span></div>
+<div class="dg" style="left: 608px; top: 32px; width: 176px; height: 64px"><span><b>PostgreSQL</b><br><span class="s">work orders, SLA</span></span></div>
+<div class="dg" style="left: 608px; top: 144px; width: 176px; height: 64px"><span><b>Redis queue</b><br><span class="s">ADR-003</span></span></div>
+<div class="dg" style="left: 608px; top: 256px; width: 176px; height: 64px"><span><b>Worker</b><br><span class="s">SLA timers · packages/worker</span></span></div>
+<div class="dg" style="left: 320px; top: 256px; width: 176px; height: 64px; border-style: dashed; background: transparent"><span><b>Payment provider</b><br><span class="s">external · R2</span></span></div>
+</div>
+</section>
+</sc-if>
+<sc-if value="{{arch.isInfra}}" hint-placeholder-val="{{false}}">
+<section class="card" style="display: flex; flex-direction: column; gap: 2px; padding: 8px">
+<sc-for list="{{infra}}" as="i" hint-placeholder-count="5">
+<div class="row" style="flex-wrap: wrap"><span style="flex: 1 1 260px; font-weight: 500">{{i.name}}</span><span class="sub" style="flex: 1 1 200px">{{i.role}}</span><span class="mono" style="font-size: 12px; color: var(--muted)">{{i.file}}</span></div>
+</sc-for>
+</section>
+</sc-if>
+<section class="card" style="display: flex; flex-direction: column; gap: 4px; padding: 8px">
+<div class="eyebrow" style="padding: 8px 10px">Decisions · reference/architecture</div>
+<sc-for list="{{adrs}}" as="d" hint-placeholder-count="4">
+<div class="row"><span class="mono" style="font-size: 12px; color: var(--muted); width: 72px">{{d.id}}</span><span style="flex: 1; min-width: 0">{{d.title}}</span><span class="{{d.pillCls}}">{{d.status}}</span></div>
+</sc-for>
+</section>
+</sc-if>
+
+<sc-if value="{{is.journal}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 4px"><h1 class="h1">Journal</h1><p class="sub">Project memory in project-journal/. Weekly summaries are drafted from notes, git log and plan state.</p></div>
+<button class="btn primary" style="margin-left: auto" onClick="{{launchWeekly}}">Draft this week · /weekly</button>
+</div>
+<sc-for list="{{journal}}" as="j" hint-placeholder-count="3">
+<section class="card" style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px"><span style="font-weight: 600">{{j.week}}</span><span class="sub">{{j.dates}}</span><span class="{{j.pillCls}}" style="margin-left: auto">{{j.state}}</span></div>
+<p style="line-height: 22px; color: var(--muted)">{{j.text}}</p>
+</section>
+</sc-for>
+</sc-if>
+
+<sc-if value="{{is.settings}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 4px"><h1 class="h1">Settings</h1><p class="sub">Read from project.toml and models.toml. Changes are written back to those files.</p></div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(420px, 100%), 1fr)); gap: 20px">
+<section class="card" style="display: flex; flex-direction: column; gap: 4px">
+<h2 class="h2" style="padding-bottom: 8px">Project · project.toml</h2>
+<sc-for list="{{projectRows}}" as="p" hint-placeholder-count="6">
+<div style="display: flex; gap: 12px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 13px"><span class="sub" style="width: 120px">{{p.k}}</span><span class="mono" style="flex: 1; min-width: 0">{{p.v}}</span></div>
+</sc-for>
+</section>
+<section class="card" style="display: flex; flex-direction: column; gap: 8px">
+<h2 class="h2" style="padding-bottom: 4px">Agent CLI for headless runs</h2>
+<sc-for list="{{clis}}" as="c" hint-placeholder-count="4">
+<button class="{{c.rowCls}}" onClick="{{c.pick}}"><span style="flex: 1; min-width: 0"><span style="font-weight: 500">{{c.name}}</span> <span class="mono sub">{{c.bin}}</span></span><span class="{{c.pillCls}}">{{c.state}}</span></button>
+</sc-for>
+</section>
+<section class="card" style="display: flex; flex-direction: column; gap: 4px; overflow-x: auto">
+<h2 class="h2" style="padding-bottom: 8px">Models per tier · models.toml</h2>
+<div style="display: grid; grid-template-columns: 90px repeat(3, minmax(110px, 1fr)); gap: 0; font-size: 13px; min-width: 430px">
+<span class="eyebrow" style="padding: 8px 0">tier</span><span class="eyebrow" style="padding: 8px 0">anthropic</span><span class="eyebrow" style="padding: 8px 0">openai</span><span class="eyebrow" style="padding: 8px 0">google</span>
+<span style="padding: 8px 0; border-top: 1px solid var(--line)">fast</span><span class="mono" style="padding: 8px 0; border-top: 1px solid var(--line)">haiku</span><span class="mono" style="padding: 8px 0; border-top: 1px solid var(--line)">gpt-5-mini</span><span class="mono" style="padding: 8px 0; border-top: 1px solid var(--line)">gemini-2.5-flash</span>
+<span style="padding: 8px 0; border-top: 1px solid var(--line)">balanced</span><span class="mono" style="padding: 8px 0; border-top: 1px solid var(--line)">sonnet</span><span class="mono" style="padding: 8px 0; border-top: 1px solid var(--line)">gpt-5-codex</span><span class="mono" style="padding: 8px 0; border-top: 1px solid var(--line)">gemini-2.5-pro</span>
+<span style="padding: 8px 0; border-top: 1px solid var(--line)">deep</span><span class="mono" style="padding: 8px 0; border-top: 1px solid var(--line)">opus</span><span class="mono" style="padding: 8px 0; border-top: 1px solid var(--line)">gpt-5</span><span class="mono" style="padding: 8px 0; border-top: 1px solid var(--line)">gemini-2.5-pro</span>
+</div>
+</section>
+<section class="card" style="display: flex; flex-direction: column; gap: 4px">
+<h2 class="h2" style="padding-bottom: 8px">Analyzers</h2>
+<sc-for list="{{analyzers}}" as="z" hint-placeholder-count="6">
+<div style="display: flex; align-items: center; gap: 12px; padding: 8px 0; border-top: 1px solid var(--line)">
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 500; font-size: 13px">{{z.name}}</span><span class="sub">{{z.desc}}</span></span>
+<sc-if value="{{z.installed}}" hint-placeholder-val="{{true}}"><button class="{{z.cls}}" aria-label="{{z.aria}}" aria-pressed="{{z.on}}" onClick="{{z.toggle}}"></button></sc-if>
+<sc-if value="{{z.missing}}" hint-placeholder-val="{{false}}"><span class="tag">not installed</span></sc-if>
+</div>
+</sc-for>
+</section>
+</div>
+</sc-if>
+
+</main>
+</div>
+
+<sc-if value="{{palette}}" hint-placeholder-val="{{false}}">
+<div class="overlay">
+<div style="width: min(640px, 100%); background: var(--panel); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 24px 64px rgba(0,0,0,.45); overflow: hidden">
+<label class="sr" for="pal-q">Search commands</label>
+<input id="pal-q" class="pal-in" placeholder="Type a command, story ID or screen…" value="{{q}}" onChange="{{onQ}}" autocomplete="off">
+<div style="max-height: 52vh; overflow-y: auto; padding: 6px">
+<sc-for list="{{cmds}}" as="c" hint-placeholder-count="8">
+<button class="row" onClick="{{c.act}}"><span class="mono" style="flex: 1; min-width: 0; font-size: 13px">{{c.label}}</span><span class="sub">{{c.hint}}</span></button>
+</sc-for>
+<sc-if value="{{noCmds}}" hint-placeholder-val="{{false}}"><p class="sub" style="padding: 12px">No match.</p></sc-if>
+</div>
+<div style="display: flex; justify-content: flex-end; padding: 8px; border-top: 1px solid var(--line)"><button class="btn ghost sm" onClick="{{closePalette}}">Close</button></div>
+</div>
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"accent":{"editor":"color","options":["#C8F169","#7FB2FF","#FFB86B","#B79CFF"],"default":"#C8F169"},"$preview":{"width":1440,"height":1000}}'>
+const STAGES = ['Story', 'Analysis', 'Refined', 'Brief', 'Spec', 'RUN', 'Review', 'Closed'];
+const STEP_OF = ['analysis', 'refine', 'brief-spec', 'brief-spec', 'spec-approval', 'run-strategy', 'review', 'review'];
+const MODELS = { anthropic: { fast: 'haiku', balanced: 'sonnet', deep: 'opus' }, openai: { fast: 'gpt-5-mini', balanced: 'gpt-5-codex', deep: 'gpt-5' } };
+const CLIS = [
+  { key: 'claude-code', name: 'Claude Code', bin: 'claude -p', vendor: 'anthropic', state: 'found · default' },
+  { key: 'codex', name: 'Codex CLI', bin: 'codex exec', vendor: 'openai', state: 'found' },
+  { key: 'copilot', name: 'GitHub Copilot', bin: 'IDE only', vendor: 'anthropic', state: 'copy commands' },
+  { key: 'cursor', name: 'Cursor', bin: 'cursor-agent', vendor: 'anthropic', state: 'not found' }
+];
+const STORIES = [
+  { id: 'FL0101', title: 'Create a work order', epic: 'Work orders', size: 'M', sprint: 'S1', stage: 7, owner: 'done', status: 'Closed', deps: '' },
+  { id: 'FL0102', title: 'Assign a technician to a work order', epic: 'Work orders', size: 'S', sprint: 'S1', stage: 6, owner: 'agent', status: 'Next: /review-story', deps: 'FL0101' },
+  { id: 'FL0103', title: 'SLA timers on work orders', epic: 'Work orders', size: 'L', sprint: 'S2', stage: 5, owner: 'human', status: 'Strategy awaits you', deps: 'FL0101' },
+  { id: 'FL0104', title: 'Close a work order with customer signature', epic: 'Work orders', size: 'M', sprint: 'S2', stage: 4, owner: 'human', status: 'Spec awaits Ready', deps: '' },
+  { id: 'FL0201', title: 'Offline job list for technicians', epic: 'Technician app', size: 'L', sprint: 'S2', stage: 3, owner: 'agent', status: 'Next: /brief', deps: '' },
+  { id: 'FL0202', title: 'Upload job photos with compression', epic: 'Technician app', size: 'M', sprint: 'S3', stage: 2, owner: 'agent', status: 'Next: /refine', deps: 'FL0201' },
+  { id: 'FL0203', title: 'Suggested route for the day', epic: 'Technician app', size: 'XL', sprint: 'S3', stage: 1, owner: 'human', status: 'Workshop minutes missing', deps: 'FL0201' },
+  { id: 'FL0301', title: 'Invoice from a completed work order', epic: 'Billing', size: 'M', sprint: 'S4', stage: 0, owner: 'agent', status: 'Next: /analysis', deps: 'FL0104' },
+  { id: 'FL0302', title: 'Card payment through the provider', epic: 'Billing', size: 'L', sprint: 'S4', stage: 0, owner: 'blocked', status: 'Blocked by FL0301', deps: 'FL0301' }
+];
+const DOCS = {
+  FL0101: ['delivery/30-runs/RUN-FL0101.md', [['h', '## Status'], ['k', 'Closed'], ['h', '## 5. Persistence'], ['t', 'Spec reconciled · FR-01, FR-02 marked delivered'], ['t', 'Review: no blocking findings']]],
+  FL0102: ['delivery/30-runs/RUN-FL0102.md', [['h', '## Status'], ['k', 'Persisted'], ['h', '## 4. Tuning'], ['t', 'Accepted by product owner, Oct 15'], ['t', 'Waiting for the independent review before closure']]],
+  FL0103: ['delivery/30-runs/RUN-FL0103.md', [['h', '## Status'], ['k', 'Draft'], ['h', '## 2. Execution Strategy'], ['t', 'TSK-FL0103-01  SLA policy model and migration       packages/api'], ['t', 'TSK-FL0103-02  Timer service: schedule, pause, breach packages/worker'], ['t', 'TSK-FL0103-03  SLA badge on the work order list      packages/web'], ['t', 'TSK-FL0103-04  Tests: breach at boundary, paused states'], ['h', 'Risks'], ['t', 'timers.py has no tests today: TSK-04 runs before TSK-02'], ['x', '- [ ] Approved']]],
+  FL0104: ['delivery/20-specs/SPEC-FL0104-signature.md', [['h', '## Status'], ['x', 'Draft'], ['h', '## Acceptance criteria'], ['t', 'AC-1  A technician cannot close without a signature or a reason'], ['t', 'AC-2  The signature is stored as PNG ≤ 200 KB, linked to the work order'], ['t', 'AC-3  The customer receives the PDF summary by email'], ['h', '## Out of scope'], ['t', 'Remote e-signature']]],
+  FL0201: ['analysis/30-refined/REFINED_FL0201_offline-jobs.md', [['h', '## Status'], ['k', 'Refined'], ['h', '## Decisions from the workshop'], ['t', 'Jobs of the next 48 h are cached on the device'], ['t', 'Conflicts: server wins, technician notes are merged'], ['t', 'Sync strategy follows ADR-004 (proposed)']]],
+  FL0202: ['analysis/20-analysis/ANALYSIS_FL0202_photos.md', [['h', '## Status'], ['k', 'Workshop done'], ['h', '## Open questions'], ['t', 'Max photos per job: answered in the minutes (10)'], ['t', 'Retention period: answered (24 months)']]],
+  FL0203: ['analysis/20-analysis/ANALYSIS_FL0203_routes.md', [['h', '## Status'], ['x', 'Waiting for workshop'], ['h', '## Questions for the workshop'], ['t', 'Q1  Is a suggested order enough, or turn-by-turn navigation?'], ['t', 'Q2  Do urgent jobs reshuffle the day automatically?'], ['t', 'Q3  Which map provider is already licensed?']]],
+  FL0301: ['analysis/10-stories/STORY_FL0301_invoice.md', [['h', '## Story'], ['t', 'As a back-office clerk I want an invoice drafted from a'], ['t', 'completed work order so that billing does not retype it.'], ['h', '## References'], ['t', 'FR-12, NFR-04']]],
+  FL0302: ['analysis/10-stories/STORY_FL0302_payment.md', [['h', '## Story'], ['t', 'As a customer I want to pay the invoice by card.'], ['h', '## Depends on'], ['t', 'FL0301']]]
+};
+const APPROVALS = [
+  { id: 'FL0103', kind: 'RUN strategy', title: 'Approve the execution strategy for SLA timers', file: 'delivery/30-runs/RUN-FL0103.md', where: '§2 Execution Strategy', minus: '- [ ] Approved', plus: '+ [x] Approved — product owner, 2026-10-19', since: '2 h ago', act: 'Approve strategy' },
+  { id: 'FL0104', kind: 'Spec Ready', title: 'Mark the signature Spec as Ready', file: 'delivery/20-specs/SPEC-FL0104-signature.md', where: '## Status', minus: '- Draft', plus: '+ Ready', since: '1 d ago', act: 'Mark Ready' },
+  { id: 'FL0203', kind: 'Workshop', title: 'Attach the workshop minutes for route suggestions', file: 'analysis/20-analysis/ANALYSIS_FL0203_routes.md', where: '## Workshop', minus: '- minutes: missing', plus: '+ minutes: project-journal/notes/2026-10-16-routes.md', since: '3 d ago', act: 'Attach minutes' },
+  { id: 'ADR-004', kind: 'ADR', title: 'Accept ADR-004 Offline sync strategy', file: 'reference/architecture/ADR-004-offline-sync.md', where: 'frontmatter', minus: '- status: proposed', plus: '+ status: accepted', since: '4 d ago', act: 'Accept' }
+];
+const EXTRA_APPROVAL = { id: 'FL0201', kind: 'Spec Ready', title: 'Mark the offline job list Spec as Ready', file: 'delivery/20-specs/SPEC-FL0201-offline-jobs.md', where: '## Status', minus: '- Draft', plus: '+ Ready', since: 'just now', act: 'Mark Ready' };
+const BASE_RUNS = [
+  { id: 14, cmd: '/run FL0103', tier: 'balanced', model: 'sonnet', tool: 'claude -p', status: 'gate', when: 'today 09:42', dur: '6 m 12 s', gateText: 'RUN strategy for FL0103 needs your approval before any code is written.', lines: [
+    ['cmd', '$ claude -p "/run FL0103" --model sonnet'], ['dim', '● make next → developer · run-strategy · FL0103'], ['dim', '● context.py run-strategy FL0103 → 6 files · FR-05, FR-06 · ADR-002, ADR-003 (≈11.2k tokens)'],
+    ['dim', '● read delivery/20-specs/SPEC-FL0103-sla-timers.md (Ready)'], ['dim', '● read packages/worker/AGENTS.md'], ['ok', '✓ wrote delivery/30-runs/RUN-FL0103.md §1 Scope, §2 Execution Strategy'],
+    ['txt', 'TSK-FL0103-01 SLA policy model and migration'], ['txt', 'TSK-FL0103-02 Timer service: schedule, pause, breach event'], ['txt', 'TSK-FL0103-03 SLA badge on the work order list'], ['txt', 'TSK-FL0103-04 Tests: breach at boundary, paused states'],
+    ['warn', '▲ insight: packages/worker/sla/timers.py has 0% coverage — tests scheduled first'], ['gate', '■ human gate: RUN strategy approval (RUN §2). Session paused.']] },
+  { id: 13, cmd: '/brief FL0104', tier: 'balanced', model: 'sonnet', tool: 'claude -p', status: 'gate', when: 'yesterday', dur: '4 m 05 s', gateText: 'Spec FL0104 waits for status Ready.', lines: [
+    ['cmd', '$ claude -p "/brief FL0104" --model sonnet'], ['dim', '● context.py brief-spec FL0104 → 5 files · FR-08 (≈7.4k tokens)'], ['ok', '✓ wrote delivery/10-briefs/BRIEF-FL0104-signature.md'], ['ok', '✓ wrote delivery/20-specs/SPEC-FL0104-signature.md (status: Draft)'], ['ok', '✓ make check — 0 errors'], ['gate', '■ human gate: review the Spec, then set status Ready.']] },
+  { id: 12, cmd: '/review-story FL0101', tier: 'balanced', model: 'sonnet', tool: 'claude -p', status: 'done', when: 'Oct 16', dur: '3 m 30 s', lines: [
+    ['cmd', '$ claude -p "/review-story FL0101" --model sonnet'], ['dim', '● context.py review FL0101 → Brief, Spec, RUN, diff'], ['ok', '✓ Brief ↔ Spec ↔ RUN consistent'], ['ok', '✓ no scope creep · quality gates passed'], ['ok', '✓ RUN-FL0101 status → Closed']] },
+  { id: 11, cmd: '/weekly', tier: 'fast', model: 'haiku', tool: 'claude -p', status: 'done', when: 'Oct 16', dur: '48 s', lines: [
+    ['cmd', '$ claude -p "/weekly" --model haiku'], ['dim', '● read project-journal/notes/current-week.md · git log --since 7d'], ['ok', '✓ wrote project-journal/weekly/2026-W42.md']] }
+];
+const FINDINGS = [
+  { id: 'F1', cat: 'security', sev: 'high', title: 'Hard-coded access key', file: 'infra/scripts/deploy.sh:14', tool: 'built-in secret patterns', fix: 'hotfix', explain: 'A string matching a cloud access key pattern is committed. Anyone with read access to the repository can use it. Rotate the key first, then move it to the pipeline secret store and reference it as a variable.' },
+  { id: 'F2', cat: 'security', sev: 'medium', title: 'SQL built with string formatting', file: 'packages/api/repos/work_orders.py:88', tool: 'semgrep', fix: 'hotfix', explain: 'The status filter is inserted into the query with an f-string taken from the request. Use a bound parameter; the session in this module already supports them.' },
+  { id: 'F3', cat: 'security', sev: 'medium', title: 'Dependency with a known advisory', file: 'packages/api/requirements.txt · pyjwt', tool: 'pip-audit', fix: 'hotfix', explain: 'The pinned version appears in a published advisory. Upgrade to the fixed release and run the authentication tests.' },
+  { id: 'F4', cat: 'tests', sev: 'high', title: 'Changed often, never tested', file: 'packages/worker/sla/timers.py', tool: 'coverage.xml + git log', fix: 'refactor-nfr', explain: 'No line of this file is covered and it changed in 9 commits over the last 30 days. FL0103 will modify it, so its RUN adds tests before touching the logic.' },
+  { id: 'F5', cat: 'tests', sev: 'medium', title: 'Feature folder without tests', file: 'packages/mobile/src/features/signature/', tool: 'test-file heuristic', fix: 'refactor-nfr', explain: 'Four source files and no matching test file. FL0104 adds behaviour here; the Spec should list the tests it expects.' },
+  { id: 'F6', cat: 'weak', sev: 'medium', title: 'Hotspot: large file with high churn', file: 'packages/api/services/dispatch.py', tool: 'repo_map + git log', fix: 'refactor-nfr', explain: 'About 1,200 lines and first in the churn ranking. Splitting assignment rules from notification code would make FL0102 and FL0203 cheaper to change.' },
+  { id: 'F7', cat: 'weak', sev: 'low', title: 'Catch-all helper module', file: 'packages/web/src/utils/helpers.ts', tool: 'import graph', fix: 'refactor-nfr', explain: 'Imported by most features for unrelated reasons. Moving date and money helpers to their own modules reduces the blast radius of changes.' },
+  { id: 'F8', cat: 'workflow', sev: 'low', title: 'Requirement without a story', file: 'FR-07 Export work orders to CSV', tool: 'make check', fix: 'story', explain: 'No story in backlog/stories.toml covers FR-07. Add a story, or mark the requirement out of scope for this release.' },
+  { id: 'F9', cat: 'workflow', sev: 'low', title: 'ADR still proposed', file: 'reference/architecture/ADR-004-offline-sync.md', tool: 'make check', fix: 'story', explain: 'FL0201 depends on this decision. Accept or revise it before its Spec is approved.' }
+];
+const CAT_LABEL = { all: 'All', security: 'Security', tests: 'Untested code', weak: 'Weak files', workflow: 'Workflow' };
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { screen: 'overview', palette: false, q: '', theme: null, sel: 'FL0103', selRun: 14, approved: {}, sentBack: {}, extra: false, fl0201: 3, cat: 'all', selF: 'F1', explained: {}, created: {}, nextNum: 3, launched: [], archTab: 'components', cli: 'claude-code', copied: false, an: { secrets: true, semgrep: true, gitleaks: false, pipaudit: true, npmaudit: true, coverage: true, trivy: false } };
+    this.timer = null;
+  }
+  componentWillUnmount() { if (this.timer) clearInterval(this.timer); }
+
+  go(screen) { this.setState({ screen: screen, palette: false }); }
+
+  eff(s) {
+    const S = this.state;
+    const e = Object.assign({}, s);
+    if (s.id === 'FL0201' && S.fl0201 === 4) { e.stage = 4; e.owner = 'human'; e.status = 'Spec awaits Ready'; }
+    if (S.approved[s.id]) {
+      if (s.id === 'FL0103') { e.owner = 'agent'; e.status = 'Approved → /run executes'; }
+      if (s.id === 'FL0104' || s.id === 'FL0201') { e.stage = 5; e.owner = 'agent'; e.status = 'Next: /run'; }
+      if (s.id === 'FL0203') { e.stage = 2; e.owner = 'agent'; e.status = 'Next: /refine'; }
+    } else if (S.sentBack[s.id]) { e.owner = 'agent'; e.status = 'Sent back to agent'; }
+    return e;
+  }
+
+  pillOf(owner) { return 'pill ' + ({ agent: 'p-agent', human: 'p-human', done: 'p-done', blocked: 'p-blocked' }[owner] || 'p-agent'); }
+
+  cliInfo() { return CLIS.find((c) => c.key === this.state.cli) || CLIS[0]; }
+
+  tierOf(cmd) {
+    const head = cmd.split(' ')[0];
+    if (head === '/next' || head === '/weekly') return 'fast';
+    if (head === '/architecture') return 'deep';
+    return cmd.startsWith('/') ? 'balanced' : 'script';
+  }
+
+  script(cmd) {
+    const cli = this.cliInfo();
+    const tier = this.tierOf(cmd);
+    const model = tier === 'script' ? 'no model' : MODELS[cli.vendor === 'openai' ? 'openai' : 'anthropic'][tier];
+    const head = cmd.startsWith('/') ? '$ ' + cli.bin + ' "' + cmd + '" --model ' + model : '$ ' + cmd;
+    let lines; let end = 'done'; let effect = null; let gateText = '';
+    if (cmd === '/brief FL0201') {
+      lines = [['cmd', head], ['dim', '● make next → developer · brief-spec · FL0201'], ['dim', '● context.py brief-spec FL0201 → 7 files · FR-09, FR-11 · ADR-004 (≈9.8k tokens)'], ['dim', '● read analysis/30-refined/REFINED_FL0201_offline-jobs.md'], ['dim', '● read packages/mobile/AGENTS.md'], ['ok', '✓ wrote delivery/10-briefs/BRIEF-FL0201-offline-jobs.md'], ['ok', '✓ wrote delivery/20-specs/SPEC-FL0201-offline-jobs.md (status: Draft)'], ['warn', '▲ ADR-004 is still proposed — noted in the Spec as an open dependency'], ['ok', '✓ make check — 0 errors'], ['gate', '■ human gate: review the Spec, then set status Ready.']];
+      end = 'gate'; effect = 'brief0201'; gateText = 'Spec FL0201 is drafted and waits for your review.';
+    } else if (cmd === '/run FL0103') {
+      lines = [['cmd', head], ['dim', '● RUN-FL0103 §2 approved by product owner → execution'], ['ok', '✓ TSK-FL0103-04 tests for breach at boundary and paused states (failing as expected)'], ['ok', '✓ TSK-FL0103-01 SLA policy model and migration'], ['ok', '✓ TSK-FL0103-02 timer service · 14 tests passing'], ['ok', '✓ TSK-FL0103-03 SLA badge on the work order list'], ['ok', '✓ make test — 212 passed'], ['gate', '■ human gate: tuning — try it and accept or request changes.']];
+      end = 'gate'; gateText = 'FL0103 is built. Tuning acceptance is yours.';
+    } else if (cmd === 'make check') {
+      lines = [['cmd', head], ['dim', '● requirements, ADRs, backlog, artifact chain, adapters'], ['warn', '▲ FR-07 is not covered by any story'], ['warn', '▲ ADR-004 status is proposed'], ['ok', '✓ 0 errors · 2 warnings']];
+    } else if (cmd === 'Scan all analyzers') {
+      lines = [['cmd', '$ portal scan --all'], ['dim', '● secrets (built-in) · semgrep · pip-audit · npm audit · coverage.xml, lcov.info'], ['dim', '● gitleaks, trivy not installed — skipped'], ['ok', '✓ 9 findings · 1 new since last scan'], ['ok', '✓ diagrams regenerated from repo_map and infra/']];
+    } else {
+      lines = [['cmd', head], ['dim', '● make next → context budget for ' + cmd], ['dim', '● working…'], ['ok', '✓ done · files written are listed in the step report']];
+    }
+    return { cmd: cmd, tier: tier === 'script' ? 'script' : tier, model: model, tool: tier === 'script' ? 'shell' : cli.bin, lines: lines, end: end, effect: effect, gateText: gateText };
+  }
+
+  launch(cmd) {
+    const S = this.state;
+    if (S.launched.length && S.launched[0].status === 'running') { this.go('runs'); return; }
+    const sc = this.script(cmd);
+    const id = 15 + S.launched.length;
+    const run = Object.assign({ id: id, status: 'running', shown: 1, when: 'just now', dur: 'running' }, sc);
+    this.setState({ launched: [run].concat(S.launched), selRun: id, screen: 'runs', palette: false });
+    if (this.timer) clearInterval(this.timer);
+    this.timer = setInterval(() => this.tick(), 520);
+  }
+
+  tick() {
+    const L = this.state.launched.slice();
+    if (!L.length) return;
+    const r = Object.assign({}, L[0]);
+    r.shown += 1;
+    const patch = {};
+    if (r.shown >= r.lines.length) {
+      r.shown = r.lines.length; r.status = r.end; r.dur = (r.lines.length * 0.5).toFixed(0) + ' s (demo)';
+      clearInterval(this.timer); this.timer = null;
+      if (r.effect === 'brief0201') { patch.extra = true; patch.fl0201 = 4; }
+    }
+    L[0] = r; patch.launched = L;
+    this.setState(patch);
+  }
+
+  approve(id) { this.setState({ approved: Object.assign({}, this.state.approved, { [id]: true }) }); }
+  sendBack(id) { this.setState({ sentBack: Object.assign({}, this.state.sentBack, { [id]: true }) }); }
+
+  renderVals() {
+    const S = this.state;
+    const screen = S.screen;
+    const theme = S.theme || this.props.theme || 'dark';
+    const navKey = screen === 'story' ? 'backlog' : screen;
+    const names = ['overview', 'plan', 'backlog', 'approvals', 'runs', 'insights', 'architecture', 'journal', 'settings'];
+    const is = {}; const nav = {}; const go = {};
+    names.concat(['story']).forEach((n) => { is[n] = screen === n; });
+    names.forEach((n) => { nav[n] = 'nav' + (navKey === n ? ' on' : ''); go[n] = () => this.go(n); });
+
+    const stories = STORIES.map((s) => this.eff(s));
+    const open = (id) => () => this.setState({ sel: id, screen: 'story', palette: false });
+
+    // approvals
+    const allAp = APPROVALS.concat(S.extra ? [EXTRA_APPROVAL] : []);
+    const approvals = allAp.map((a) => {
+      const done = !!(S.approved[a.id] || S.sentBack[a.id]);
+      const isStory = a.id.startsWith('FL');
+      return Object.assign({}, a, {
+        ref: a.id, open: !done, done: done,
+        pillCls: done ? (S.approved[a.id] ? 'pill p-done' : 'pill p-blocked') : 'pill p-human',
+        result: S.approved[a.id] ? 'Done — written to ' + a.file + ' by you, 2026-10-19 10:14.' : 'Sent back — the agent revises it on its next session.',
+        approve: () => this.approve(a.id), sendBack: () => this.sendBack(a.id),
+        view: isStory ? open(a.id) : () => this.go('architecture')
+      });
+    });
+    const pending = approvals.filter((a) => a.open);
+
+    // runs
+    const allRuns = S.launched.concat(BASE_RUNS.map((r) => Object.assign({ shown: r.lines.length }, r)));
+    const statusLabel = { running: 'Running', gate: 'At gate', done: 'Done' };
+    const statusPill = { running: 'pill p-agent', gate: 'pill p-human', done: 'pill p-done' };
+    const runs = allRuns.map((r) => ({ id: r.id, cmd: r.cmd, model: r.model, when: r.when, statusLabel: statusLabel[r.status], pillCls: statusPill[r.status], rowCls: 'row' + (r.id === S.selRun ? ' on' : ''), open: () => this.setState({ selRun: r.id, screen: 'runs' }) }));
+    const cur = allRuns.find((r) => r.id === S.selRun) || allRuns[0];
+    const run = { cmd: cur.cmd, tool: cur.tool, tier: cur.tier, model: cur.model, dur: cur.dur, statusLabel: statusLabel[cur.status], pillCls: statusPill[cur.status], live: cur.status === 'running', atGate: cur.status === 'gate', gateText: cur.gateText, lines: cur.lines.slice(0, cur.shown).map((l) => ({ c: l[0], t: l[1] })) };
+    const isRunning = !!(S.launched.length && S.launched[0].status === 'running');
+
+    // next step
+    const ranFL0103 = S.launched.some((r) => r.cmd === '/run FL0103');
+    let next;
+    if (isRunning) next = { cmd: S.launched[0].cmd, why: 'An agent session is running now. Follow it live in Agent runs.', mode: 'developer', tier: S.launched[0].tier, cmd2: null };
+    else if (S.approved.FL0103 && !ranFL0103) next = { cmd: '/run FL0103', why: 'The execution strategy is approved: the agent can write code, task by task, within the Spec.', mode: 'developer', tier: 'balanced' };
+    else if (!S.extra) next = { cmd: '/brief FL0201', why: 'FL0201 is refined and in the current sprint. Write its Brief and Spec, then stop for your review.', mode: 'developer', tier: 'balanced' };
+    else next = { cmd: '/analysis FL0301', why: 'Sprint 2 has no more agent work. Start the analysis of the next sprint.', mode: 'analyst', tier: 'balanced' };
+    const cli = this.cliInfo();
+    next.model = MODELS[cli.vendor === 'openai' ? 'openai' : 'anthropic'][next.tier] || 'sonnet';
+    next.launch = () => this.launch(next.cmd);
+
+    // sprint 2 + plan
+    const pct = (s) => Math.round((s.stage / 7) * 100);
+    const asItem = (s) => ({ id: s.id, title: s.title, stageName: STAGES[s.stage], pillCls: this.pillOf(s.owner), pct: pct(s), open: open(s.id), deps: s.deps, hasDeps: !!s.deps });
+    const sprint2 = stories.filter((s) => s.sprint === 'S2').map(asItem);
+    const sp = (name, dates, current) => ({ name: name, dates: dates, current: current, items: stories.filter((s) => s.sprint === name.replace('Sprint ', 'S')).map(asItem) });
+    const releases = [
+      { name: 'R1 · Dispatch MVP', goal: 'Dispatchers create, assign and track work orders with SLAs.', sprints: [sp('Sprint 1', 'Sep 28 – Oct 9', false), sp('Sprint 2', 'Oct 12 – Oct 23', true)] },
+      { name: 'R2 · Field and billing', goal: 'Technicians work offline; completed jobs are invoiced and paid.', sprints: [sp('Sprint 3', 'Oct 26 – Nov 6', false), sp('Sprint 4', 'Nov 9 – Nov 20', false)] }
+    ];
+
+    // board
+    const columns = STAGES.map((name, i) => {
+      const cards = stories.filter((s) => s.stage === i).map((s) => ({ id: s.id, title: s.title, size: s.size, status: s.status, pillCls: this.pillOf(s.owner), open: open(s.id) }));
+      return { name: name, count: cards.length, cards: cards };
+    });
+
+    // story detail
+    const base = stories.find((s) => s.id === S.sel) || stories[2];
+    const doc = DOCS[base.id];
+    const nextCmd = { 0: '/analysis', 1: '/refine', 2: '/refine', 3: '/brief', 4: '/spec', 5: '/run', 6: '/review-story' }[base.stage];
+    const isHuman = base.owner === 'human';
+    const hasNext = base.owner === 'agent' && !!nextCmd;
+    const ap = allAp.find((a) => a.id === base.id);
+    const st = {
+      id: base.id, title: base.title, epic: base.epic, size: base.size, status: base.status, pillCls: this.pillOf(base.owner),
+      sprintLabel: 'Sprint ' + base.sprint.slice(1), depsLabel: base.deps ? 'depends on ' + base.deps : 'no dependencies',
+      chain: STAGES.map((n, i) => ({ n: i + 1, name: n, cls: 'step' + (base.stage === 7 || i < base.stage ? ' done' : i === base.stage ? ' cur' : '') })),
+      file: doc[0], doc: doc[1].map((l) => ({ c: l[0], t: l[1] })),
+      isHuman: isHuman, gateText: ap ? ap.title + '. ' + ap.file + ' — ' + ap.where + '.' : 'This story waits for a human decision.', gateAct: ap ? ap.act : 'Approve',
+      approve: () => this.approve(base.id), sendBack: () => this.sendBack(base.id),
+      hasNext: hasNext, next: nextCmd + ' ' + base.id, nextWhy: 'Runs headless with the ' + this.tierOf(nextCmd) + ' tier and stops at the next human gate.', launch: () => this.launch(nextCmd + ' ' + base.id),
+      step: STEP_OF[base.stage],
+      budget: [{ f: doc[0], n: 'full' }, { f: 'reference/product/functional-requirements.md', n: 'cited FR only' }, { f: 'reference/architecture/ADR-00*.md', n: 'cited ADRs' }, { f: 'packages/*/AGENTS.md', n: 'package rules' }]
+    };
+
+    // insights
+    const counts = { all: FINDINGS.length };
+    FINDINGS.forEach((f) => { counts[f.cat] = (counts[f.cat] || 0) + 1; });
+    const cats = ['all', 'security', 'tests', 'weak', 'workflow'].map((c) => ({ label: CAT_LABEL[c], n: counts[c], cls: 'chip' + (S.cat === c ? ' on' : ''), pick: () => this.setState({ cat: c }) }));
+    const sevCls = { high: 'pill p-high', medium: 'pill p-med', low: 'pill p-low' };
+    const findings = FINDINGS.filter((f) => S.cat === 'all' || f.cat === S.cat).map((f) => ({ sev: f.sev, sevCls: sevCls[f.sev], title: f.title, file: f.file, rowCls: 'row' + (S.selF === f.id ? ' on' : ''), pick: () => this.setState({ selF: f.id }) }));
+    const F = FINDINGS.find((f) => f.id === S.selF) || FINDINGS[0];
+    const fd = {
+      sev: F.sev, sevCls: sevCls[F.sev], catLabel: CAT_LABEL[F.cat], title: F.title, file: F.file, tool: F.tool, fix: F.fix, explain_text: F.explain,
+      explained: !!S.explained[F.id], created: !!S.created[F.id],
+      storyText: S.created[F.id] ? S.created[F.id] + ' · "' + F.title + '" · epic 03 · size S' : '',
+      explain: () => this.setState({ explained: Object.assign({}, S.explained, { [F.id]: true }) }),
+      toStory: () => { if (S.created[F.id]) return; const nid = 'FL030' + S.nextNum; this.setState({ created: Object.assign({}, S.created, { [F.id]: nid }), nextNum: S.nextNum + 1 }); }
+    };
+    const pickCat = (c) => () => this.setState({ cat: c, screen: 'insights' });
+    const health = [
+      { label: 'Security', value: '1 high', detail: '2 medium · 3 scanners ran', open: pickCat('security') },
+      { label: 'Untested code', value: '64%', detail: 'line coverage · 2 gaps', open: pickCat('tests') },
+      { label: 'Weak files', value: '2', detail: 'hotspots by churn × size', open: pickCat('weak') },
+      { label: 'Workflow', value: S.approved['ADR-004'] ? '1' : '2', detail: 'warnings from make check', open: pickCat('workflow') }
+    ];
+
+    // architecture
+    const arch = { isComp: S.archTab === 'components', isInfra: S.archTab === 'infra', compCls: 'tab' + (S.archTab === 'components' ? ' on' : ''), infraCls: 'tab' + (S.archTab === 'infra' ? ' on' : ''), comp: () => this.setState({ archTab: 'components' }), infra: () => this.setState({ archTab: 'infra' }) };
+    const infra = [
+      { name: 'Azure App Service', role: 'web and API, staging + production slots', file: 'infra/app.bicep' },
+      { name: 'Azure Database for PostgreSQL', role: 'flexible server, private endpoint', file: 'infra/db.bicep' },
+      { name: 'Azure Cache for Redis', role: 'timer queue (ADR-003)', file: 'infra/cache.bicep' },
+      { name: 'Container Apps job', role: 'worker, SLA timers', file: 'infra/worker.bicep' },
+      { name: 'Azure Pipelines', role: 'build, test, deploy, make check', file: 'azure-pipelines.yml' }
+    ];
+    const adrs = [
+      { id: 'ADR-001', title: 'Monorepo with web, API, worker and mobile packages', status: 'accepted', pillCls: 'pill p-done' },
+      { id: 'ADR-002', title: 'FastAPI and PostgreSQL for the API', status: 'accepted', pillCls: 'pill p-done' },
+      { id: 'ADR-003', title: 'Redis queue for SLA timers', status: 'accepted', pillCls: 'pill p-done' },
+      { id: 'ADR-004', title: 'Offline sync strategy for the technician app', status: S.approved['ADR-004'] ? 'accepted' : 'proposed', pillCls: S.approved['ADR-004'] ? 'pill p-done' : 'pill p-human' }
+    ];
+
+    // journal
+    const weeklyRun = S.launched.find((r) => r.cmd === '/weekly' && r.status !== 'running');
+    const journal = [
+      { week: '2026-W43', dates: 'Oct 19 – Oct 25', state: weeklyRun ? 'drafted' : 'notes only', pillCls: weeklyRun ? 'pill p-done' : 'pill p-blocked', text: weeklyRun ? 'Draft written to project-journal/weekly/2026-W43.md from this week’s notes, git log and plan state. Review and edit it there.' : '5 notes in project-journal/notes/current-week.md. Draft the weekly when the sprint review is done.' },
+      { week: '2026-W42', dates: 'Oct 12 – Oct 18', state: 'published', pillCls: 'pill p-done', text: 'Sprint 2 started. FL0101 closed after review. ADR-003 accepted. Risk logged: SLA timer code has no tests.' },
+      { week: '2026-W41', dates: 'Oct 5 – Oct 11', state: 'published', pillCls: 'pill p-done', text: 'Release plan approved: R1 Dispatch MVP in two sprints. FL0102 tuning accepted.' }
+    ];
+
+    // settings
+    const projectRows = [{ k: 'name', v: 'Fieldline' }, { k: 'id_prefix', v: 'FL' }, { k: 'language', v: 'en' }, { k: 'origin', v: 'greenfield' }, { k: 'tracker', v: 'local' }, { k: 'stack', v: 'FastAPI · React · Expo · PostgreSQL' }];
+    const clis = CLIS.map((c) => ({ name: c.name, bin: c.bin, state: S.cli === c.key ? 'selected' : c.state, pillCls: S.cli === c.key ? 'pill p-done' : (c.state.startsWith('found') ? 'pill p-agent' : 'pill p-blocked'), rowCls: 'row' + (S.cli === c.key ? ' on' : ''), pick: () => { if (c.state.startsWith('found')) this.setState({ cli: c.key }); } }));
+    const AN = [
+      ['secrets', 'Secret patterns', 'built-in, no install', true], ['semgrep', 'semgrep', 'static analysis rules for 30+ languages', true], ['gitleaks', 'gitleaks', 'secrets in git history', false],
+      ['pipaudit', 'pip-audit', 'Python dependency advisories', true], ['npmaudit', 'npm audit', 'JavaScript dependency advisories', true], ['coverage', 'Coverage reports', 'coverage.xml, lcov.info found', true], ['trivy', 'trivy', 'containers and IaC misconfigurations', false]
+    ];
+    const analyzers = AN.map((a) => ({ name: a[1], desc: a[2], installed: a[3], missing: !a[3], on: !!S.an[a[0]], aria: 'Enable ' + a[1], cls: 'toggle' + (S.an[a[0]] ? ' on' : ''), toggle: () => this.setState({ an: Object.assign({}, S.an, { [a[0]]: !S.an[a[0]] }) }) }));
+
+    // palette
+    const C = [];
+    const agent = (cmd) => C.push({ label: cmd, hint: 'agent · ' + this.tierOf(cmd), act: () => this.launch(cmd) });
+    [next.cmd, '/next', '/brief FL0201', '/analysis FL0301', '/review-story FL0102', '/weekly', '/architecture'].forEach((c, i, arr) => { if (arr.indexOf(c) === i) agent(c); });
+    C.push({ label: 'make check', hint: 'script', act: () => this.launch('make check') });
+    C.push({ label: 'Scan all analyzers', hint: 'script', act: () => this.launch('Scan all analyzers') });
+    names.forEach((n) => C.push({ label: 'Go to ' + n, hint: 'navigate', act: () => this.go(n) }));
+    STORIES.forEach((s) => C.push({ label: s.id + ' ' + s.title, hint: 'story', act: open(s.id) }));
+    const q = (S.q || '').toLowerCase().trim();
+    const cmds = C.filter((c) => !q || c.label.toLowerCase().includes(q)).slice(0, 12);
+
+    return {
+      themeCls: theme === 'light' ? 'light' : '', accent: this.props.accent ?? '#C8F169',
+      is: is, nav: nav, go: go,
+      pending: pending, pendingCount: pending.length, hasPending: pending.length > 0, noPending: pending.length === 0,
+      isRunning: isRunning, checkLabel: S.approved['ADR-004'] ? '1 warning' : '2 warnings',
+      next: next, copyLabel: S.copied ? 'Copied' : 'Copy command', copyNext: () => { this.setState({ copied: true }); setTimeout(() => this.setState({ copied: false }), 1400); },
+      sprint2: sprint2, health: health, recentRuns: runs.slice(0, 3), releases: releases, columns: columns, st: st,
+      approvals: approvals, runs: runs, run: run,
+      cats: cats, findings: findings, fd: fd, arch: arch, infra: infra, adrs: adrs, journal: journal,
+      projectRows: projectRows, clis: clis, analyzers: analyzers,
+      palette: S.palette, q: S.q, cmds: cmds, noCmds: cmds.length === 0,
+      onQ: (e) => this.setState({ q: e.target.value }),
+      openPalette: () => this.setState({ palette: true, q: '' }), closePalette: () => this.setState({ palette: false }),
+      toggleTheme: () => this.setState({ theme: theme === 'light' ? 'dark' : 'light' }),
+      launchPlan: () => this.launch('/release-plan'), launchScan: () => this.launch('Scan all analyzers'), launchWeekly: () => this.launch('/weekly')
+    };
+  }
+}
+</script>
+</body>
+</html>
