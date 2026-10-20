@@ -34,3 +34,6 @@ Option A:
 
 ## Reversibility
 Low cost: contained in the server's request pipeline.
+
+## Revisions
+- 2026-10-20, owner decisions in `analysis/workshops/WORKSHOP_2026-10-20_AP0102-AP0104-AP0105-AP0107.md` (AP0102): the token **may be stored in a file** if it is not readable by other users or applications: gitignored `.portal/` file, POSIX mode 0600, Windows `icacls` restricted to the current user (best effort, warning on failure); no encryption with a co-located key and no third-party keyring (NFR-08). The launcher generates the token, writes the file, passes it to the server as `PORTAL_TOKEN` and opens `/#token=…`; a reused running portal reads the token from the file. This supersedes "never in logs or files" for that one file (logs still never contain it). `GET /api/health` stays unauthenticated (Host-checked, no repository data) as a documented exception to NFR-02; every other `/api` route requires the token. The launcher change is upstream (AP0110).

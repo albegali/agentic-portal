@@ -79,7 +79,7 @@ ac = [
   ["a state-changing request with a foreign Origin or Host", "it reaches the server", "it is rejected"],
   ["a write path outside the repo root, including traversal", "a write is attempted", "it is refused and nothing is written"],
 ]
-notes = "ADR-006. Token travels URL fragment → sessionStorage → bearer header; gate nonce is handled in EP-04."
+notes = "Refined: analysis/30-refined/REFINED_AP0102_local_security_baseline.md. Token in a user-only gitignored `.portal/` file (ADR-006 revision); `/api/health` unauthenticated; launcher token delivery is AP0110 (upstream). ADR-006. Token travels URL fragment → sessionStorage → bearer header; gate nonce is handled in EP-04."
 out_of_scope = "Gate confirm nonce, agent allow-list."
 
 [[story]]
@@ -127,7 +127,7 @@ ac = [
   ["a skeleton whose contract major differs", "the portal starts", "a clear incompatibility message is shown and data calls are refused"],
   ["a compatible minor version with unknown extra fields", "the portal reads it", "it works"],
 ]
-notes = "ADR-002. Consumes the envelope released by AP0103."
+notes = "Refined: analysis/30-refined/REFINED_AP0104_skeleton_contract_client.md. Runtime stdlib schema validator; all eight tools (order AP0109 → AP0104); recovery proposal in Settings. ADR-002. Consumes the envelope released by AP0103."
 out_of_scope = "Gate writes, run launching."
 
 [[story]]
@@ -150,7 +150,7 @@ ac = [
   ["a pending gate", "I run `gates.py approve`", "only the gate field changes and owner and date are recorded"],
   ["a pending gate", "I run `gates.py request-changes` with a comment", "the comment is recorded and no approval is written"],
 ]
-notes = "ADR-002, ADR-006. Delivered in the agentic-skeleton repository (NFR-14); the portal pins the released skeleton version."
+notes = "Refined: analysis/30-refined/REFINED_AP0105_upstream_gates_tool.md. `## Gates` section per artifact; ids `<type>:<path>`. ADR-002, ADR-006. Delivered in the agentic-skeleton repository (NFR-14); the portal pins the released skeleton version."
 out_of_scope = "Portal UI, agent-caller checks."
 
 [[story]]
@@ -198,7 +198,7 @@ ac = [
   ["a bundle built for one contract major", "the skeleton reports another", "the portal shows an incompatibility message"],
   ["the launcher starts the bundle with `--repo <root>`", "the server starts", "it serves that repository and `--help` lists `--repo`"],
 ]
-notes = "ADR-003. Launcher is AP0106 (skeleton v1.1.0): the release publishes `manifest.json` format 1 (`manifest`, `version`, `asset`, `size`, `sha256`, `requires_python`) next to the zip, `portal_server/` at the zip root (tools/README.md, Portal launcher). The server must not stall at bind: `HTTPServer.server_bind` calls `getfqdn()` (reverse DNS, seconds on macOS); override it as the launcher tests do."
+notes = "Refined: analysis/30-refined/REFINED_AP0107_bundle_launcher.md. Manifest format 1 now, `--repo`, `server_bind`, CI job with the real launcher on Linux/macOS/Windows. ADR-003. Launcher is AP0106 (skeleton v1.1.0): the release publishes `manifest.json` format 1 (`manifest`, `version`, `asset`, `size`, `sha256`, `requires_python`) next to the zip, `portal_server/` at the zip root (tools/README.md, Portal launcher). The server must not stall at bind: `HTTPServer.server_bind` calls `getfqdn()` (reverse DNS, seconds on macOS); override it as the launcher tests do."
 out_of_scope = "Launcher code, auto-update."
 
 [[story]]
@@ -246,6 +246,29 @@ ac = [
 ]
 notes = "ADR-002. Split from AP0103 (workshop 2026-10-19). Delivered in the agentic-skeleton repository (NFR-14)."
 out_of_scope = "Write commands, context/repo_map/gates, schema changes beyond minor additions."
+
+[[story]]
+id = "AP0110"
+epic = "EP-01"
+slug = "upstream-launcher-token"
+title = "Upstream: launcher delivers the session token"
+type = "technical"
+as_a = "portal (consumer of agentic-skeleton)"
+i_want = "tools/portal.py to generate the session token, store it in a user-only file in .portal/, pass it to the server as PORTAL_TOKEN and open the URL with #token=…"
+so_that = "the browser authenticates on first open and a reused running portal opens the same session"
+priority = "Must"
+release = "R1"
+size = "S"
+fr = ["FR-23"]
+nfr = ["NFR-02", "NFR-14"]
+deps = ["AP0106"]
+ac = [
+  ["`make portal` starting a portal", "the browser opens", "the URL carries the token in the fragment and the server accepts it"],
+  ["the token file in .portal/", "I inspect its permissions", "only the current user can read it (0600; icacls on Windows, warning if it fails)"],
+  ["a portal already running for the repo", "I run `make portal` again", "the running one opens with the same token read from the file"],
+]
+notes = "ADR-006 revision 2026-10-20. Delivered in the agentic-skeleton repository (NFR-14); AI implements and tags, human + AI review. Created by the workshop of 2026-10-20 (owner: fix it now); consumed by AP0102 end to end and by the AP0107 CI job. Release plan placement is open (PLAN.md)."
+out_of_scope = "Server-side token checks (AP0102), bundle build (AP0107)."
 
 [[story]]
 id = "AP0201"

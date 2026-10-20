@@ -14,6 +14,9 @@ from portal_server import app  # noqa: E402
 from portal_server.__main__ import check_python  # noqa: E402
 
 
+TOKEN = "t" * 43
+
+
 class ServerTest(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
@@ -22,7 +25,7 @@ class ServerTest(unittest.TestCase):
         (root / "web" / "dist").mkdir(parents=True)
         (root / "web" / "dist" / "index.html").write_text("<h1>hi</h1>")
         (root / "secret.txt").write_text("secret")
-        self.server = app.create_server("127.0.0.1", 0, root, root / "web" / "dist")
+        self.server = app.create_server("127.0.0.1", 0, root, root / "web" / "dist", token=TOKEN)
         threading.Thread(target=self.server.serve_forever, daemon=True).start()
         self.base = "http://127.0.0.1:%d" % self.server.server_address[1]
 
@@ -33,6 +36,10 @@ class ServerTest(unittest.TestCase):
 
     def get(self, path):
         return urllib.request.urlopen(self.base + path)
+
+    def get_auth(self, path):
+        req = urllib.request.Request(self.base + path, headers={"Authorization": "Bearer " + TOKEN})
+        return urllib.request.urlopen(req)
 
     def test_listens_on_loopback_only(self):
         self.assertEqual(self.server.server_address[0], "127.0.0.1")
@@ -54,7 +61,7 @@ class ServerTest(unittest.TestCase):
 
     def test_unknown_api_404(self):
         with self.assertRaises(urllib.error.HTTPError) as cm:
-            self.get("/api/nope")
+            self.get_auth("/api/nope")
         self.assertEqual(cm.exception.code, 404)
 
 

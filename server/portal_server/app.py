@@ -8,9 +8,15 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 from portal_server.health import health
+from portal_server.http.auth import check_request, is_api
+from portal_server.http.token import launch_url, resolve_token
 
 ROOT = Path(__file__).resolve().parent.parent  # the directory holding server/ content
 DEFAULT_PORT = 8765
+
+# (method, path) -> callable(root) -> JSON-serialisable body. Every entry except the
+# public ones in http.auth goes through the token check; the enumeration test reads this.
+API_ROUTES = {("GET", "/api/health"): lambda root: health(root)}
 
 
 def is_loopback(host: str) -> bool:
@@ -31,7 +37,9 @@ def find_static(root: Path) -> Path:
     return (root.parent / "web" / "dist").resolve()
 
 
-def make_handler(root: Path, static: Path):
+def make_handler(root: Path, static: Path, token: str, routes=None):
+    routes = API_ROUTES if routes is None else routes
+
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, fmt, *args):
             pass
@@ -45,16 +53,40 @@ def make_handler(root: Path, static: Path):
             if self.command != "HEAD":
                 self.wfile.write(body)
 
+        def _guard(self, path):
+            denied = check_request(self.command, path, self.headers, self.server.server_address[1], token)
+            if denied is None:
+                return True
+            sys.stderr.write("portal: %s %s denied: %s\n" % (self.command, path, denied.reason))
+            sys.stderr.flush()
+            body = json.dumps({"error": {"code": denied.code, "message": denied.reason}}).encode()
+            self._send(denied.status, body, "application/json")
+            return False
+
+        def _api(self, path):
+            route = routes.get(("GET" if self.command == "HEAD" else self.command, path))
+            if route is None:
+                return self._send(404, b'{"error":{"code":"not_found"}}', "application/json")
+            self._send(200, json.dumps(route(root)).encode(), "application/json")
+
+        def _other(self):
+            path = self.path.split("?", 1)[0].split("#", 1)[0]
+            if self._guard(path):
+                if is_api(path):
+                    return self._api(path)
+                self._send(405, b"method not allowed", "text/plain; charset=utf-8")
+
+        do_POST = do_PUT = do_PATCH = do_DELETE = do_OPTIONS = _other
+
         def do_HEAD(self):
             self.do_GET()
 
         def do_GET(self):
             path = self.path.split("?", 1)[0].split("#", 1)[0]
-            if path == "/api/health":
-                body = json.dumps(health(root)).encode()
-                return self._send(200, body, "application/json")
-            if path.startswith("/api/"):
-                return self._send(404, b'{"error":{"code":"not_found"}}', "application/json")
+            if not self._guard(path):
+                return
+            if is_api(path):
+                return self._api(path)
             rel = path.lstrip("/") or "index.html"
             target = (static / rel).resolve()
             if not target.is_relative_to(static) or not target.is_file():
@@ -69,12 +101,13 @@ def make_handler(root: Path, static: Path):
     return Handler
 
 
-def create_server(host="127.0.0.1", port=DEFAULT_PORT, root: Path = ROOT, static: Path | None = None):
+def create_server(host="127.0.0.1", port=DEFAULT_PORT, root: Path = ROOT, static: Path | None = None,
+                  token: str = "", routes=None):
     if not is_loopback(host):
         raise ValueError("refusing non-loopback host %r: the portal binds to loopback only" % host)
     if host == "localhost":
         host = "127.0.0.1"
-    return ThreadingHTTPServer((host, port), make_handler(root, static or find_static(root)))
+    return ThreadingHTTPServer((host, port), make_handler(root, static or find_static(root), token, routes))
 
 
 def main(argv=None):
@@ -82,12 +115,15 @@ def main(argv=None):
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=DEFAULT_PORT)
     args = parser.parse_args(argv)
+    token, generated = resolve_token()
     try:
-        server = create_server(args.host, args.port)
+        server = create_server(args.host, args.port, token=token)
     except ValueError as exc:
         print("error: %s" % exc, file=sys.stderr)
         return 2
     print("agentic-portal listening on http://%s:%d" % server.server_address[:2], flush=True)
+    if generated:
+        print("open %s" % launch_url(*server.server_address[:2], token), flush=True)
     try:
         server.serve_forever()
     except KeyboardInterrupt:

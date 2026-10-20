@@ -28,7 +28,7 @@ R1 delivers a secured local portal (`make portal`) that shows workflow state, pl
 | Sprint | Dates | Goal | Stories |
 |---|---|---|---|
 | S0 | 19/10 – 23/10 | Analysis | Analysis and workshops of S1–S2 |
-| S1 | 26/10 – 30/10 | Foundations: skeleton, security, upstream contract and launcher, app shell | AP0101, AP0103, AP0106, AP0108, AP0102 |
+| S1 | 26/10 – 30/10 | Foundations: skeleton, security, upstream contract and launcher, app shell | AP0101, AP0103, AP0106, AP0108, AP0102, AP0110 |
 | S2 | 02/11 – 06/11 | Contract client, gates, bundle, first views | AP0104, AP0105, AP0107, AP0201, AP0202, AP0203 |
 | S3 | 09/11 – 13/11 | Story detail, portability, launch and streaming | AP0204, AP0207, AP0301, AP0302, AP0303, AP0304 |
 | S4 | 16/11 – 20/11 | Human gates (R1 closure) | AP0305, AP0401, AP0402, AP0403, AP0404 |

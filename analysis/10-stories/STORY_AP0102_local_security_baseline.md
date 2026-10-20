@@ -10,7 +10,7 @@ As a owner at the machine, I want loopback-only binding, a per-session token, Ho
 - Priority (MoSCoW): Must · Release: R1 · Size: M · Type: technical
 - Requirements: NFR-01, NFR-02, NFR-03
 - Depends on: AP0101
-- Notes: ADR-006. Token travels URL fragment → sessionStorage → bearer header; gate nonce is handled in EP-04.
+- Notes: Refined: analysis/30-refined/REFINED_AP0102_local_security_baseline.md. Token in a user-only gitignored `.portal/` file (ADR-006 revision); `/api/health` unauthenticated; launcher token delivery is AP0110 (upstream). ADR-006. Token travels URL fragment → sessionStorage → bearer header; gate nonce is handled in EP-04.
 - Out of scope: Gate confirm nonce, agent allow-list.
 
 ## Acceptance Criteria
