@@ -13,7 +13,8 @@ from functools import lru_cache
 
 ROOT = os.path.abspath(os.environ.get("WF_ROOT") or os.path.join(os.path.dirname(__file__), ".."))
 TIERS = ("fast", "balanced", "deep")
-SCHEMA = 1  # version of the --json outputs (tools/README.md "JSON contract"); bump on breaking changes only
+SCHEMA = 1  # legacy flat --json outputs, not yet migrated to the envelope (AP0109); removed with the last one
+CONTRACT_VERSION = "1.0"  # semver of the --json envelope (tools/README.md "JSON contract"): minor adds fields, major breaks
 
 
 def path(*p: str) -> str:
@@ -52,6 +53,22 @@ def one(pattern: str) -> str | None:
 def dump_json(obj: dict) -> None:
     """Print a --json result: {"schema": SCHEMA, **obj}, compact (machines read it, agents read fewer tokens)."""
     print(json.dumps({"schema": SCHEMA, **obj}, ensure_ascii=False, separators=(",", ":")))
+
+
+def skeleton_version() -> str:
+    return read("tools/VERSION").strip() if exists("tools/VERSION") else "unknown"  # not the root VERSION: apps own that one
+
+
+def dump_envelope(tool: str, data: dict) -> None:
+    """Print a contract --json result: {"contract", "tool", "data"}, compact."""
+    print(json.dumps({"contract": CONTRACT_VERSION, "tool": tool, "data": data}, ensure_ascii=False, separators=(",", ":")))
+
+
+def fail_envelope(tool: str, code: str, message: str, exit_code: int = 1) -> None:
+    """Print the error envelope {"contract", "tool", "error": {"code", "message"}} (no data) and exit non-zero."""
+    print(json.dumps({"contract": CONTRACT_VERSION, "tool": tool, "error": {"code": code, "message": message}},
+                     ensure_ascii=False, separators=(",", ":")))
+    raise SystemExit(exit_code)
 
 
 def approx_tokens(chars: int) -> int:
@@ -172,3 +189,21 @@ def sprints() -> list[dict]:
         out.append({"sprint": m.group(1), "dates": m.group(2).strip(), "goal": m.group(3).strip(),
                     "ids": list(dict.fromkeys(ids))})
     return out
+
+
+def main(argv: list[str]) -> int:
+    args = [a for a in argv if a != "--json"]
+    if args != ["version"]:
+        print("usage: python3 tools/wf.py version [--json]")
+        return 2
+    data = {"skeleton": skeleton_version(), "contract": CONTRACT_VERSION}
+    if "--json" in argv:
+        dump_envelope("version", data)
+    else:
+        print(f"agentic-skeleton {data['skeleton']} (contract {data['contract']})")
+    return 0
+
+
+if __name__ == "__main__":
+    import sys
+    sys.exit(main(sys.argv[1:]))

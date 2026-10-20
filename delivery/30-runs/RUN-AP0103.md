@@ -5,14 +5,14 @@
 - Spec: SPEC-AP0103
 - Started at (datetime): 2026-10-19T22:10
   - Fill only when execution starts after human approval, immediately before the first code or test change.
-- Completed at (datetime): 2026-10-19T22:30
+- Completed at (datetime): 2026-10-20T10:00
   - Fill only when the RUN is ready to close after verification, tuning and persistence.
   - If tuning or follow-up changes happen before closure, update this to the latest completion datetime.
 
 ---
 
 ## Status
-Persisted
+Closed
 
 > A RUN MUST NOT be Closed before Persisted.
 
@@ -81,3 +81,100 @@ Notes:
 
 Reviewer: Alberto Galimberti
 Date: 2026-10-19
+
+---
+
+# 3. Execution Log (Agent)
+
+### Steps
+- Step 1 (TSK-02, 04): `wf.CONTRACT_VERSION = "1.0"`, `wf.dump_envelope`, `wf.fail_envelope` (error envelope, no `data`, exit 1); `next_step.py --json` (`next`, `next-story`) in the envelope, fields unchanged under `data`; `dump_json` kept for tools not yet migrated (AP0109).
+- Step 2 (TSK-03): `wf.py version [--json]` (skeleton version + contract version).
+- Step 3 (TSK-05, 06): 9 schema files in `schemas/` (JSON Schema 2020-12): `envelope`, `version`, `next`, `next-story`, `backlog`, `check`, `plan`, `journal`, `story`.
+- Step 4 (TSK-07): `tools/tests/test_contract.py` (9 tests: samples valid/invalid, extra fields, error envelope, empty states, major pinned, tools emit valid envelopes, version command, failure exit code).
+- Step 5 (TSK-08): CI matrix Python 3.11 and 3.14 with `jsonschema` and `WF_REQUIRE_JSONSCHEMA=1`; "JSON contract" section of `tools/README.md` rewritten.
+- Step 6 (TSK-09): committed in agentic-skeleton (73c5f4c, merged as ad43875); no tag (see §9).
+
+### Changes (high-level)
+- Code: agentic-skeleton `tools/wf.py`, `tools/next_step.py`, `tools/adopt.py`; merged into this repository from the `skeleton` remote.
+- Interfaces: `--json` envelope, error envelope, `schemas/`, contract 1.0.
+- Domain: none.
+- Tests: `tools/tests/test_contract.py`, `tools/tests/test_workflow.py` (envelope assertions).
+- Specs: ADR-002 (contract table, Python baseline, version file), Spec §10/§11.
+
+---
+
+# 4. Verification
+
+- Build: OK
+- Tests: OK (portal: 30 tools tests on 3.12 with contract tests required; skeleton: 29 on 3.12; `make test`/`make lint` OK on 3.14; `make check` OK)
+- Interfaces / target platforms: contract tests skipped on local 3.14 (no `jsonschema` there); Python 3.11 not available locally; CI on 3.11/3.14 not run (not pushed)
+- Manual (if any): n/a
+
+Notes:
+- AC1-AC4 and AC6 verified locally; AC5 (CI green, tag) pending push and the end of AP0109.
+
+---
+
+# 5. Tuning Log (If needed)
+
+> Only within scope.
+
+### Entry #1
+- Issue: review 2026-10-20: `VERSION` merge conflict (the skeleton's file collided with the portal's own `VERSION`); `make test-tools` failed 7 tests in this repository (fixture copied the portal's project state and `node_modules`); `next-story` contract check was conditional and never ran; AC4 test did not tie the schemas to `wf.CONTRACT_VERSION`.
+- Fix: skeleton version moved to `tools/VERSION` (`wf.py`, `adopt.py`, README, ADR-002); `Repo` test fixture resets its copy to a fresh skeleton and skips `node_modules`; unconditional `next-story` check; major pinned against `wf.CONTRACT_VERSION`. Same edits in agentic-skeleton, branch `fix/tools-version-fresh-fixture`.
+- Impact: tools suite 205 s → 14 s; `workflow-check` expected green on `main`.
+- Verified: Yes (locally)
+
+---
+
+# 6. Deviations
+
+- What changed: (1) tools keep Python >= 3.11 (Spec/ADR-002 said 3.14); (2) `v1.0.0` tag and the CI part of AC5 move to the end of AP0109; (3) `adopt.py` also installs `tools/VERSION` and `schemas/`; (4) breaking change of `next_step.py --json` (flat `"schema": 1` → envelope).
+- Why: owner decisions 2026-10-19 (1, 2, 4); installing version and schemas keeps adopted repositories in step with the contract (3); (1) also applies the 2026-10-20 version file location.
+- Scope impact: None (all approved by the owner; Spec §10 and ADR-002 reconciled)
+
+---
+
+# 7. Persistence / Reconciliation
+
+- [x] Spec updated (if needed)
+- [x] Specs updated (if needed)
+- [x] Acceptance Criteria aligned
+
+Summary:
+- Spec §4 ticked (AC5 marked as deferred), §10/§11 updated; Brief §9 and "Closed at" set; ADR-002 revised (2026-10-19 and 2026-10-20); `architecture.md` has no reference to the touched items, no change; specs index updated.
+
+---
+
+# 8. Quality Gates Check
+
+- [x] Acceptance criteria satisfied (AC5 deferred to AP0109 by the owner)
+- [x] Tests passing
+- [x] No scope creep
+- [x] Persistence completed
+
+---
+
+# 9. Outcome
+
+Tasks completed:
+- TSK-AP0103-01 to TSK-AP0103-08
+
+Tasks deferred:
+- TSK-AP0103-09 (tag `v1.0.0`) and CI-green confirmation: after AP0109, once every v1.0 tool emits the envelope.
+
+Goal achieved:
+- [ ] Yes
+- [x] Partial
+- [ ] No
+
+Summary:
+- Envelope, error envelope, `wf.py version`, `next_step.py --json` and the 9 schemas with contract tests are delivered and verified locally; release tag and CI confirmation remain.
+
+---
+
+# 10. Next Steps
+
+- Follow-ups: commit and push the portal merge and the agentic-skeleton fix branch, confirm `workflow-check` on 3.11 and 3.14; AP0109 (remaining `--json` tools, then tag `v1.0.0`); AP0104 (portal contract client).
+- Risks: `plan`, `journal`, `story` schemas precede their emitters and may need an additive minor; this repository's docs say Python >= 3.14 while the skeleton baseline is 3.11.
+- Improvements: install `jsonschema` for 3.14 locally so the contract tests do not skip.

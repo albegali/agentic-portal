@@ -73,12 +73,35 @@ RUN = """# RUN-{i}
 """
 
 
+# project state written by the workflow: removed from the copy (README.md and .gitkeep stay), see Repo.fresh
+STATE_DIRS = ["analysis/10-stories", "analysis/20-analysis", "analysis/30-refined", "analysis/workshops", "analysis/output",
+              "delivery/10-briefs", "delivery/20-specs", "delivery/30-runs", "reference", "backlog", "docs/sources",
+              *(f"project-journal/{d}" for d in ("context", "decisions", "learnings", "metrics", "monthly", "risks", "weekly"))]
+FRESH_KEYS = [("project", "initialized", False), ("inception", "sources", []), ("inception", "design", ""),
+              ("stack", "decided", False), *(("stack", k, "") for k in ("summary", "setup", "test", "lint", "run", "url"))]
+
+
 class Repo:
     def __init__(self) -> None:
         self.dir = tempfile.mkdtemp(prefix="wf-")
         shutil.copytree(SRC, self.dir, dirs_exist_ok=True,
-                        ignore=shutil.ignore_patterns(".git", "__pycache__", ".pytest_cache"))
+                        ignore=shutil.ignore_patterns(".git", "__pycache__", ".pytest_cache", "node_modules"))
         self.env = {**os.environ, "WF_ROOT": self.dir}
+        self.fresh()
+
+    def fresh(self) -> None:
+        """Reset the copy to a fresh skeleton, so the tests also pass in a repository that already uses the workflow."""
+        for d in STATE_DIRS:
+            for base, _, names in os.walk(os.path.join(self.dir, d)):
+                for n in names:
+                    if n not in ("README.md", ".gitkeep"):
+                        os.remove(os.path.join(base, n))
+        if os.path.exists(os.path.join(self.dir, "PLAN.md")):
+            os.remove(os.path.join(self.dir, "PLAN.md"))
+        p = self.read("project.toml")
+        for section, key, value in FRESH_KEYS:
+            p = set_key(p, section, key, value)
+        self.write("project.toml", p)
 
     def run(self, *args: str, ok: bool = True) -> subprocess.CompletedProcess:
         r = subprocess.run([sys.executable, *args], cwd=self.dir, env=self.env, capture_output=True, text=True)
@@ -97,7 +120,9 @@ class Repo:
             return f.read()
 
     def next(self, *a: str) -> dict:
-        return json.loads(self.run("tools/next_step.py", "--json", *a).stdout)
+        env = json.loads(self.run("tools/next_step.py", "--json", *a).stdout)
+        assert env["contract"].startswith("1.") and env["tool"] in ("next", "next-story"), env
+        return env["data"]
 
     def toml_set(self, f: str, section: str, key: str, value) -> None:
         self.write(f, set_key(self.read(f), section, key, value))
@@ -308,7 +333,6 @@ class WorkflowTest(unittest.TestCase):
         r.through_inception()
         r.write("analysis/20-analysis/ANALYSIS_DM0101_walking_skeleton.md", ANALYSIS_MD.format(i="DM0101"))
         n = r.next()
-        self.assertEqual(n["schema"], 1)
         self.assertEqual({s["id"]: s["stage"] for s in n["stories"]}, {"DM0101": "workshop", "DM0102": "analysis"})
         chk = json.loads(r.run("tools/check_workflow.py", "--json").stdout)
         self.assertTrue(chk["ok"])
@@ -490,7 +514,7 @@ class AdoptTest(unittest.TestCase):
         self.assertIn('owner = "Pat Owner"', p)
         self.assertIn('test = "make test"', p)
         self.tool("tools/check_workflow.py")
-        n = json.loads(self.tool("tools/next_step.py", "--json").stdout)
+        n = json.loads(self.tool("tools/next_step.py", "--json").stdout)["data"]
         self.assertEqual((n["step"], n["models"]["claude-code"]), ("onboard", "opus"))
         m = self.tool("tools/context.py", "onboard").stdout
         self.assertIn("app/scripts/app.js", m)
@@ -506,12 +530,12 @@ class AdoptTest(unittest.TestCase):
         self.write("reference/product/vision.md", "---\nstatus: approved\n---\n")
         self.write("reference/product/functional-requirements.md", "---\nstatus: approved\n---\n### FR-01 — Orders\n- **Status**: existing\n")
         self.write("reference/architecture/architecture.md", "---\nstatus: draft\n---\n")
-        n = json.loads(self.tool("tools/next_step.py", "--json").stdout)
+        n = json.loads(self.tool("tools/next_step.py", "--json").stdout)["data"]
         self.assertEqual((n["step"], n["after"]), ("approve", "onboard"))
         self.write("reference/architecture/architecture.md", "---\nstatus: approved\n---\n")
-        self.assertEqual(json.loads(self.tool("tools/next_step.py", "--json").stdout)["files"], ["project.toml [stack] decided = true"])
+        self.assertEqual(json.loads(self.tool("tools/next_step.py", "--json").stdout)["data"]["files"], ["project.toml [stack] decided = true"])
         self.write("project.toml", set_key(self.read("project.toml"), "stack", "decided", True))
-        self.assertEqual(json.loads(self.tool("tools/next_step.py", "--json").stdout)["step"], "backlog")
+        self.assertEqual(json.loads(self.tool("tools/next_step.py", "--json").stdout)["data"]["step"], "backlog")
         self.tool("tools/check_workflow.py")
 
     def test_conflicts_and_guards(self):

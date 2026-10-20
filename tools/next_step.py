@@ -183,11 +183,13 @@ def main() -> None:
         i = args[0].replace("-", "")
         st = wf.stories()
         if i not in st:
+            if as_json:
+                wf.fail_envelope("next-story", "unknown_id", f"Unknown ID: {i}")
             sys.exit(f"Unknown ID: {i}")
         stg, det, own = stage(i)
         res = {"step": stg, "ids": [i], "why": det, "owner": own, "deps": st[i].get("deps", []), "deps_done": deps_done(i)}
         if as_json:
-            wf.dump_json(res)
+            wf.dump_envelope("next-story", res)
         else:
             print(f"{i} — {st[i].get('title', '')}\n  stage: {stg} ({own}) · {det}\n"
                   f"  dependencies: {', '.join(res['deps']) or '—'} (closed: {res['deps_done']})\n  next: {command_for(stg, [i])}")
@@ -211,7 +213,7 @@ def main() -> None:
         out["human_gates"] = [{"id": i, "stage": s[0], "detail": s[1]} for i, s in rec.get("human_gates", [])]
         if phase == "delivery":  # every story of the backlog, for boards and dashboards
             out["stories"] = [{"id": i, "stage": g[0], "detail": g[1], "owner": g[2]} for i in wf.stories() for g in [stage(i)]]
-        wf.dump_json(out)
+        wf.dump_envelope("next", out)
         return
 
     if phase == "inception":

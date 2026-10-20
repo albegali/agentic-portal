@@ -49,12 +49,12 @@ Out of scope:
 
 # 4. Acceptance Criteria
 
-- [ ] AC1: Given `next_step.py --json`, when it runs, then it prints an envelope with `contract: 1.x` that validates against `schemas/next`.
-- [ ] AC2: Given `wf.py version --json`, when it runs, then the envelope reports skeleton version and contract version and validates against its schema.
-- [ ] AC3: Given a tool failure with `--json`, when it runs, then it prints the error envelope (no `data`) and exits non-zero.
-- [ ] AC4: Given a breaking output change, when it is released, then the contract major is bumped (rule documented and enforced by a test that pins the schema `contract` const/pattern to the declared major).
-- [ ] AC5: Given the skeleton CI on Python 3.14, when it runs, then schema tests for every published schema are green and a tagged release exists.
-- [ ] AC6: Given an empty backlog, plan or journal, when the corresponding sample is validated, then empty lists are valid `data`.
+- [x] AC1: Given `next_step.py --json`, when it runs, then it prints an envelope with `contract: 1.x` that validates against `schemas/next`.
+- [x] AC2: Given `wf.py version --json`, when it runs, then the envelope reports skeleton version and contract version and validates against its schema.
+- [x] AC3: Given a tool failure with `--json`, when it runs, then it prints the error envelope (no `data`) and exits non-zero.
+- [x] AC4: Given a breaking output change, when it is released, then the contract major is bumped (rule documented and enforced by a test that pins the schema `contract` const/pattern to the declared major).
+- [ ] AC5 (deferred to the end of AP0109, owner 2026-10-19): Given the skeleton CI on Python 3.14, when it runs, then schema tests for every published schema are green and a tagged release exists.
+- [x] AC6: Given an empty backlog, plan or journal, when the corresponding sample is validated, then empty lists are valid `data`.
 
 ---
 
@@ -141,5 +141,6 @@ To be completed before marking Done.
 
 Summary:
 - Delivered in agentic-skeleton branch `feat/contract-1.0-envelope` (commit aa8652f, not pushed): envelope and error envelope, `wf.py version --json`, `next_step.py --json` in the envelope, 9 schema files, 9 contract tests, CI on Python 3.11 and 3.14.
-- Final state differs from §3/§4 as decided by the owner: tools keep Python >= 3.11; the `v1.0.0` tag and the CI-green part of AC5 move to the end of AP0109; `adopt.py` also installs `VERSION` and `schemas/`.
-- TSK-AP0103-09 (tag) deferred. AC1-AC4 and AC6 met locally (29 tests, Python 3.12 and 3.14); AC5 open until push, CI and tag.
+- Final state differs from §3/§4 as decided by the owner: tools keep Python >= 3.11; the `v1.0.0` tag and the CI-green part of AC5 move to the end of AP0109; `adopt.py` also installs `tools/VERSION` and `schemas/`.
+- Review 2026-10-20: the skeleton version moved from root `VERSION` to `tools/VERSION` (the root file belongs to the application, e.g. the portal's 0.1.0); the tools-test fixture resets its copy to a fresh skeleton, so `make test-tools` is green in the portal too; AC4 test also pins `wf.CONTRACT_VERSION`. Upstream: agentic-skeleton branch `fix/tools-version-fresh-fixture`.
+- TSK-AP0103-09 (tag) deferred. AC1-AC4 and AC6 met locally (30 tools tests in the portal, 29 in the skeleton; Python 3.12 and 3.14); AC5 open until push, CI and tag.

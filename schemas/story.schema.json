@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schemas/story.schema.json",
+  "title": "story chain --json (artifacts of one ID)",
+  "type": "object",
+  "required": [
+    "contract",
+    "tool",
+    "data"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "contract": {
+      "$ref": "envelope.schema.json#/$defs/contract"
+    },
+    "tool": {
+      "const": "story"
+    },
+    "data": {
+      "type": "object",
+      "required": [
+        "id",
+        "artifacts",
+        "tasks"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "stage": {
+          "type": "string"
+        },
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "kind",
+              "path",
+              "status"
+            ],
+            "properties": {
+              "kind": {
+                "enum": [
+                  "story",
+                  "analysis",
+                  "refined",
+                  "brief",
+                  "spec",
+                  "run"
+                ]
+              },
+              "path": {
+                "type": "string"
+              },
+              "status": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "tasks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

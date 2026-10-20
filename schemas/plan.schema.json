@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schemas/plan.schema.json",
+  "title": "plan --json (PLAN.md)",
+  "type": "object",
+  "required": [
+    "contract",
+    "tool",
+    "data"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "contract": {
+      "$ref": "envelope.schema.json#/$defs/contract"
+    },
+    "tool": {
+      "const": "plan"
+    },
+    "data": {
+      "type": "object",
+      "required": [
+        "releases",
+        "sprints"
+      ],
+      "properties": {
+        "releases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "goal": {
+                "type": "string"
+              },
+              "sprints": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "sprints": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "sprint",
+              "dates",
+              "goal",
+              "ids"
+            ],
+            "properties": {
+              "sprint": {
+                "type": "string"
+              },
+              "dates": {
+                "type": "string"
+              },
+              "goal": {
+                "type": "string"
+              },
+              "ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "release": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

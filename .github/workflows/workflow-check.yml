@@ -3,9 +3,15 @@ on: [push, pull_request]
 jobs:
   check:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.14"]  # baseline and latest; the tools stay stdlib-only
+    env:
+      WF_REQUIRE_JSONSCHEMA: "1"  # contract schema tests must run in CI, never be skipped
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: { python-version: "3.12" }
+        with: { python-version: "${{ matrix.python-version }}" }
+      - run: python -m pip install jsonschema  # test dependency only
       - run: make check
       - run: make test-tools
