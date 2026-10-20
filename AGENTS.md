@@ -37,6 +37,7 @@ The chain of one story shares one ID (`project.toml` → `id_prefix` + 4 digits,
 - End every step with the next command and each pending human gate as `file → field → value`: the human never has to ask what comes next or how to approve.
 - Templates in `inception/templates/`, `analysis/templates/`, `delivery/templates/` are authoritative: use them as they are.
 - No secrets or personal data in logs, artifacts or prompts.
+- Git: one branch per story (`<id-lowercase>-<slug>`, e.g. `pr0101-login`), created before the first change of the RUN; commit and push only at the end of `/persist` or when the user asks. At the end of `/persist`: commit, push the branch, open a PR if CI runs only on pull requests, wait until CI is green, then merge **every** open branch into `main`, delete those branches locally and on the remote, and push `main`. After each closed story only `main` exists and it is in sync with the remote. CI red or a merge conflict → stop, merge nothing, report.
 
 ## 4. Language
 
