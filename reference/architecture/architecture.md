@@ -53,9 +53,9 @@ Server log to stderr (requests without tokens, errors); run audit records in `.p
 
 ## 7. Build, environments and distribution
 - Development: `web/` with Vite dev server proxying `/api` to the Python server; `PORTAL_BUNDLE` points the launcher at the local build.
-- Release (CI in this repo): build `web/` → copy `server/` + `web/dist/` into a zip → SHA-256 manifest → GitHub Release of this repository.
-- Prerequisite: Python ≥ 3.14, checked by `make adopt` and by the launcher.
-- Projects: `project.toml [portal] version`; `make portal` (or `python tools/portal.py` on Windows without make) downloads, verifies, starts, opens the browser (ADR-003).
+- Release (CI in this repo): build `web/` → copy `server/` + `web/dist/` into a zip (`portal_server/` at the root) → `manifest.json` (format 1: `manifest`, `version`, `asset`, `size`, `sha256`, `requires_python`) → GitHub Release `v<version>` of this repository with both assets.
+- Prerequisite: the server needs Python ≥ 3.14 (`requires_python` in the manifest); the launcher itself runs on the skeleton baseline Python ≥ 3.11 and starts the bundle with a matching interpreter (AP0106).
+- Projects: `project.toml [portal] version`; `make portal` (or `python tools/portal.py` on Windows without make) downloads, verifies, caches in `.portal/<version>/`, starts on `127.0.0.1:8765` (else next free) with `--repo <root>`, opens the browser; a portal already running for the repo (`.portal/run.json` + `/api/health`) is reopened (ADR-003; skeleton ≥ 1.1.0).
 
 ## 8. Testing strategy
 | Layer | Proves | Tool | Command |

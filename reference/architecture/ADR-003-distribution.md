@@ -27,3 +27,6 @@ Option A (owner-confirmed 2026-10-19). The launcher is a stdlib script added to 
 
 ## Reversibility
 Medium: the launcher hides where the bundle comes from; switching source later touches only the launcher.
+
+## Revisions
+- 2026-10-20, owner decisions in chat (AP0106 Spec review): stays on GitHub Releases; launcher Python baseline >= 3.11 (bundle declares its own `requires_python`); manifest = release asset `manifest.json` format 1 (`manifest`, `version`, `asset`, `size`, `sha256`, `requires_python`); running-instance detection via `.portal/run.json` + `/api/health`. Launcher released in agentic-skeleton v1.1.0 (`tools/portal.py`, `make portal`).

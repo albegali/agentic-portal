@@ -196,8 +196,9 @@ ac = [
   ["a tag on main", "the release pipeline runs", "a GitHub Release with the bundle zip and SHA-256 manifest is published"],
   ["the published version pinned in a fixture repository", "I run `make portal`", "the portal starts for that repo without Node"],
   ["a bundle built for one contract major", "the skeleton reports another", "the portal shows an incompatibility message"],
+  ["the launcher starts the bundle with `--repo <root>`", "the server starts", "it serves that repository and `--help` lists `--repo`"],
 ]
-notes = "ADR-003. Launcher is AP0106."
+notes = "ADR-003. Launcher is AP0106 (skeleton v1.1.0): the release publishes `manifest.json` format 1 (`manifest`, `version`, `asset`, `size`, `sha256`, `requires_python`) next to the zip, `portal_server/` at the zip root (tools/README.md, Portal launcher). The server must not stall at bind: `HTTPServer.server_bind` calls `getfqdn()` (reverse DNS, seconds on macOS); override it as the launcher tests do."
 out_of_scope = "Launcher code, auto-update."
 
 [[story]]
