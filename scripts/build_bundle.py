@@ -11,6 +11,9 @@ import zipfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(REPO / "server"))
+
+from portal_server.contract import CONTRACT_BUILT_FOR  # noqa: E402
 PYTHON_MIN = "3.14"
 
 
@@ -53,7 +56,7 @@ def build(repo: Path = REPO, out: Path | None = None):
         "file": zip_path.name,
         "sha256": sha256(zip_path),
         "python_min": PYTHON_MIN,
-        "contract_built_for": "unknown",
+        "contract_built_for": CONTRACT_BUILT_FOR,
     }
     manifest_path = out / "manifest.json"
     manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")

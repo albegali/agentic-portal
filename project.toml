@@ -20,6 +20,9 @@ design = ""                  # existing design or prototype: /mockup maps it ins
 # Agentic portal, started by `make portal` (tools/portal.py). Uncomment to pin a release:
 # version = "x.y.z"
 # source = "<owner>/<repo>"     # optional, GitHub repository hosting the release bundle
+# Skeleton the contract tests run against (same value as the CI variable SKELETON_PIN): tag v1.3.0 is
+# pending upstream, so it is the commit that ships the eight --json emitters (skeleton 1.3.0, contract 1.0).
+skeleton_pin = "d00c402bcac1b76d5adf5557359d1bbdee22a54d"
 
 [stack]
 # Filled by /architecture once the ADRs are approved. Used by Makefile targets setup / test / lint / run.

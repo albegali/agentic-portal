@@ -7,6 +7,7 @@ import sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
+from portal_server.contract.gate import COMPATIBLE, bind, gate_for
 from portal_server.health import health
 from portal_server.http.auth import check_request, is_api
 from portal_server.http.token import launch_url, resolve_token
@@ -16,7 +17,14 @@ DEFAULT_PORT = 8765
 
 # (method, path) -> callable(root) -> JSON-serialisable body. Every entry except the
 # public ones in http.auth goes through the token check; the enumeration test reads this.
-API_ROUTES = {("GET", "/api/health"): lambda root: health(root)}
+# A route may return (status, body) instead of a body. While the skeleton is not compatible every route except
+# CONTRACT_EXEMPT answers 409 contract_incompatible (ADR-002 revision 2026-10-20).
+API_ROUTES = {
+    ("GET", "/api/health"): lambda root: health(root, gate_for(root)),
+    ("GET", "/api/contract"): lambda root: gate_for(root).snapshot(),
+    ("POST", "/api/contract/recheck"): lambda root: gate_for(root).refresh(),
+}
+CONTRACT_EXEMPT = {"/api/health", "/api/contract", "/api/contract/recheck"}
 
 
 def is_loopback(host: str) -> bool:
@@ -67,7 +75,14 @@ def make_handler(root: Path, static: Path, token: str, routes=None):
             route = routes.get(("GET" if self.command == "HEAD" else self.command, path))
             if route is None:
                 return self._send(404, b'{"error":{"code":"not_found"}}', "application/json")
-            self._send(200, json.dumps(route(root)).encode(), "application/json")
+            if path not in CONTRACT_EXEMPT:
+                snap = gate_for(root).snapshot()
+                if snap["state"] != COMPATIBLE:
+                    error = {"code": "contract_incompatible", "message": snap["message"], "recovery": snap["recovery"]}
+                    return self._send(409, json.dumps({"error": error}).encode(), "application/json")
+            result = route(root)
+            status, body = result if isinstance(result, tuple) else (200, result)
+            self._send(status, json.dumps(body).encode(), "application/json")
 
         def _other(self):
             path = self.path.split("?", 1)[0].split("#", 1)[0]
@@ -102,11 +117,12 @@ def make_handler(root: Path, static: Path, token: str, routes=None):
 
 
 def create_server(host="127.0.0.1", port=DEFAULT_PORT, root: Path = ROOT, static: Path | None = None,
-                  token: str = "", routes=None):
+                  token: str = "", routes=None, repo: Path | None = None):
     if not is_loopback(host):
         raise ValueError("refusing non-loopback host %r: the portal binds to loopback only" % host)
     if host == "localhost":
         host = "127.0.0.1"
+    bind(root, repo)  # reads the skeleton version once at start
     return ThreadingHTTPServer((host, port), make_handler(root, static or find_static(root), token, routes))
 
 
@@ -114,10 +130,11 @@ def main(argv=None):
     parser = argparse.ArgumentParser(prog="portal_server")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=DEFAULT_PORT)
+    parser.add_argument("--repo", type=Path, default=None, help="workflow repository root (default: working directory)")
     args = parser.parse_args(argv)
     token, generated = resolve_token()
     try:
-        server = create_server(args.host, args.port, token=token)
+        server = create_server(args.host, args.port, token=token, repo=(args.repo or Path.cwd()).resolve())
     except ValueError as exc:
         print("error: %s" % exc, file=sys.stderr)
         return 2

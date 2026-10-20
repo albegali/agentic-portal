@@ -28,6 +28,14 @@ class CheckDepsTest(unittest.TestCase):
         src = "import json\nfrom pathlib import Path\nfrom mypkg import mod\nfrom . import x\n"
         self.assertEqual(check_deps.main([self.pkg(src)]), 0)
 
+    def test_jsonschema_only_under_tests(self):
+        root = Path(self.pkg("import jsonschema\n"))
+        self.assertEqual(check_deps.main([str(root)]), 1)
+        (root / "tests").mkdir()
+        (root / "tests" / "test_x.py").write_text("import jsonschema\n")
+        (root / "mypkg" / "mod.py").write_text("")
+        self.assertEqual(check_deps.main([str(root)]), 0)
+
     def test_server_is_clean(self):
         self.assertEqual(check_deps.main([str(REPO / "server")]), 0)
 

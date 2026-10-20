@@ -4,6 +4,7 @@ Stdlib Python ≥ 3.14, no dependencies. Every script resolves the repository ro
 
 | Script | Make | What |
 |---|---|---|
+| `wf.py` | — | Shared helpers; `version`, `plan`, `journal`, `story <ID>` print contract data (see JSON contract). |
 | `next_step.py` | `make next` | Next step from the files: inception gates, then sprints of `PLAN.md` and the stage of each story. `--json`, or one story: `next_step.py PR0101`. |
 | `launch.py` | `make run` | Starts the app with `project.toml [stack] run`, waits for `url` to answer, opens the browser; Ctrl+C stops it (whole process group). `--no-browser`. Works without make: `python tools/launch.py`. |
 | `context.py` | `make context STEP=… IDS=…` | Context budget of a step with a token estimate: files to read, kickoff sources, only the cited FR/NFR sections and `architecture §N` sections, ADR files, other `reference/…` files cited by path, dependency excerpts, command outputs. `--index <file>` prints headings only (Markdown or HTML); `--package-rules` lists package `AGENTS.md`. |
@@ -21,20 +22,22 @@ Stdlib Python ≥ 3.14, no dependencies. Every script resolves the repository ro
 Tests: `make test-tools` (unittest, fixture repositories in temp dirs).
 
 ## JSON contract
-For portals, CI and agents that prefer structured output (fewer tokens than the text views). Contract **1.0**: every contract `--json` output is one compact object `{"contract": "1.0", "tool": "<name>", "data": {…}}`. On failure the tool prints `{"contract", "tool", "error": {"code", "message"}}` (no `data`) and exits non-zero. Empty states are valid `data` with empty lists.
+For portals, CI and agents that prefer structured output (fewer tokens than the text views). Contract **1.0**: every contract `--json` output is one compact object `{"contract": "1.0", "tool": "<name>", "data": {…}}`. On failure the tool prints `{"contract", "tool", "error": {"code", "message"}}` (no `data`) and exits non-zero; codes: `unknown_id`, `bad_input` (unreadable or malformed file), `usage`. Empty states are valid `data` with empty lists.
 
 Versioning (semver on `contract`, `wf.CONTRACT_VERSION`): a minor version only adds fields; removing or changing a field bumps the major. Consumers accept the same major and any minor at or above the one they were built for. `python3 tools/wf.py version [--json]` reports the skeleton version (`tools/VERSION`, so it never collides with an application's own `VERSION`) and the contract version. JSON Schemas (2020-12) are in `schemas/`; `jsonschema` is only a test dependency (`WF_REQUIRE_JSONSCHEMA=1` in CI).
 
-Migration from the former `"schema": 1` output: `next_step.py --json` moved to the envelope (fields unchanged, now under `data`). The other tools below still print the flat `"schema": 1` object until they move to the envelope; their schemas in `schemas/` describe the target shape.
+Migration from the former `"schema": 1` output: `next_step.py`, `check_workflow.py` and `gen_backlog.py --json` moved to the envelope (fields unchanged, now under `data`). Only `context.py` and `repo_map.py` still print the flat `"schema": 1` object; they are outside contract 1.0. Contract tools only read: they never write a file.
 
 | Command (`tool`) | Fields of `data` |
 |---|---|
 | `wf.py version --json` (`version`) | `skeleton`, `contract` |
 | `next_step.py --json` (`next`) | `step`, `ids`, `owner`, `why`, `phase`, `tier`, `models`, `command`, `weekly_due`, `current_sprint`, `next_sprint`, `human_gates`; inception: `files`, `after` when an approval is pending; delivery: `stories` (`id`, `stage`, `detail`, `owner` for every backlog story), `optional` |
 | `next_step.py <ID> --json` (`next-story`) | `step`, `ids`, `why`, `owner`, `deps`, `deps_done` |
-| `check_workflow.py --json` (`check`) · *flat for now* | `ok`, `errors`, `warnings`, `counts`, `issues` (`level`, `area`: inception/backlog/chain/adapters, `message`); exit code as the text view |
-| `gen_backlog.py --json` (`backlog`) · *flat for now* | `status`, `epics`, `stories` (TOML fields + `artifacts`: paths of story/analysis/refined/brief/spec/run or null); writes nothing |
-| plan, journal, story chain (`plan`, `journal`, `story`) · *schema only, no emitter yet* | see `schemas/` |
+| `check_workflow.py --json` (`check`) | `ok`, `errors`, `warnings`, `counts`, `issues` (`level`, `area`: inception/backlog/chain/adapters, `message`); workflow errors are data (`ok: false`), exit code as the text view (1 on errors) |
+| `gen_backlog.py --json` (`backlog`) | `status`, `epics`, `stories` (TOML fields + `artifacts`: paths of story/analysis/refined/brief/spec/run or null); writes nothing |
+| `wf.py plan --json` (`plan`) | `releases` (`id`, `title` = Content, `goal` = Exit criterion, `target`, `sprints`: those whose stories have that `release` in `stories.toml`) from the `PLAN.md` release table; `sprints` (`sprint`, `dates`, `goal`, `ids`, `release` when known) |
+| `wf.py journal --json` (`journal`) | `context` (text of `project-journal/context/*.md` except README, or null); `decisions`, `learnings`, `weekly`, `monthly`: `file`, `title` (first `# ` heading), `date` (frontmatter `date` or `YYYY-MM-DD` in the file name) |
+| `wf.py story <ID> --json` (`story`) | `id`, `title`, `stage` (as `next_step.py`), `artifacts` (`kind`: story/analysis/refined/brief/spec/run, `path`, `status`), `tasks` (`id`, `title` from Spec §5; `status` `done`/`deferred` from RUN §9, ranges `TSK-X-01 to TSK-X-08` included, else `open`); unknown ID → error `unknown_id` |
 | `context.py <step> [IDs] --json` · *flat, not in contract 1.0* | `step`, `tier`, `ids`, `needs_ids`, `read` (`path`, `lines`, `tokens`, `long`), `missing`, `design`, `cited` (`path`, `exists`, `lines`, `tokens`, `long`), `sections` (`ref`, `file`, `text`), `dependencies`, `runs`, `tokens` (estimate of the whole budget) |
 | `context.py --index <file> --json` · `--package-rules --json` · *flat* | `file`, `headings` · `rules` |
 | `repo_map.py --json` (= `context.py --repo-map --json`) · *flat* | `name`, counts, `languages`, `other_types`, `signals`, `dirs`, `root_files`, `docs`, `migrations`, `entry_points`, `tests`, `source_sizes`, `git` (`commits`, `first`, `last`, `authors`, `churn_180d`) or null, `stack` |
@@ -51,6 +54,8 @@ version = "x.y.z"            # required: the pinned portal release
 Flow: find the repository root (nearest `project.toml`) → if `.portal/run.json` points to a portal that answers `/api/health`, open it → else use `.portal/<version>/` if cached, or download `manifest.json` and the zip it names from `https://github.com/<source>/releases/download/v<version>/`, verify size and SHA-256 (abort with exit 2 on mismatch), extract safely (absolute, `..`, drive-letter and symlink entries are rejected) into `.portal/<version>.tmp`, rename → start the server on `127.0.0.1` (port 8765, else the next free one) and open the browser (`--no-browser` to skip). Ctrl+C stops it. Add `.portal/` to `.gitignore`.
 
 `PORTAL_BUNDLE=<zip or directory>` skips the download (offline or development): a zip is verified when a `manifest.json` sits next to it; a directory is used as it is. Exit codes: 0 ok, 1 user/config error (no `project.toml`, missing or unknown version, no network and no cache, Python too old), 2 integrity error (checksum, unsafe archive, unsupported manifest).
+
+Session token: on each start the launcher generates a 256-bit token, writes it to `.portal/token` (created with mode 0600; on Windows restricted to the current user with `icacls`, a warning if that fails), gives it to the server as `PORTAL_TOKEN` (environment only, never an argument) and opens `<url>/#token=<token>`, printing that URL once. A portal that is already running is opened with the token read from `.portal/token`; if the file is missing, empty or readable by other users the plain URL opens and a message explains how to restart. `.portal/token` is removed when the launcher exits; `run.json` never contains the token.
 
 `manifest.json` (release asset, manifest format 1): `{"manifest": 1, "version": "x.y.z", "asset": "agentic-portal-x.y.z.zip", "size": <bytes>, "sha256": "<hex>", "requires_python": ">=3.14"}`. Unknown keys are ignored; a different `manifest` major makes the launcher stop. The bundle zip holds the `portal_server/` package at its root.
 

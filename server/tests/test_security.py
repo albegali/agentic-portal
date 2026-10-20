@@ -11,6 +11,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from tests.support import make_skeleton  # noqa: E402
 from portal_server import app  # noqa: E402
 from portal_server.http import auth, token  # noqa: E402
 from portal_server.store.paths import OutsideRoot, safe_path, write_guard  # noqa: E402
@@ -25,6 +26,7 @@ class Base(unittest.TestCase):
         self.root = Path(self.tmp.name)
         (self.root / "web" / "dist").mkdir(parents=True)
         (self.root / "web" / "dist" / "index.html").write_text("<h1>hi</h1>")
+        make_skeleton(self.root)
         routes = {**app.API_ROUTES, **EXTRA}
         self.server = app.create_server("127.0.0.1", 0, self.root, self.root / "web" / "dist", token=TOKEN, routes=routes)
         threading.Thread(target=self.server.serve_forever, daemon=True).start()

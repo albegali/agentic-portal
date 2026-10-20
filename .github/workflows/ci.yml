@@ -30,6 +30,28 @@ jobs:
           name: portal-bundle
           path: release/
 
+  contract:
+    # The portal's contract client against the real skeleton at the pin (project.toml [portal] skeleton_pin).
+    needs: full
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: albegali/agentic-skeleton
+          ref: ${{ vars.SKELETON_PIN || 'd00c402bcac1b76d5adf5557359d1bbdee22a54d' }}
+          path: skeleton
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - run: python -m pip install jsonschema
+      - name: Contract tests against the skeleton at the pin
+        run: python -m unittest tests.test_contract_fixtures -v
+        working-directory: server
+        env:
+          SKELETON_DIR: ${{ github.workspace }}/skeleton
+          WF_REQUIRE_JSONSCHEMA: "1"
+
   e2e:
     needs: full
     runs-on: ubuntu-latest
