@@ -44,7 +44,7 @@ OPTIONAL = re.compile(r"(^|/)(README\.md|\.gitkeep|tasks\.json)$")  # on conflic
 MERGED_BY_RENDER = {"CLAUDE.md", ".github/copilot-instructions.md", ".claude/settings.json"}
 DROP_TARGETS = {"adopt", "test-tools"}  # the tools tests copy the whole repository: not for an application repo
 STACK_TARGETS = {"help", "setup", "test", "lint", "run"}  # if the target defines them, its own version wins
-GITIGNORE = ["__pycache__/", "*.pyc"]
+GITIGNORE = ["__pycache__/", "*.pyc", ".portal/"]  # .portal/: portal bundle cache and run state (make portal)
 
 
 def seg_match(p: str, pat: str) -> bool:

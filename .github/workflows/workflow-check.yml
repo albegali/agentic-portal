@@ -15,3 +15,14 @@ jobs:
       - run: python -m pip install jsonschema  # test dependency only
       - run: make check
       - run: make test-tools
+  portal-launcher:  # tools/portal.py on the other OSes of NFR-10 (Linux is covered above)
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }  # launcher baseline
+      - run: python -m unittest discover -s tools/tests -p test_portal.py -v

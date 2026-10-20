@@ -7,6 +7,7 @@ import io
 import json
 import os
 import shutil
+import signal
 import socket
 import subprocess
 import sys
@@ -29,7 +30,10 @@ class H(BaseHTTPRequestHandler):
         b = json.dumps({"status": "ok", "repo": a.repo}).encode()
         self.send_response(200); self.send_header("Content-Length", str(len(b))); self.end_headers(); self.wfile.write(b)
     def log_message(self, *x): pass
-HTTPServer((a.host, a.port), H).serve_forever()
+class S(HTTPServer):
+    def server_bind(self):  # skip HTTPServer's getfqdn(): reverse DNS can stall for seconds on macOS runners
+        import socketserver; socketserver.TCPServer.server_bind(self); self.server_name, self.server_port = self.server_address[:2]
+S((a.host, a.port), H).serve_forever()
 '''
 
 
@@ -101,8 +105,17 @@ class PortalCase(unittest.TestCase):
         e = dict(self.env, PORTAL_RELEASE_BASE=base)
         p = subprocess.Popen([sys.executable, os.path.join(TOOLS, "portal.py"), "--no-browser", *args], cwd=self.root,
                              env=e, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        self.addCleanup(self.kill_servers)
         self.addCleanup(self.stop, p)
         return p
+
+    def kill_servers(self) -> None:
+        """A terminated launcher cleans up on POSIX; on Windows terminate() is a hard kill, so stop its server here."""
+        for pid in getattr(self, "pids", []):
+            try:
+                os.kill(pid, signal.SIGTERM)
+            except OSError:
+                pass
 
     @staticmethod
     def stop(p: subprocess.Popen) -> None:
@@ -123,7 +136,9 @@ class PortalCase(unittest.TestCase):
         while time.monotonic() < end:
             if os.path.exists(path):
                 with open(path) as f:
-                    return json.load(f)
+                    info = json.load(f)
+                self.pids = getattr(self, "pids", []) + [info["pid"]]
+                return info
             if p.poll() is not None:
                 self.fail("launcher exited early: %s" % p.stderr.read())
             time.sleep(0.1)
@@ -141,10 +156,11 @@ class Download(PortalCase):
         self.assertFalse(os.path.exists(os.path.join(self.root, ".portal", "1.0.0.tmp")))
         self.assertTrue(portal.healthy(info["url"], 3))
         self.assertEqual(info["version"], "1.0.0")
-        h = json.loads(__import__("urllib.request").request.urlopen(info["url"] + "/api/health").read())
+        h = json.loads(portal.LOCAL.open(info["url"] + "/api/health", timeout=5).read())
         self.assertEqual(os.path.realpath(h["repo"]), os.path.realpath(self.root))  # --repo passed because the bundle supports it
-        p.terminate(); p.wait(timeout=15)
-        self.assertFalse(os.path.exists(os.path.join(self.root, ".portal", "run.json")))  # cleaned on exit
+        if os.name != "nt":  # Windows terminate() is a hard kill: no cleanup to observe
+            p.terminate(); p.wait(timeout=15)
+            self.assertFalse(os.path.exists(os.path.join(self.root, ".portal", "run.json")))  # cleaned on exit
 
     def test_ac2_tampered_download(self):  # AC2
         data = make_zip()
@@ -292,7 +308,7 @@ class Running(PortalCase):
             self.assertEqual(json.load(f)["pid"], info["pid"])
         p.kill(); p.wait()  # launcher crash: run.json stays; the orphaned server still answers, so it is still reused
         self.assertEqual(portal.running_instance(self.root), info["url"])
-        os.kill(info["pid"], 15)  # server gone too: run.json is now stale
+        os.kill(info["pid"], signal.SIGTERM)  # server gone too: run.json is now stale
         import time
         for _ in range(50):
             if not portal.healthy(info["url"], 0.2):

@@ -252,9 +252,12 @@ def pick_port() -> int:
     raise LauncherError(1, "no free port between %d and %d" % (DEFAULT_PORT, DEFAULT_PORT + 49))
 
 
+LOCAL = urllib.request.build_opener(urllib.request.ProxyHandler({}))  # the local portal: never through a proxy
+
+
 def healthy(url: str, timeout: float = 0.5) -> bool:
     try:
-        with urllib.request.urlopen(url.rstrip("/") + "/api/health", timeout=timeout) as r:
+        with LOCAL.open(url.rstrip("/") + "/api/health", timeout=timeout) as r:
             return json.loads(r.read()).get("status") == "ok"
     except (OSError, ValueError):
         return False
@@ -299,7 +302,7 @@ def supports_repo_flag(py: list, bundle: str) -> bool:
         return False
 
 
-def serve(root: str, bundle: str, manifest: "dict | None", cfg: dict, open_browser: bool, timeout: float = 15) -> int:
+def serve(root: str, bundle: str, manifest: "dict | None", cfg: dict, open_browser: bool, timeout: float = 60) -> int:
     py = pick_python(min_python(manifest))
     port = pick_port()
     cmd = py + ["-m", "portal_server", "--host", HOST, "--port", str(port)]
