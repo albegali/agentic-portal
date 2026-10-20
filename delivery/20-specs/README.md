@@ -9,4 +9,4 @@ Lightweight index (`delivery/AGENT_GUIDE.md` §6), kept by `/brief` and `/persis
 | AP0106 | Upstream: portal.py launcher and make portal | Done | RUN-AP0106 |
 | AP0108 | App shell and accessibility baseline | Done | RUN-AP0108 |
 | AP0102 | Local security baseline | Done | RUN-AP0102 |
-| AP0110 | Upstream: launcher delivers the session token | Draft | — |
+| AP0110 | Upstream: launcher delivers the session token | Done | RUN-AP0110 |

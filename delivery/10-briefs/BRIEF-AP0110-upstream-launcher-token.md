@@ -5,12 +5,12 @@
 - Source: `analysis/10-stories/STORY_AP0110_upstream_launcher_token.md` (no Refined Story: created by the workshop of 2026-10-20) · external tracker URL: n/a
 - Captured at (datetime): 2026-10-20T15:00
 - Captured by: Alberto Galimberti (with Claude)
-- Closed at (datetime):
+- Closed at (datetime): 2026-10-20T17:00
 
 ---
 
 ## Status
-Captured
+Closed
 
 ---
 
@@ -81,5 +81,6 @@ In `tools/portal.py`: generate a 256-bit token, write it to `.portal/` with rest
 
 # 9. Derived Artifacts
 
-- Spec: SPEC-AP0110
-- RUN: RUN-AP0110
+- Spec: SPEC-AP0110 (Done)
+- RUN: RUN-AP0110 (Closed)
+- Code: agentic-skeleton `tools/portal.py`, `tools/tests/test_portal.py`, `tools/README.md`
