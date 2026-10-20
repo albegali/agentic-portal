@@ -11,4 +11,5 @@ Developer mode, ID the arguments above (`delivery/AGENT_GUIDE.md` §7, steps 7-8
 2. Complete RUN §7-10: status `Persisted`, then `Closed` if the quality gates are met.
 3. Fill "Closed at" and "Derived Artifacts" in the Brief; update `delivery/20-specs/README.md`.
 4. Run `make check`.
+5. Git (`AGENTS.md` §3): commit, push the story branch, open a PR if CI runs only on pull requests, wait for green CI; then merge every open branch into `main`, delete them locally and on the remote, push `main`. CI red or conflict → stop and report.
 Chat: outcome in 3 lines.

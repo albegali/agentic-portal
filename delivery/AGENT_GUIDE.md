@@ -37,6 +37,7 @@ Upstream (`analysis/`, Refined Story) feeds Brief and Spec. Once Brief, Spec and
 6. **Verify & tune** (human + agent): bug fixes, test improvements, small refactors, minimal changes needed to meet AC. No new features.
 7. **Persistence** (agent): update Spec §11 and the reference docs to the final accepted state; do not copy execution history into the Spec.
 8. **Close RUN**: quality gates met, persistence done, deviations documented; then close the Brief (Closed at, Derived Artifacts).
+9. **Sync git** (agent): commit and push the story branch, wait for green CI, merge every open branch into `main`, delete them (local and remote), push `main` (`AGENTS.md` §3).
 
 ## 6. Index
 `delivery/20-specs/README.md`: one row per Spec (`| ID | Title | Status | RUN |`), kept simple. No RUN index: RUNs are reached through their Spec.
