@@ -56,7 +56,7 @@ def dump_json(obj: dict) -> None:
 
 
 def skeleton_version() -> str:
-    return read("VERSION").strip() if exists("VERSION") else "unknown"
+    return read("tools/VERSION").strip() if exists("tools/VERSION") else "unknown"  # not the root VERSION: apps own that one
 
 
 def dump_envelope(tool: str, data: dict) -> None:

@@ -20,6 +20,7 @@ except ImportError:  # pragma: no cover
 
 sys.path.insert(0, os.path.dirname(__file__))
 from test_workflow import Repo  # noqa: E402
+import wf  # noqa: E402  (tools/ is on sys.path via test_workflow)
 
 SRC = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 SCHEMAS = os.path.join(SRC, "schemas")
@@ -83,6 +84,9 @@ class ContractTest(unittest.TestCase):
         self.invalid("next", {"contract": C, "tool": "backlog", "data": SAMPLES["next"]})  # wrong tool name
 
     def test_contract_major_is_pinned_to_1(self) -> None:
+        # a major bump in the tools must come with new schemas (and this test): the emitted major must match the published one
+        self.assertEqual(wf.CONTRACT_VERSION.split(".")[0], "1", "contract major changed: publish new schemas")
+        self.assertEqual(C, wf.CONTRACT_VERSION)
         for name, data in SAMPLES.items():
             self.invalid(name, {"contract": "2.0", "tool": name, "data": data})
             self.invalid(name, {"contract": "1", "tool": name, "data": data})
@@ -107,10 +111,10 @@ class ContractTest(unittest.TestCase):
         self.assertEqual((env["contract"], env["tool"]), (C, "next"))
         self.validate("next", env)
         self.validate("envelope", env)
-        story = json.loads(r.run("tools/next_step.py", "--json").stdout)["data"].get("ids")
-        sid = (story or [None])[0]
-        if sid and sid.startswith("DM"):
-            self.validate("next-story", json.loads(r.run("tools/next_step.py", sid, "--json").stdout))
+        story = json.loads(r.run("tools/next_step.py", "DM0101", "--json").stdout)
+        self.assertEqual(story["tool"], "next-story")
+        self.validate("next-story", story)
+        self.validate("envelope", story)
 
     def test_version_command(self) -> None:
         r = Repo()
@@ -118,7 +122,7 @@ class ContractTest(unittest.TestCase):
         env = json.loads(r.run("tools/wf.py", "version", "--json").stdout)
         self.validate("version", env)
         self.validate("envelope", env)
-        with open(os.path.join(SRC, "VERSION"), encoding="utf-8") as f:
+        with open(os.path.join(SRC, "tools", "VERSION"), encoding="utf-8") as f:
             self.assertEqual(env["data"]["skeleton"], f.read().strip())
         self.assertIn("contract 1.0", r.run("tools/wf.py", "version").stdout)
 

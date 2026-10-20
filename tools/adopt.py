@@ -38,7 +38,7 @@ INSTALL = ["tools/*.py", "tools/README.md", "workflow/README.md", "workflow/work
            "delivery/AGENTS.md", "delivery/AGENT_GUIDE.md", "delivery/guide/*", "delivery/templates/*", "delivery/*/.gitkeep",
            "delivery/20-specs/README.md", "reference/README.md", "reference/*/.gitkeep", "reference/*/*/.gitkeep",
            "project-journal/*.md", "project-journal/*/README.md", "project-journal/templates/*", "project-journal/*/.gitkeep",
-           "project-journal/notes/current-week.md", "models.toml", "project.toml", ".vscode/tasks.json", "VERSION", "schemas/*.json"]
+           "project-journal/notes/current-week.md", "models.toml", "project.toml", ".vscode/tasks.json", "tools/VERSION", "schemas/*.json"]
 NOT_INSTALLED = {"tools/adopt.py"}  # the installer stays in the skeleton
 OPTIONAL = re.compile(r"(^|/)(README\.md|\.gitkeep|tasks\.json)$")  # on conflict: keep the target's file, skip ours
 MERGED_BY_RENDER = {"CLAUDE.md", ".github/copilot-instructions.md", ".claude/settings.json"}

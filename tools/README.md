@@ -21,7 +21,7 @@ Tests: `make test-tools` (unittest, fixture repositories in temp dirs).
 ## JSON contract
 For portals, CI and agents that prefer structured output (fewer tokens than the text views). Contract **1.0**: every contract `--json` output is one compact object `{"contract": "1.0", "tool": "<name>", "data": {…}}`. On failure the tool prints `{"contract", "tool", "error": {"code", "message"}}` (no `data`) and exits non-zero. Empty states are valid `data` with empty lists.
 
-Versioning (semver on `contract`, `wf.CONTRACT_VERSION`): a minor version only adds fields; removing or changing a field bumps the major. Consumers accept the same major and any minor at or above the one they were built for. `python3 tools/wf.py version [--json]` reports the skeleton version (`VERSION`) and the contract version. JSON Schemas (2020-12) are in `schemas/`; `jsonschema` is only a test dependency (`WF_REQUIRE_JSONSCHEMA=1` in CI).
+Versioning (semver on `contract`, `wf.CONTRACT_VERSION`): a minor version only adds fields; removing or changing a field bumps the major. Consumers accept the same major and any minor at or above the one they were built for. `python3 tools/wf.py version [--json]` reports the skeleton version (`tools/VERSION`, so it never collides with an application's own `VERSION`) and the contract version. JSON Schemas (2020-12) are in `schemas/`; `jsonschema` is only a test dependency (`WF_REQUIRE_JSONSCHEMA=1` in CI).
 
 Migration from the former `"schema": 1` output: `next_step.py --json` moved to the envelope (fields unchanged, now under `data`). The other tools below still print the flat `"schema": 1` object until they move to the envelope; their schemas in `schemas/` describe the target shape.
 

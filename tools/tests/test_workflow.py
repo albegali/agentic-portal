@@ -73,12 +73,35 @@ RUN = """# RUN-{i}
 """
 
 
+# project state written by the workflow: removed from the copy (README.md and .gitkeep stay), see Repo.fresh
+STATE_DIRS = ["analysis/10-stories", "analysis/20-analysis", "analysis/30-refined", "analysis/workshops", "analysis/output",
+              "delivery/10-briefs", "delivery/20-specs", "delivery/30-runs", "reference", "backlog", "docs/sources",
+              *(f"project-journal/{d}" for d in ("context", "decisions", "learnings", "metrics", "monthly", "risks", "weekly"))]
+FRESH_KEYS = [("project", "initialized", False), ("inception", "sources", []), ("inception", "design", ""),
+              ("stack", "decided", False), *(("stack", k, "") for k in ("summary", "setup", "test", "lint", "run", "url"))]
+
+
 class Repo:
     def __init__(self) -> None:
         self.dir = tempfile.mkdtemp(prefix="wf-")
         shutil.copytree(SRC, self.dir, dirs_exist_ok=True,
-                        ignore=shutil.ignore_patterns(".git", "__pycache__", ".pytest_cache"))
+                        ignore=shutil.ignore_patterns(".git", "__pycache__", ".pytest_cache", "node_modules"))
         self.env = {**os.environ, "WF_ROOT": self.dir}
+        self.fresh()
+
+    def fresh(self) -> None:
+        """Reset the copy to a fresh skeleton, so the tests also pass in a repository that already uses the workflow."""
+        for d in STATE_DIRS:
+            for base, _, names in os.walk(os.path.join(self.dir, d)):
+                for n in names:
+                    if n not in ("README.md", ".gitkeep"):
+                        os.remove(os.path.join(base, n))
+        if os.path.exists(os.path.join(self.dir, "PLAN.md")):
+            os.remove(os.path.join(self.dir, "PLAN.md"))
+        p = self.read("project.toml")
+        for section, key, value in FRESH_KEYS:
+            p = set_key(p, section, key, value)
+        self.write("project.toml", p)
 
     def run(self, *args: str, ok: bool = True) -> subprocess.CompletedProcess:
         r = subprocess.run([sys.executable, *args], cwd=self.dir, env=self.env, capture_output=True, text=True)
