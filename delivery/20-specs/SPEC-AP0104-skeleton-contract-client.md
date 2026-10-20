@@ -95,7 +95,7 @@ The agent is not allowed to:
 - [x] Public interfaces updated if impacted (`/api/contract`, 409 shape, health fields, manifest)
 - [x] Domain invariants respected (ADR-002, NFR-08, NFR-13, NFR-14)
 - [x] No breaking changes unless explicitly approved
-- [ ] CI job `contract` green at the pinned tag (verified on the PR, see RUN §8)
+- [x] CI job `contract` green at the pinned tag (PR #5)
 
 ---
 

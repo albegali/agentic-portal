@@ -124,7 +124,7 @@ Summary:
 # 8. Quality Gates Check
 
 - [x] Acceptance criteria satisfied
-- [x] Tests passing (77 locally on 3.14, 2 skipped; `make check` OK; CI result recorded on the PR)
+- [x] Tests passing (77 locally on 3.14, 2 skipped; `make check` OK; CI green on PR #5 incl. `contract`)
 - [x] No scope creep
 - [x] Persistence completed
 
