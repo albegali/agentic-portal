@@ -505,6 +505,8 @@ class AdoptTest(unittest.TestCase):
         self.assertNotIn("test-tools", mk)
         self.assertNotIn("adopt:", mk)
         self.assertIn("| wf-check |", mk)
+        self.assertIn("portal:", mk)
+        self.assertIn(".portal/", self.read(".gitignore").splitlines())
         self.assertIn("run /onboard", mk)
         for absent in ("tools/adopt.py", "tools/tests", ".github/workflows", "README.md", ".cursor"):
             self.assertFalse(os.path.exists(os.path.join(self.t, absent)), absent)

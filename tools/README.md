@@ -12,6 +12,7 @@ Stdlib Python ≥ 3.14, no dependencies. Every script resolves the repository ro
 | `render_agents.py` | `make agents` | `workflow/workflow.toml` + `models.toml` → Claude Code / Codex / Copilot / Cursor adapters and `workflow/STEPS.md`. Files the project already owns (`CLAUDE.md`, `copilot-instructions.md`, `.claude/settings.json`) are merged, not overwritten. `--check` for CI. |
 | `init_project.py` | (via `/kickoff`) | Writes `project.toml` / `models.toml` settings (incl. kickoff `--sources` and `--design`), re-prefixes template examples, renders adapters. |
 | `adopt.py` | `make adopt TARGET=…` | Installs the workflow into an existing repository without overwriting its files (marked blocks in `AGENTS.md` / `CLAUDE.md`, `include workflow.mk`, permissions union), detects the `[stack]` commands, sets `origin = "brownfield"`. Conflicts → nothing written. `--dry-run` prints the plan. Not installed in the target. |
+| `portal.py` | `make portal` | Start the agentic portal for this repository: downloads the pinned release bundle, verifies it, caches it in `.portal/<version>/`, starts it and opens the browser. See "Portal launcher". |
 | `repo_map.py` | `context.py --repo-map` | Cheap map of the codebase for `/onboard`: languages, tree with sizes, manifests, CI/infra, docs, entry points, tests, largest files, git hot spots. No file contents. |
 | `usage.py` | `make usage DAYS=…` | Agent sessions of this repository from the local logs of Claude Code (`~/.claude/projects/…`) and Codex (`~/.codex/sessions`): step, step tier vs main model, prompts, interrupts, rejected tool calls, tokens per model, lines, cost (Claude Code records it). Counts only, never prompt text. `--since/--until`, `--json`. Used by `/weekly`. |
 | `rename_id.py` | — | Replace a story ID everywhere (e.g. adopting tracker IDs). |
@@ -37,6 +38,21 @@ Migration from the former `"schema": 1` output: `next_step.py --json` moved to t
 | `context.py <step> [IDs] --json` · *flat, not in contract 1.0* | `step`, `tier`, `ids`, `needs_ids`, `read` (`path`, `lines`, `tokens`, `long`), `missing`, `design`, `cited` (`path`, `exists`, `lines`, `tokens`, `long`), `sections` (`ref`, `file`, `text`), `dependencies`, `runs`, `tokens` (estimate of the whole budget) |
 | `context.py --index <file> --json` · `--package-rules --json` · *flat* | `file`, `headings` · `rules` |
 | `repo_map.py --json` (= `context.py --repo-map --json`) · *flat* | `name`, counts, `languages`, `other_types`, `signals`, `dirs`, `root_files`, `docs`, `migrations`, `entry_points`, `tests`, `source_sizes`, `git` (`commits`, `first`, `last`, `authors`, `churn_180d`) or null, `stack` |
+
+## Portal launcher
+`make portal` (or `python tools/portal.py` where make is missing, e.g. Windows). The launcher itself needs Python >= 3.11 and nothing else; the portal bundle may need a newer Python (`requires_python` in its manifest) and is run with a matching interpreter (`python3.<minor>`, or `py -3.<minor>` on Windows).
+
+`project.toml`:
+```toml
+[portal]
+version = "x.y.z"            # required: the pinned portal release
+# source = "<owner>/<repo>"  # optional: GitHub repository whose Releases host the bundle
+```
+Flow: find the repository root (nearest `project.toml`) → if `.portal/run.json` points to a portal that answers `/api/health`, open it → else use `.portal/<version>/` if cached, or download `manifest.json` and the zip it names from `https://github.com/<source>/releases/download/v<version>/`, verify size and SHA-256 (abort with exit 2 on mismatch), extract safely (absolute, `..`, drive-letter and symlink entries are rejected) into `.portal/<version>.tmp`, rename → start the server on `127.0.0.1` (port 8765, else the next free one) and open the browser (`--no-browser` to skip). Ctrl+C stops it. Add `.portal/` to `.gitignore`.
+
+`PORTAL_BUNDLE=<zip or directory>` skips the download (offline or development): a zip is verified when a `manifest.json` sits next to it; a directory is used as it is. Exit codes: 0 ok, 1 user/config error (no `project.toml`, missing or unknown version, no network and no cache, Python too old), 2 integrity error (checksum, unsafe archive, unsupported manifest).
+
+`manifest.json` (release asset, manifest format 1): `{"manifest": 1, "version": "x.y.z", "asset": "agentic-portal-x.y.z.zip", "size": <bytes>, "sha256": "<hex>", "requires_python": ">=3.14"}`. Unknown keys are ignored; a different `manifest` major makes the launcher stop. The bundle zip holds the `portal_server/` package at its root.
 
 ## Kickoff sources and existing design
 `project.toml [inception]` records `sources` (brief, transcripts, notes) and `design` (an existing mockup or prototype), written by `init_project.py --sources … --design …` during `/kickoff`. Budgets with `sources = true` (requirements, mockup, architecture) read the sources; `design = true` (mockup) points to the design's outline (`context.py --index`, which also outlines HTML) so `/mockup` maps it instead of rebuilding it. `make check` warns when a recorded file is missing.

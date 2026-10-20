@@ -1,5 +1,5 @@
 # Workflow targets (stdlib Python >= 3.14, no dependencies). Stack targets read project.toml [stack].
-.PHONY: help next context check backlog agents usage test-tools setup test lint run codex-prompts adopt
+.PHONY: help next context check backlog agents usage test-tools setup test lint run portal codex-prompts adopt
 
 PY ?= python3
 STACK = $(PY) -c "import tomllib,sys;print(tomllib.load(open('project.toml','rb'))['stack'].get(sys.argv[1],''))"
@@ -33,6 +33,9 @@ setup test lint: ## stack commands, defined by /architecture in project.toml [st
 
 run:             ## start the app locally and open it in the browser: project.toml [stack] run / url
 	@$(PY) tools/launch.py
+
+portal:          ## start the agentic portal for this repository (project.toml [portal] version); python tools/portal.py without make
+	@$(PY) tools/portal.py
 
 codex-prompts:   ## Codex CLI reads prompts from ~/.codex/prompts: link this project's prompts there
 	@mkdir -p $${CODEX_HOME:-$$HOME/.codex}/prompts; for f in .codex/prompts/*.md; do ln -sf "$$PWD/$$f" "$${CODEX_HOME:-$$HOME/.codex}/prompts/$$(basename $$f)"; done; echo "linked: /prompts:<name> in Codex (last linked project wins on name clashes)"
