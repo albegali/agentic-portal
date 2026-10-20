@@ -33,7 +33,7 @@ Server modules (inside `server/portal_server/`): `http` (routing, auth, SSE), `c
 ## 3. Data and persistence (outline)
 - Project state: repository files only, read and written through the skeleton tools (ADR-002).
 - Portal state: `.portal/` (gitignored) — `runs/<id>.json` (meta: step, IDs, tier, model, CLI, scope, status, times, triggered by), `runs/<id>.log` (redacted output, SSE replay), `findings.json`, `<version>/` bundle (ADR-003, ADR-008).
-- Browser: theme and UI preferences in `localStorage`; token in `sessionStorage`.
+- Browser: theme and UI preferences in `localStorage`; token in `sessionStorage` (and in a user-only file in `.portal/`, ADR-006 revision 2026-10-20).
 
 ## 4. Integrations and interfaces
 | External system / device / host | Direction | Protocol / API / format | Port / adapter | Owner | Phase |
@@ -46,7 +46,7 @@ Server modules (inside `server/portal_server/`): `http` (routing, auth, SSE), `c
 | Browser | in/out | HTTP JSON + SSE on loopback | `http` | — | R1 |
 
 ## 5. Security and privacy
-ADR-006: loopback bind, per-session 256-bit token (URL fragment → `sessionStorage` → bearer header), Host/Origin checks, writes only via skeleton commands inside the repo root, allow-listed agent commands, agents never get the token, gate actions need a UI confirm nonce, approvals attributed to `project.toml` owner. Run logs redacted for secrets before storing/streaming. No telemetry; nothing leaves the machine except agent CLI traffic (the CLI's own) and the bundle download.
+ADR-006: loopback bind, per-session 256-bit token (URL fragment → `sessionStorage` → bearer header), Host/Origin checks, writes only via skeleton commands inside the repo root, allow-listed agent commands, agents never get the token, gate actions need a UI confirm nonce, approvals attributed to `project.toml` owner. Request pipeline order: Host → token → Origin and `application/json` content type (state-changing methods); `GET /api/health` is the one unauthenticated route (documented exception to NFR-02: Host-checked, no repository data); a route-enumeration test fails when a new `/api` route lacks token coverage (AP0102). Run logs redacted for secrets before storing/streaming. No telemetry; nothing leaves the machine except agent CLI traffic (the CLI's own) and the bundle download.
 
 ## 6. Observability
 Server log to stderr (requests without tokens, errors); run audit records in `.portal/runs/` (NFR-12); `GET /api/health` returns datetime and status, optionally an error code and message, plus portal, contract (built-for) and skeleton versions; skeleton and contract are "unknown" until `wf.py version --json` is available (AP0101, AP0103; owner decision in `analysis/workshops/WORKSHOP_2026-10-19_AP0101-AP0103-AP0106-AP0108.md`). No external telemetry.
