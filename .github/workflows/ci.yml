@@ -30,6 +30,28 @@ jobs:
           name: portal-bundle
           path: release/
 
+  e2e:
+    needs: full
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm --prefix web ci
+      - run: npx --prefix web playwright install --with-deps chromium webkit firefox
+      - name: Accessibility and keyboard e2e (axe, 3 engines)
+        run: npm --prefix web run e2e
+        env:
+          CI: "true"
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: web/playwright-report/
+
   cross-platform:
     needs: full
     strategy:

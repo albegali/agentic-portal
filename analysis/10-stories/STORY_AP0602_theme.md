@@ -7,7 +7,7 @@ As a developer using the workflow, I want a dark and a light theme toggle that p
 ## Description
 
 - Epic: EP-06 — Settings and preferences
-- Priority (MoSCoW): Could · Release: R2 · Size: S · Type: feature
+- Priority (MoSCoW): Must · Release: R1 · Size: S · Type: feature
 - Requirements: FR-28, NFR-11
 - Depends on: AP0108
 - Notes: —

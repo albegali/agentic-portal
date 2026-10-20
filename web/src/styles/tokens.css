@@ -1,0 +1,52 @@
+/*
+ * Design tokens: lime glassmorphism theme, ported from the mockup.
+ * Every themed colour is `light-dark(<light>, <dark>)` with plain hex values:
+ * src/styles/contrast.test.ts parses this file and checks the declared pairs
+ * against WCAG 2.2 AA. Follows the OS preference; `data-theme` on <html> overrides it.
+ */
+:root {
+  color-scheme: light dark;
+
+  --bg: light-dark(#f5f6f8, #0c0e12);
+  --panel: light-dark(#ffffff, #13161c);
+  --panel2: light-dark(#eef0f3, #1a1e26);
+  --line: light-dark(#dce0e6, #262b35); /* decorative border: not a contrast pair */
+  --text: light-dark(#14171c, #e7e9ee);
+  --muted: light-dark(#535d6d, #9aa3b2);
+  --blue: light-dark(#195fb8, #6cb4ff);
+  --orange: light-dark(#9a4d00, #ffaa55);
+  --green: light-dark(#0b6e49, #5ed3a0);
+  --red: light-dark(#b52e22, #ff7b6b);
+  --yellow: light-dark(#725800, #e6d06a);
+  --shade: light-dark(rgb(20 23 28 / 0.35), rgb(4 5 8 / 0.6));
+
+  /* Lime is a fill (buttons, markers) with --onaccent text; never text on light.
+     On light backgrounds a lime fill has no 3:1 edge: give it a 1px --accent-text border. */
+  --accent: #c8f169;
+  --onaccent: #0c0e12;
+  --accent-text: light-dark(#475f00, #c8f169); /* accent-coloured text, links, focus ring */
+  --focus: light-dark(#475f00, #c8f169);
+
+  /* Glass: --panel at --glass-pct opacity over the page background. */
+  --glass-pct: 70%;
+  --glass: color-mix(in srgb, var(--panel) var(--glass-pct), transparent);
+  --glass-blur: blur(14px) saturate(140%);
+  --shadow: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 10px 30px rgb(0 0 0 / 0.28);
+
+  --radius-sm: 4px;
+  --radius: 6px;
+  --radius-lg: 8px;
+
+  --font-sans: "Quicksand Variable", Quicksand, ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --ease: 160ms ease;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
