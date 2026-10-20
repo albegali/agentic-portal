@@ -53,7 +53,7 @@ Out of scope:
 - [x] AC2: Given `wf.py version --json`, when it runs, then the envelope reports skeleton version and contract version and validates against its schema.
 - [x] AC3: Given a tool failure with `--json`, when it runs, then it prints the error envelope (no `data`) and exits non-zero.
 - [x] AC4: Given a breaking output change, when it is released, then the contract major is bumped (rule documented and enforced by a test that pins the schema `contract` const/pattern to the declared major).
-- [ ] AC5 (deferred to the end of AP0109, owner 2026-10-19): Given the skeleton CI on Python 3.14, when it runs, then schema tests for every published schema are green and a tagged release exists.
+- [~] AC5 (deferred to the end of AP0109, owner 2026-10-19; CI part met by AP0109 on 2026-10-20, tag is now `v1.3.0` and pending the owner): Given the skeleton CI on Python 3.14, when it runs, then schema tests for every published schema are green and a tagged release exists.
 - [x] AC6: Given an empty backlog, plan or journal, when the corresponding sample is validated, then empty lists are valid `data`.
 
 ---

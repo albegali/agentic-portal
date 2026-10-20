@@ -10,3 +10,4 @@ Lightweight index (`delivery/AGENT_GUIDE.md` §6), kept by `/brief` and `/persis
 | AP0108 | App shell and accessibility baseline | Done | RUN-AP0108 |
 | AP0102 | Local security baseline | Done | RUN-AP0102 |
 | AP0110 | Upstream: launcher delivers the session token | Done | RUN-AP0110 |
+| AP0109 | Upstream: --json for backlog, check, plan, journal, story chain | Done | RUN-AP0109 |
