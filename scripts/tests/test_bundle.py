@@ -15,6 +15,13 @@ import build_bundle  # noqa: E402
 REPO = Path(__file__).resolve().parents[2]
 
 
+class ManifestConstantTest(unittest.TestCase):
+    def test_manifest_uses_the_portal_constant_not_a_literal(self):  # AP0104 AC7, runs without web/dist
+        from portal_server.contract import CONTRACT_BUILT_FOR
+        self.assertIs(build_bundle.CONTRACT_BUILT_FOR, CONTRACT_BUILT_FOR)
+        self.assertNotIn('"unknown"', (REPO / "scripts" / "build_bundle.py").read_text().split("contract_built_for")[1][:40])
+
+
 class BundleTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -33,7 +40,8 @@ class BundleTest(unittest.TestCase):
         self.assertEqual(m["sha256"], build_bundle.sha256(self.zip))
         self.assertEqual(m["file"], self.zip.name)
         self.assertEqual(m["python_min"], "3.14")
-        self.assertEqual(m["contract_built_for"], "unknown")
+        self.assertEqual(m["contract_built_for"], build_bundle.CONTRACT_BUILT_FOR)
+        self.assertEqual(m["contract_built_for"], "1.0")
         self.assertEqual(m["version"], (REPO / "VERSION").read_text().strip())
 
     def test_layout(self):

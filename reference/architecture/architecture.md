@@ -49,7 +49,7 @@ Server modules (inside `server/portal_server/`): `http` (routing, auth, SSE), `c
 ADR-006: loopback bind, per-session 256-bit token (URL fragment → `sessionStorage` → bearer header), Host/Origin checks, writes only via skeleton commands inside the repo root, allow-listed agent commands, agents never get the token, gate actions need a UI confirm nonce, approvals attributed to `project.toml` owner. Request pipeline order: Host → token → Origin and `application/json` content type (state-changing methods); `GET /api/health` is the one unauthenticated route (documented exception to NFR-02: Host-checked, no repository data); a route-enumeration test fails when a new `/api` route lacks token coverage (AP0102). Run logs redacted for secrets before storing/streaming. No telemetry; nothing leaves the machine except agent CLI traffic (the CLI's own) and the bundle download.
 
 ## 6. Observability
-Server log to stderr (requests without tokens, errors); run audit records in `.portal/runs/` (NFR-12); `GET /api/health` returns datetime and status, optionally an error code and message, plus portal, contract (built-for) and skeleton versions; skeleton and contract are "unknown" until `wf.py version --json` is available (AP0101, AP0103; owner decision in `analysis/workshops/WORKSHOP_2026-10-19_AP0101-AP0103-AP0106-AP0108.md`). No external telemetry.
+Server log to stderr (requests without tokens, errors); run audit records in `.portal/runs/` (NFR-12); `GET /api/health` returns datetime and status, optionally an error code and message, plus `contract` (`built_for`, `skeleton_contract`) and `skeleton` versions (`unknown` while the skeleton is missing or incompatible; the former flat `contract_version` / `skeleton_version` stay). Contract gate (AP0104): state `compatible | incompatible | missing` (same major, minor ≥ built-for) read at start, on `POST /api/contract/recheck` and after a failed tool call; while not compatible every `/api` data route answers 409 `contract_incompatible` with a recovery proposal (`summary`, `steps`, `command`, `runnable: false`); `GET /api/contract` and the recheck stay available behind auth. No external telemetry.
 
 ## 7. Build, environments and distribution
 - Development: `web/` with Vite dev server proxying `/api` to the Python server; `PORTAL_BUNDLE` points the launcher at the local build.
@@ -61,7 +61,7 @@ Server log to stderr (requests without tokens, errors); run audit records in `.p
 | Layer | Proves | Tool | Command |
 |---|---|---|---|
 | Server unit/integration | routing, auth, run manager (fake CLI), locks, redaction, adapters on recorded outputs | `unittest` | `python3 -m unittest discover -s server/tests` |
-| Contract | portal accepts every tool output against the JSON Schemas; version rules | `unittest` + recorded envelopes | same |
+| Contract | portal accepts every tool output against the JSON Schemas; version rules; recorded envelopes of the eight tools and a live run against the skeleton at `SKELETON_PIN` (CI job `contract`) | `unittest`, `jsonschema` (test-only) | same; live: `SKELETON_DIR=<checkout> python3 -m unittest tests.test_contract_fixtures` in `server/` |
 | Web unit/component | screens render states (empty, error, gate), keyboard behavior | Vitest + Testing Library | `npm --prefix web test` |
 | Accessibility | WCAG 2.2 AA automated checks per screen, both themes | axe-core in Playwright | `npm --prefix web run e2e` |
 | End-to-end | flows of the mockup against a fixture repository and a fake agent CLI | Playwright (Chromium, Firefox, WebKit; mobile viewport 375 px) | same |

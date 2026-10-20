@@ -1,12 +1,16 @@
 """Fail if a Python package imports anything outside the standard library or itself.
 
 Usage: python scripts/check_deps.py <dir> [<dir> ...]
+Test-only: `jsonschema` is allowed under a `tests/` directory (contract tests), never in runtime code.
 Local names: top-level modules/packages found inside the checked directories
 (including tests importing the package under test).
 """
 import ast
 import sys
 from pathlib import Path
+
+
+TEST_ONLY = {"jsonschema", "referencing"}
 
 
 def local_names(roots):
@@ -36,6 +40,8 @@ def check(roots):
     for root in roots:
         for path in sorted(Path(root).rglob("*.py")):
             for line, mod in imports(path):
+                if mod in TEST_ONLY and "tests" in path.parts:
+                    continue
                 if mod not in allowed:
                     violations.append("%s:%d: third-party import %r" % (path, line, mod))
     return violations
