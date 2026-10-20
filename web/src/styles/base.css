@@ -1,0 +1,55 @@
+@import "@fontsource-variable/quicksand/wght.css";
+@import "./tokens.css";
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text);
+  background:
+    radial-gradient(1200px 600px at 85% -10%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, color-mix(in srgb, var(--blue) 9%, transparent), transparent 60%),
+    var(--bg);
+  background-attachment: fixed;
+}
+
+a {
+  color: var(--accent-text);
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+code,
+pre,
+.mono {
+  font-family: var(--font-mono);
+}
+
+.muted {
+  color: var(--muted);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
+}

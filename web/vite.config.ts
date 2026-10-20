@@ -6,5 +6,5 @@ export default defineConfig({
   plugins: [react()],
   base: "./",
   server: { proxy: { "/api": "http://127.0.0.1:8765" } },
-  test: { environment: "jsdom", setupFiles: ["./src/setup.ts"], globals: true },
+  test: { environment: "jsdom", setupFiles: ["./src/setup.ts"], globals: true, exclude: ["e2e/**", "node_modules/**"] },
 });

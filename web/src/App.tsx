@@ -1,23 +1,19 @@
-import { useEffect, useState } from "react";
+import { HashRouter, Route, Routes } from "react-router";
+import { Shell } from "./components/Shell/Shell";
+import { Placeholder } from "./screens/Placeholder";
+import { routes } from "./routes";
 
-type Health = { status: string; portal_version?: string };
-
+// Hash routing: the server serves static files only, so deep links cannot use the history API.
 export function App() {
-  const [health, setHealth] = useState<Health | null>(null);
-  const [failed, setFailed] = useState(false);
-
-  useEffect(() => {
-    fetch("/api/health")
-      .then((r) => r.json())
-      .then(setHealth)
-      .catch(() => setFailed(true));
-  }, []);
-
   return (
-    <main>
-      <h1>Agentic Portal</h1>
-      {failed && <p role="alert">Server unreachable.</p>}
-      {health && <p>Portal version {health.portal_version ?? "unknown"}</p>}
-    </main>
+    <HashRouter>
+      <Routes>
+        <Route element={<Shell />}>
+          {routes.map((r) => (
+            <Route key={r.path} path={r.path} element={<Placeholder route={r} />} />
+          ))}
+        </Route>
+      </Routes>
+    </HashRouter>
   );
 }

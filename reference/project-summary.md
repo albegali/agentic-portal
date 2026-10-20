@@ -5,7 +5,7 @@
 - **What**: A local developer-experience portal on top of the agentic-skeleton workflow (state, plan, backlog, agent runs, human gates, codebase health).
 - **For whom**: Product owners, developers, analysts/reviewers and tech leads of repos using the workflow (users beyond the owner are assumptions).
 - **Why**: Workflow state and gates live in files and CLI; no overview or one-click control.
-- **Type and platforms**: Web app served locally (localhost, one portal per repository); React + Vite + TypeScript static bundle, Python stdlib backend; desktop browsers (assumption).
+- **Type and platforms**: Web app served locally (localhost, one portal per repository); React + Vite + TypeScript static bundle, Python stdlib backend; desktop and mobile browsers from 375 px wide (owner, 2026-10-19), WCAG 2.2 AA.
 - **First release**: Screens of the prototype with read/write through skeleton tools, headless agent launch, gates as actions, codebase-health insights. Target date: not stated.
 - **Out of scope**: Hosted multi-repo server; chat-style AI.
 - **Key constraints**: Python stdlib only on the backend; repo files are the source of truth; localhost security (token, CSRF); portable to adopted codebases.
