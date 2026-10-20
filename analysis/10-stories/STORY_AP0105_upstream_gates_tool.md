@@ -10,7 +10,7 @@ As a portal (consumer of agentic-skeleton), I want a gates.py tool that lists pe
 - Priority (MoSCoW): Must · Release: R1 · Size: M · Type: technical
 - Requirements: FR-13, FR-14, NFR-03, NFR-14
 - Depends on: AP0103
-- Notes: ADR-002, ADR-006. Delivered in the agentic-skeleton repository (NFR-14); the portal pins the released skeleton version.
+- Notes: Refined: analysis/30-refined/REFINED_AP0105_upstream_gates_tool.md. `## Gates` section per artifact; ids `<type>:<path>`. ADR-002, ADR-006. Delivered in the agentic-skeleton repository (NFR-14); the portal pins the released skeleton version.
 - Out of scope: Portal UI, agent-caller checks.
 
 ## Acceptance Criteria

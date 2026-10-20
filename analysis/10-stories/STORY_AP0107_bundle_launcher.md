@@ -10,7 +10,7 @@ As a developer using the workflow, I want the portal release pipeline to publish
 - Priority (MoSCoW): Must · Release: R1 · Size: M · Type: technical
 - Requirements: FR-23, NFR-09, NFR-10
 - Depends on: AP0101, AP0106
-- Notes: ADR-003. Launcher is AP0106 (skeleton v1.1.0): the release publishes `manifest.json` format 1 (`manifest`, `version`, `asset`, `size`, `sha256`, `requires_python`) next to the zip, `portal_server/` at the zip root (tools/README.md, Portal launcher). The server must not stall at bind: `HTTPServer.server_bind` calls `getfqdn()` (reverse DNS, seconds on macOS); override it as the launcher tests do.
+- Notes: Refined: analysis/30-refined/REFINED_AP0107_bundle_launcher.md. Manifest format 1 now, `--repo`, `server_bind`, CI job with the real launcher on Linux/macOS/Windows. ADR-003. Launcher is AP0106 (skeleton v1.1.0): the release publishes `manifest.json` format 1 (`manifest`, `version`, `asset`, `size`, `sha256`, `requires_python`) next to the zip, `portal_server/` at the zip root (tools/README.md, Portal launcher). The server must not stall at bind: `HTTPServer.server_bind` calls `getfqdn()` (reverse DNS, seconds on macOS); override it as the launcher tests do.
 - Out of scope: Launcher code, auto-update.
 
 ## Acceptance Criteria

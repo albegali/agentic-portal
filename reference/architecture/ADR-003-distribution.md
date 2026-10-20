@@ -30,3 +30,4 @@ Medium: the launcher hides where the bundle comes from; switching source later t
 
 ## Revisions
 - 2026-10-20, owner decisions in chat (AP0106 Spec review): stays on GitHub Releases; launcher Python baseline >= 3.11 (bundle declares its own `requires_python`); manifest = release asset `manifest.json` format 1 (`manifest`, `version`, `asset`, `size`, `sha256`, `requires_python`); running-instance detection via `.portal/run.json` + `/api/health`. Launcher released in agentic-skeleton v1.1.0 (`tools/portal.py`, `make portal`).
+- 2026-10-20, owner decisions in `analysis/workshops/WORKSHOP_2026-10-20_AP0102-AP0104-AP0105-AP0107.md` (AP0107): the bundle manifest switches to format 1 now; `portal_server/` at the zip root (no `server/` prefix); the server accepts `--repo` and overrides `server_bind` (no `getfqdn()`); CI runs the real skeleton launcher against the built bundle on Linux, macOS and Windows; every iteration keeps the build green.

@@ -10,7 +10,7 @@ As a portal server, I want to call skeleton tools through the versioned --json e
 - Priority (MoSCoW): Must · Release: R1 · Size: L · Type: technical
 - Requirements: FR-27, FR-25, NFR-13
 - Depends on: AP0101, AP0103
-- Notes: ADR-002. Consumes the envelope released by AP0103.
+- Notes: Refined: analysis/30-refined/REFINED_AP0104_skeleton_contract_client.md. Runtime stdlib schema validator; all eight tools (order AP0109 → AP0104); recovery proposal in Settings. ADR-002. Consumes the envelope released by AP0103.
 - Out of scope: Gate writes, run launching.
 
 ## Acceptance Criteria
