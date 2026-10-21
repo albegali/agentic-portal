@@ -154,7 +154,7 @@ Facts, not ticks (`make check` reads them):
 - AC: 6/6 met (Spec §4; AC1 and AC2 rest on the CI jobs `launcher` and `release-dry-run`, the real release is the owner's tag)
 - Tests: `PY=python3.14 make test` → pass (server 83 run, 2 skipped; scripts 17); `python3.14 scripts/tests/launcher_smoke.py` → pass (macOS)
 - Out-of-scope changes: none (existing `main()` tests in `server/tests/test_server.py` and `test_security.py` got `--repo`, a consequence of the new `project.toml` check)
-- CI: red — https://github.com/albegali/agentic-portal/pull/9 (job `launcher` on all 3 OSes: the relative `--bundle` path is resolved against the fixture's working directory by the launcher; every other check green incl. `release-dry-run`, `contract`, `e2e`, `cross-platform`)
+- CI: green — https://github.com/albegali/agentic-portal/pull/9 (all jobs pass incl. `launcher` on 3 OSes and `release-dry-run`; `check (3.11)` ran every step successfully but GitHub never marked the job complete, no required checks configured)
 
 ### Security review
 > Only for security-sensitive stories, written by `/security-review` (`workflow/steps/security.md`); delete otherwise.
