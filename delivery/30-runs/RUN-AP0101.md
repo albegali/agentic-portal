@@ -164,8 +164,8 @@ Tasks deferred:
 - Verification of AC2 (CI on main) and AC7 (GitHub Release): need a push and the owner's `v0.1.0` tag.
 
 Goal achieved:
-- [x] Yes
-- [ ] Partial
+- [ ] Yes
+- [x] Partial
 - [ ] No
 
 Summary:
@@ -186,3 +186,15 @@ Summary:
 ### <Date>
 - Note:
 - Impact:
+
+---
+
+## Pending owner actions
+
+- [ ] tag `v0.1.0` on `main` (release workflow publishes the zip and manifest: SPEC-AP0101 AC7) — owner: Alberto Galimberti — since: 2026-10-19
+
+---
+
+## Revisions
+
+- 2026-10-21: Goal achieved corrected from `Yes` to `Partial` (AC7 still waits for the `v0.1.0` tag, now in Pending owner actions; AC2 verified on CI). Source: project-journal/decisions/2026-10-21-closed-specs-check-errors.md.
