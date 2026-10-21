@@ -55,7 +55,7 @@ Out of scope:
 - [x] AC2: Given an empty state (no stories, no PLAN.md rows, no journal entries, no tasks), when each tool runs with `--json`, then it returns valid `data` with empty lists (and `null`/empty strings only where the schema allows).
 - [x] AC3: Given a failure (e.g. `story` with an unknown ID, malformed `backlog/stories.toml`), when a tool runs with `--json`, then it prints the error envelope with no `data` and exits non-zero.
 - [x] AC4: Given the text output of `gen_backlog.py`, `check_workflow.py` and `next_step.py` without `--json`, when they run, then it is unchanged, and `check --json` keeps exit code 1 when `data.errors > 0`.
-- [~] AC5: Given the skeleton CI on Python 3.11 and 3.14, when it runs, then schema tests for every envelope are green and, after human approval, the tag exists. CI part met (3.11, 3.14, macOS and Windows launcher jobs green on the story branch); the tag is `v1.3.0` (Q1, owner 2026-10-20) and is pending human approval (TSK-AP0109-08).
+- [x] AC5: Given the skeleton CI on Python 3.11 and 3.14, when it runs, then schema tests for every envelope are green and, after human approval, the tag exists. CI part met (3.11, 3.14, macOS and Windows launcher jobs green on the story branch); tag `v1.3.0` on d00c402 created 2026-10-21 on the owner's go (TSK-AP0109-08).
 
 ---
 
@@ -145,3 +145,9 @@ Summary:
 - Text output of the existing commands is unchanged; schemas are unchanged (extra `target` on releases uses `additionalProperties`).
 - TSK-AP0109-08 only partly done: pushed, CI green and merged; the tag `v1.3.0` waits for the owner (AC5 open on the tag only).
 - AP0104's runner still calls `tools/plan.py`, `journal.py`, `story.py`: to become `tools/wf.py plan|journal|story` in AP0104.
+
+---
+
+## Revisions
+
+- 2026-10-21: AC5 met: agentic-skeleton tag `v1.3.0` on d00c402. Source: project-journal/decisions/2026-10-21-close-open-points.md.

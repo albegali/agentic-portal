@@ -165,8 +165,8 @@ Tasks deferred:
 - TSK-AP0109-08 (tag `v1.3.0`): push, CI and merge done; the tag waits for the owner's explicit approval.
 
 Goal achieved:
-- [ ] Yes
-- [x] Partial
+- [x] Yes
+- [ ] Partial
 - [ ] No
 
 Summary:
@@ -183,3 +183,9 @@ Summary:
 ---
 
 # 11. Addendum (Post-Closure Only)
+
+---
+
+## Revisions
+
+- 2026-10-21: TSK-AP0109-08 completed: agentic-skeleton tag `v1.3.0` on d00c402; Goal achieved from `Partial` to `Yes` (the tag was the only open part). Source: project-journal/decisions/2026-10-21-close-open-points.md.

@@ -50,7 +50,7 @@ Out of scope:
 - [x] AC4: Given a third-party import in `server/`, when the dependency check runs in CI, then the pipeline fails.
 - [x] AC5: Given the server started, when its sockets are inspected, then it listens only on 127.0.0.1, and a non-loopback `--host` is refused with an error.
 - [x] AC6: Given Python older than 3.14, when the server starts, then it exits non-zero with a message stating the requirement.
-- [ ] AC7 (deferred: owner tag `v0.1.0`, RUN-AP0101 Pending owner actions): Given a version tag, when the release workflow runs, then a GitHub Release holds the zip and manifest whose SHA-256 values match.
+- [x] AC7: Given a version tag, when the release workflow runs, then a GitHub Release holds the zip and manifest whose SHA-256 values match. (Verified 2026-10-21: tag `v0.1.0` on `main` 106cfba, release run 39605248208, Release `v0.1.0` holds `agentic-portal-0.1.0.zip` and `manifest.json`, sha256 5afeecf9… matches the zip.)
 
 ---
 
@@ -142,3 +142,4 @@ Summary:
 ## Revisions
 
 - 2026-10-21: AC2 ticked with its evidence (CI on `main`); AC7 marked deferred to the owner's `v0.1.0` tag. Source: project-journal/decisions/2026-10-21-closed-specs-check-errors.md.
+- 2026-10-21: AC7 met (tag `v0.1.0`, Release `v0.1.0` with matching SHA-256). Source: project-journal/decisions/2026-10-21-close-open-points.md.
