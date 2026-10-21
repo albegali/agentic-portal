@@ -89,11 +89,11 @@ The agent is not allowed to:
 
 # 7. Quality Gates
 
-- [ ] Tests added/updated (schema tests for every schema)
-- [ ] Build passes (skeleton CI green on Python 3.14)
-- [ ] Public interfaces updated (schemas, tool output, contract docs)
-- [ ] Domain invariants respected (semver rules of ADR-002; errors never carry `data`)
-- [ ] No breaking changes to existing skeleton commands unless approved (plain `next_step.py` output unchanged)
+- [x] Tests added/updated (schema tests for every schema) — `test_contract.py`: all 9 schemas listed and validated
+- [x] Build passes (skeleton CI green on Python 3.14) — `workflow-check` green on `ad43875`, matrix 3.11 and 3.14
+- [x] Public interfaces updated (schemas, tool output, contract docs) — `schemas/`, envelope output, `tools/README.md` § JSON contract
+- [x] Domain invariants respected (semver rules of ADR-002; errors never carry `data`) — `test_contract_major_is_pinned_to_1`, `test_error_envelope`, `test_failure_prints_error_envelope_and_exits_non_zero`
+- [x] No breaking changes to existing skeleton commands unless approved (plain `next_step.py` output unchanged) — plain output of `8b2dd71^1` and `8b2dd71` identical on the portal's delivery state (2026-10-21)
 
 ---
 
@@ -144,3 +144,9 @@ Summary:
 - Final state differs from §3/§4 as decided by the owner: tools keep Python >= 3.11; the `v1.0.0` tag and the CI-green part of AC5 move to the end of AP0109; `adopt.py` also installs `tools/VERSION` and `schemas/`.
 - Review 2026-10-20: the skeleton version moved from root `VERSION` to `tools/VERSION` (the root file belongs to the application, e.g. the portal's 0.1.0); the tools-test fixture resets its copy to a fresh skeleton, so `make test-tools` is green in the portal too; AC4 test also pins `wf.CONTRACT_VERSION`. Upstream: agentic-skeleton branch `fix/tools-version-fresh-fixture`.
 - TSK-AP0103-09 (tag) deferred. AC1-AC4 and AC6 met locally (30 tools tests in the portal, 29 in the skeleton; Python 3.12 and 3.14); AC5 open until push, CI and tag.
+
+---
+
+## Revisions
+
+- 2026-10-21: §7 quality gates ticked with their evidence (agentic-skeleton AP0103 merge `8b2dd71`, CI on `ad43875`); left unticked at closure. Source: project-journal/decisions/2026-10-21-closed-specs-check-errors.md.

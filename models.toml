@@ -40,3 +40,4 @@ models = { fast = "Claude Haiku 5.5", balanced = "Claude Sonnet 5.5", deep = "Cl
 [tools.cursor]
 enabled = true
 vendor = "anthropic"
+models = { fast = "Claude Haiku 5.5", balanced = "Claude Sonnet 5.5", deep = "Claude Opus 5.5" }   # verify labels in the Cursor model picker

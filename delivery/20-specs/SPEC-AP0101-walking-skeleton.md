@@ -45,12 +45,12 @@ Out of scope:
 # 4. Acceptance Criteria
 
 - [x] AC1: Given the cloned repository, when I run `make setup && make test`, then server and web tests pass.
-- [ ] AC2 (pending first CI run on GitHub): Given a merge on main, when the pipeline runs, then build, lint and tests are green and a bundle zip with SHA-256 and `manifest.json` are produced.
+- [x] AC2: Given a merge on main, when the pipeline runs, then build, lint and tests are green and a bundle zip with SHA-256 and `manifest.json` are produced. (Verified 2026-10-21: CI run 39490675830 on `main` 0525bca, artifact `portal-bundle` with `agentic-portal-0.1.0.zip`, matching `SHA256SUMS`, `manifest.json`.)
 - [x] AC3: Given the server started from the bundle on a machine without Node, when I open its URL, then the page loads and `/api/health` returns datetime, status and portal, contract and skeleton versions ("unknown" until AP0103).
 - [x] AC4: Given a third-party import in `server/`, when the dependency check runs in CI, then the pipeline fails.
 - [x] AC5: Given the server started, when its sockets are inspected, then it listens only on 127.0.0.1, and a non-loopback `--host` is refused with an error.
 - [x] AC6: Given Python older than 3.14, when the server starts, then it exits non-zero with a message stating the requirement.
-- [ ] AC7 (pending owner tag `v0.1.0`): Given a version tag, when the release workflow runs, then a GitHub Release holds the zip and manifest whose SHA-256 values match.
+- [ ] AC7 (deferred: owner tag `v0.1.0`, RUN-AP0101 Pending owner actions): Given a version tag, when the release workflow runs, then a GitHub Release holds the zip and manifest whose SHA-256 values match.
 
 ---
 
@@ -136,3 +136,9 @@ To be completed before marking Done.
 
 Summary:
 - TSK-01..07 done. Verified locally: server 10, scripts 6, web 2 tests; lint, typecheck, build, dependency check; server started from the extracted bundle without Node; owner checked the running app. Deferred: AC2 and AC7 need GitHub (push, tag `v0.1.0`). Only deviation: `project.toml [stack]` wiring (RUN §6).
+
+---
+
+## Revisions
+
+- 2026-10-21: AC2 ticked with its evidence (CI on `main`); AC7 marked deferred to the owner's `v0.1.0` tag. Source: project-journal/decisions/2026-10-21-closed-specs-check-errors.md.

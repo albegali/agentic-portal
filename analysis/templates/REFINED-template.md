@@ -10,7 +10,7 @@ The `Refined Story` contains:
 
 Naming: `analysis/30-refined/REFINED_<ID>_<short_title>.md`
 
-Minimum inputs: the Story, the Analysis, refinement evidence (workshop minutes) from PO, BA, stakeholders or technical teams.
+Minimum inputs: the Story, the Analysis, the workshop minutes (`analysis/workshops/`, template `analysis/templates/WORKSHOP-template.md`).
 
 Keep it short, mainly functional, oriented to Brief intake.
 
@@ -20,12 +20,12 @@ artifact_type: refined
 us_id: STORY_<ID>
 title: <Short title>
 roadmap_phase: <R1 | R2 | … | unknown>
-status: draft | refined | approved
+status: draft | refined | approved   # agent: draft → refined (outcome ready*); owner only: approved (optional)
 source_files:
   - analysis/10-stories/STORY_<ID>_<short_title>.md
   - analysis/20-analysis/ANALYSIS_<ID>_<short_title>.md
 workshop_evidence:
-  - project-journal/notes/YYYY-MM-DD-workshop-<topic>.md
+  - analysis/workshops/WORKSHOP_YYYY-MM-DD_<ID>.md
 related_references:
   - reference/architecture/ADR-...
 last_updated: YYYY-MM-DD
@@ -35,22 +35,11 @@ last_updated: YYYY-MM-DD
 
 ## 1. References
 
-- ID:
-- Title:
-- Roadmap phase:
-- Sources used:
-- Missing sources:
-- Workshop evidence:
+- Missing sources: <none, or what was not available>
 
 ## 2. Refined User Story
 
-### Refined story text
-
-<Story consolidated after refinement>
-
-### Refined description
-
-<Refined description, if any>
+Only if the workshop changed the statement: the new statement (then also update `backlog/stories.toml` and run `make backlog`). Otherwise: "Unchanged: see the Story."
 
 ## 3. Scope
 
@@ -104,8 +93,14 @@ Only the residual points to carry into the Brief or to handle before intake. Say
 
 ## 8. Refinement Outcome
 
-<Keep exactly one line:>
-- Story ready for Brief intake
-- Story ready with residual open points to track
-- Story not ready and requires further refinement
+<Keep exactly one line; the code in backticks is parsed by tools/next_step.py and stays in English, the text follows the project language:>
+- `ready` Story ready for Brief intake
+- `ready-with-open-points` Story ready with residual open points to track
+- `not-ready` Story not ready and requires further refinement
+
+---
+
+## Revisions
+
+> One line per change after `refined`: date, what, source.
 ```

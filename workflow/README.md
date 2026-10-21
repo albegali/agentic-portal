@@ -21,7 +21,7 @@ Full step table (generated): [`STEPS.md`](STEPS.md). Step procedures: [`steps/`]
 | Inception | `/kickoff` → `/requirements` → `/mockup` (optional) → `/architecture` → `/backlog` → `/release-plan` | approve each artifact (`status: approved`) |
 | Inception, existing codebase | `make adopt TARGET=…` (from the skeleton) → `/onboard` → `/backlog` → `/release-plan` | approve the onboarding artifacts, then backlog and plan |
 | Analysis | `/analysis` → workshop → `/refine` | workshop + minutes |
-| Delivery | `/brief` → Spec review → `/run` (strategy) → `/run <ID> approve` → execution → `/run <ID> tuning: …` → `/persist` → `/review-story` | Spec `Ready`, strategy approval, tuning acceptance |
+| Delivery | `/brief` → Spec review → `/run` (strategy) → `/run <ID> approve` → execution → `/run <ID> tuning: …` → `/persist` → `/review-story` → `/close` | Spec `Ready`, strategy approval, tuning acceptance |
 | Journal | `/weekly` (fast tier) | — |
 
 Order in delivery: analysis one sprint ahead; development one story at a time, in `PLAN.md` order, with dependencies closed. While you are on a human gate, `make next` proposes analysis work ahead.
@@ -29,16 +29,9 @@ Order in delivery: analysis one sprint ahead; development one story at a time, i
 ## Choosing models
 
 - Steps declare a **tier**; `models.toml` maps tier → model per vendor and tool. `/choose-models` walks you through it, `make agents` regenerates the adapters.
-- Defaults: `fast` for `/next`, `/weekly`, `/choose-models`; `balanced` for everything else; `deep` for `/architecture` and `/onboard`. Ask for deep explicitly on L/XL stories (`/run <ID>` + "use the deep tier").
-- Claude Code and Copilot pin the model per command; Codex and Cursor print the recommended model at the top of the command: switch to it before running.
+- Which tier each step uses: [`AGENTS.md`](../AGENTS.md) §5 rule 4 (the per-step table is in [`STEPS.md`](STEPS.md)). `make next` routes L/XL stories to `/run-deep <ID>` (same procedure, deep tier).
+- Claude Code and Copilot pin the model per command (Claude Code: for that turn only; follow-ups run on the session default, the balanced tier in `.claude/settings.json`, so answer gates with the command, e.g. `/run <ID> approve`); Codex and Cursor print the recommended model at the top of the command: switch to it before running.
 
-## Token rules (summary of AGENTS.md §5)
+## Token rules
 
-1. Fresh session per step (except the `/run` chain of one story).
-2. Read only what `tools/context.py` prints; long docs by section.
-3. Scripts before the LLM (`make next`, `make check`, `make backlog`).
-4. Right tier; deep only when needed.
-5. No subagents by default.
-6. Short chat output; the content lives in files.
-7. No re-reading of what was just written.
-8. Resume from `make next`.
+They are binding for agents and listed once, in [`AGENTS.md`](../AGENTS.md) §5. What they mean for you: open a fresh session per step (except the `/run` chain of one story), and resume from `make next`.
