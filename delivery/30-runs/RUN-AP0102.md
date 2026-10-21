@@ -193,3 +193,9 @@ Summary:
 ### 2026-10-20
 - Note: CI on PR #2 is green on Linux, macOS and Windows (including the `e2e` job), so the Windows path checks pass in CI.
 - Impact: none; merged into `main`.
+
+---
+
+## Revisions
+
+- 2026-10-20: §11 Addendum filled with the first GitHub CI result (PR #2 green on Linux, macOS, Windows). Source: commit 5a86a37.

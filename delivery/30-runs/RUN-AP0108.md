@@ -183,3 +183,9 @@ Summary:
 ### 2026-10-20
 - Note: first GitHub CI run on PR #1 is green, including the new `e2e` job (axe on Chromium, WebKit, Firefox). The pending CI verification is resolved.
 - Impact: none; merged into `main`.
+
+---
+
+## Revisions
+
+- 2026-10-20: §11 Addendum filled with the first GitHub CI result (PR #1 green, including `e2e`). Source: commit 4582a05.

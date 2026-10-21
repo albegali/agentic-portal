@@ -157,3 +157,9 @@ Summary:
 ---
 
 # 11. Addendum (Post-Closure Only)
+
+---
+
+## Revisions
+
+- 2026-10-21: follow-up done: agentic-skeleton tag `v1.3.0` created; `SKELETON_PIN` in `project.toml` and the CI default moved from the SHA to `v1.3.0` (same commit, recorded envelopes unchanged). Source: project-journal/decisions/2026-10-21-close-open-points.md.

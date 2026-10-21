@@ -147,3 +147,4 @@ Summary:
 
 ## Revisions
 - 2026-10-20 — owner decision in chat (`/run AP0104 revise`): skeleton entry point is `tools/wf.py` (not a root `wf.py`); Spec text aligned, status stays `Ready`.
+- 2026-10-21: `SKELETON_PIN` moved from d00c402 to tag `v1.3.0` (same commit), as planned in §10 once the tag existed. Source: project-journal/decisions/2026-10-21-close-open-points.md.
