@@ -6,15 +6,19 @@
 - Started at (datetime):
   - Fill only when execution starts after human approval, immediately before the first code or test change.
 - Completed at (datetime):
-  - Fill only when the RUN is ready to close after verification, tuning and persistence.
-  - If tuning or follow-up changes happen before closure, update this to the latest completion datetime.
+  - Fill at `/close`, after the review.
+- Branch:            (created at `/brief`: `delivery/guide/git.md`)
+- Upstream:          only for a story with `repo = "<name>"` in stories.toml: the commit or tag in that repository
+- PR:                (`/persist`)
 
 ---
 
 ## Status
-Draft → Strategy Approved → Executing → Tuning → Persisted → Closed
+Draft → Strategy Approved → Executing → Tuning → Persisted → Reviewed → Closed  ·  Stopped / Blocked / Cancelled
 
-> A RUN MUST NOT be Closed before Persisted.
+> A RUN MUST NOT be Closed before Persisted and Reviewed (§11).
+> Stopped: the human stopped it at §2 (resume with `/run <ID> revise: …`). Blocked: a §6 deviation awaits approval
+> (`/run <ID> approve-deviation <n>`). Cancelled: the story was dropped (`/run <ID> cancel: …`); terminal.
 
 ---
 
@@ -29,9 +33,9 @@ Draft → Strategy Approved → Executing → Tuning → Persisted → Closed
 - [ ] `delivery/templates/RUN-template.md`
 
 ### Plan
-- Step 1: …
-- Step 2: …
-- Step 3: …
+> One step per Spec task, by ID; only the approach, never the task text again.
+- TSK-<ID>-01: …
+- TSK-<ID>-02: …
 
 ### Assumptions
 - …
@@ -100,7 +104,10 @@ If FAIL → move to Tuning.
 
 # 5. Tuning Log (If needed)
 
-> Only within scope.
+> Only within scope. The acceptance is the human's: fill it when they run `/persist` (or say the result is accepted).
+
+Tuning accepted by:
+Date:
 
 ### Entry #1
 - Issue:
@@ -115,16 +122,22 @@ If FAIL → move to Tuning.
 
 # 6. Deviations
 
+> One entry per deviation or stop condition. `Requires approval` sets the RUN to Blocked until a human approves it.
+
+### Deviation #1
 - What changed:
 - Why:
+- Plan impact:
 - Scope impact: None / Minor / Requires approval
+- Approved by:
+- Date:
 
 ---
 
 # 7. Persistence / Reconciliation
 
 - [ ] Spec updated (if needed)
-- [ ] Specs updated (if needed)
+- [ ] Reference docs updated (if needed)
 - [ ] Acceptance Criteria aligned
 
 Summary:
@@ -134,10 +147,19 @@ Summary:
 
 # 8. Quality Gates Check
 
-- [ ] Acceptance criteria satisfied
-- [ ] Tests passing
-- [ ] No scope creep
-- [ ] Persistence completed
+Facts, not ticks (`make check` reads them):
+
+- AC: n/n met (Spec §4; the tests named there)
+- Tests: <command> → pass / fail (counts)
+- Out-of-scope changes: none / <files and why>
+- CI: green / red / none (no remote) — <PR URL>
+
+### Security review
+> Only for security-sensitive stories, written by `/security-review` (`workflow/steps/security.md`); delete otherwise.
+- Date:
+- Reviewer:
+- Outcome: `ok` / `changes-requested`
+- Findings:
 
 ---
 
@@ -167,8 +189,30 @@ Summary:
 
 ---
 
-# 11. Addendum (Post-Closure Only)
+# 11. Review
 
-### <Date>
-- Note:
-- Impact:
+> Written by `/review-story` (review mode), one entry per review, newest last. `ok-to-close` → RUN `Reviewed`;
+> `changes-requested` → RUN `Tuning`, findings applied with `/run <ID> tuning: …`, then `/persist` and a new review.
+
+### Review #1
+- Date:
+- Reviewer:
+- Outcome: `ok-to-close` / `changes-requested`
+- Findings:
+  - …
+
+---
+
+## Pending owner actions
+
+> Actions only a person can do that the story still waits for (a tag, a release, a setting, a sign-off), one per line.
+> `make next` lists the open ones of every RUN; a RUN cannot close with Goal achieved `Yes` while one is open.
+- [ ] <action> — owner: <name> — since: <YYYY-MM-DD>
+
+---
+
+## Revisions
+
+> Post-closure only: factual corrections (links, typos, recorded results), one line each with date and source.
+> A change in behaviour is a new story with `supersedes = "<ID>"` in `backlog/stories.toml`, never a revision.
+
