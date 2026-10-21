@@ -191,8 +191,8 @@ Tasks deferred:
 - none
 
 Goal achieved:
-- [x] Yes
-- [ ] Partial
+- [ ] Yes
+- [x] Partial
 - [ ] No
 
 Summary:
