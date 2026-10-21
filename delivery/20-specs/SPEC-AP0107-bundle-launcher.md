@@ -48,7 +48,7 @@ Out of scope:
 - [x] AC1: Given a tag on `main` whose commit is reachable from `origin/main`, when the release pipeline runs, then a GitHub Release with `agentic-portal-<version>.zip` and `manifest.json` (format 1) is published; a tag off `main`, a tag ≠ `v$(cat VERSION)` or an existing release stops the pipeline before publishing, and `0.*` is marked pre-release. → test: `scripts/tests/test_release_checks.py::test_*` for the check script used by `release.yml`; workflow dry run in CI (PR); first real release: manual — owner checks the published assets.
 - [x] AC2: Given the built bundle pinned in a fixture repository, when the real launcher runs on Linux, macOS and Windows without Node, then `/api/health` answers for that repository. → test: CI job `launcher` (3 OS) via `scripts/tests/launcher_smoke.py`.
 - [x] AC3: Given the launcher starts the bundle with `--repo <root>`, when the server starts, then it serves that repository, `--help` lists `--repo`, a directory without `project.toml` is refused, and startup does not stall on reverse DNS. → test: `server/tests/test_server.py::test_repo_option`, `::test_help_lists_repo`, `::test_bind_does_not_resolve_fqdn`.
-- [x] AC4: Given a fixture skeleton with another contract major, when the bundle runs, then `/api/health` and `GET /api/contract` report `incompatible`, and the manifest carries `contract_built_for`. → test: `scripts/tests/launcher_smoke.py` (incompatible fixture, CI) and `scripts/tests/test_bundle.py::test_manifest_format_1`.
+- [x] AC4: Given a fixture skeleton with another contract major, when the bundle runs, then `GET /api/contract` reports `incompatible` and `/api/health` still answers, showing the skeleton contract (not `1.0`), and the manifest carries `contract_built_for`. → test: `scripts/tests/launcher_smoke.py` (incompatible fixture, CI) and `scripts/tests/test_bundle.py::test_manifest_format_1`.
 - [x] AC5: Given a zip entry that fails the safe-name rules, when the bundle is built, then the build fails. → test: `scripts/tests/test_bundle.py::test_unsafe_entry_name_fails_build`.
 - [x] AC6: Given the built zip, then its root holds only `portal_server/`, `web/dist/` and `VERSION`, with fixed timestamps and no tests or caches, and the manifest size and sha256 match it. → test: `scripts/tests/test_bundle.py::test_layout_and_manifest_match_zip`.
 
@@ -125,7 +125,7 @@ Facts written by `/persist` before Done (no checkboxes):
 - Reconciled at: 2026-10-21
 - AC met: 6/6 (AC1 and AC2 by the CI jobs `release-dry-run` and `launcher`; the first real release is the owner's tag)
 - Tasks deferred: none
-- Spec changes since Ready: none
+- Spec changes since Ready: AC4 wording aligned to the implemented behaviour (RUN-AP0107 Deviation #1, review #1)
 - Reference docs updated: none (`docs/RELEASE.md`, `server/AGENTS.md` updated)
 
 ---
@@ -133,3 +133,4 @@ Facts written by `/persist` before Done (no checkboxes):
 ## Revisions
 
 > One line per change after approval or closure: date, what, source (minutes, owner decision, commit).
+- 2026-10-21 — AC4: "`/api/health` and `GET /api/contract` report `incompatible`" → `/api/contract` reports `incompatible`, `/api/health` stays public and shows the skeleton contract (the state lives on `/api/contract`); source: RUN-AP0107 §11 Review #1, Deviation #1.

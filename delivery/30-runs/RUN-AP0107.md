@@ -4,7 +4,7 @@
 - Story ID: AP0107
 - Spec: SPEC-AP0107
 - Started at (datetime): 2026-10-21T16:01
-- Completed at (datetime):
+- Completed at (datetime): 2026-10-21T17:30
 - Branch: ap0107-bundle-launcher
 - PR: https://github.com/albegali/agentic-portal/pull/9
 
@@ -120,6 +120,12 @@ Date: 2026-10-21
 - Impact: test script only; no product code or Spec change.
 - Verified: Yes (local run with a relative `--bundle` from the repository root); CI result in §8.
 
+### Entry #2 (review #1)
+- Issue: review #1 findings: AC4 wording deviation undocumented; smoke manifest check silently skipped and inline `__import__("signal")`; cancelled `other-os` jobs on the last commit.
+- Fix: Deviation #1 in §6 and Spec AC4/§11/Revisions aligned; `launcher_smoke.py` drops the conditional manifest check (covered by `test_manifest_format_1`) and imports `signal` at the top; CI re-run on the new push (§8 updated by `/persist`).
+- Impact: test script and artifacts only; no product code.
+- Verified: Yes locally (`PY=python3.14 make test` pass, `launcher_smoke.py` OK on macOS, `make check` OK); CI after push in §8.
+
 ---
 
 # 6. Deviations
@@ -127,10 +133,10 @@ Date: 2026-10-21
 > One entry per deviation or stop condition. `Requires approval` sets the RUN to Blocked until a human approves it.
 
 ### Deviation #1
-- What changed:
-- Why:
-- Plan impact:
-- Scope impact: None / Minor / Requires approval
+- What changed: AC4 wording. Health does not carry the gate state; `incompatible` is reported by `GET /api/contract` (health shows the skeleton contract, `unknown`/non-1.0 for a 2.x envelope). The smoke asserts exactly that.
+- Why: AP0104 health/contract fields are out of scope (Spec §6); the Spec wording assumed health carried the state. Found by review #1.
+- Plan impact: none; Spec AC4 and §11 aligned, Revisions line added.
+- Scope impact: Minor
 - Approved by:
 - Date:
 
@@ -166,10 +172,11 @@ Facts, not ticks (`make check` reads them):
 ---
 
 ### Gates
-> Written by `make gates` on 2026-10-21T17:17+02:00; do not edit by hand.
+> Written by `make gates` on 2026-10-21T17:38+02:00; do not edit by hand.
 - test: `${PY:-python3} -m unittest discover -s server/tests -q && ${PY:-python3} scripts/check_deps.py server && ${PY:-python3} -m unittest discover -s scripts/tests -q && npm --prefix web test -- --run` → pass (OK)
 - lint: `${PY:-python3} -m compileall -q server scripts && npm --prefix web run lint && npm --prefix web run typecheck` → pass (> tsc --noEmit)
 - secrets: `/opt/homebrew/opt/python@3.14/bin/python3.14 tools/secret_scan.py --branch` → pass (secret scan: OK)
+
 
 
 
@@ -207,11 +214,15 @@ Summary:
 > `changes-requested` → RUN `Tuning`, findings applied with `/run <ID> tuning: …`, then `/persist` and a new review.
 
 ### Review #1
-- Date:
-- Reviewer:
-- Outcome: `ok-to-close` / `changes-requested`
+- Date: 2026-10-21
+- Reviewer: review agent (Claude Sonnet 5.5)
+- Outcome: `changes-requested`
 - Findings:
-  - …
+  - delivery/20-specs/SPEC-AP0107-bundle-launcher.md:51 (AC4), RUN §6 → AC4 says `/api/health` and `GET /api/contract` report `incompatible`; the code and `launcher_smoke.py:119-124` prove `/api/contract` `incompatible` and health answering with a non-1.0 skeleton contract (RUN §4 Notes). Spec §11 says "Spec changes since Ready: none", §6 is empty, AC4 is ticked as met → record the deviation (RUN §6 Deviation #1, Scope impact Minor) and a Spec Revisions line aligning the AC4 wording to what is tested; correct Spec §11 accordingly.
+  - scripts/tests/launcher_smoke.py:130-132 → the manifest `contract_built_for` check is silently skipped when `manifest.json` is not next to the bundle (`else {}`) → make it unconditional or drop it (already covered by `test_manifest_format_1`). Non-blocking nit; same for the inline `__import__("signal")` (line 84).
+  - RUN §8 CI → run 39626297391 (HEAD 9a721fb, docs-only) shows `workflow-check` `other-os` (macos, windows) CANCELLED, not failed; `portal-ci` (incl. `launcher` ×3, `release-dry-run`, `e2e`) green on HEAD; `workflow-check` was fully green on c4c70dc → re-run the cancelled jobs and cite the final run in §8.
+  - Checked, no finding: Brief/Spec/RUN scope aligned, no skeleton files touched (NFR-14), stdlib only (NFR-08), no Node at runtime (NFR-09), AC1-AC6 each mapped to a test or CI job, gates pass, `make check` OK, no secrets, `server/AGENTS.md` rules respected, tag/ancestor/existing-release/verify/prerelease checks present in `release.yml`.
+  - Open at close (not a finding): Pending owner action, first release `v0.1.0`.
 
 ---
 

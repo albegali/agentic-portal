@@ -12,6 +12,7 @@ import argparse
 import json
 import os
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -77,7 +78,7 @@ def run_launcher(skeleton: Path, repo: Path, bundle: Path, check):
     finally:
         if proc.poll() is None:
             if os.name == "nt":
-                os.kill(proc.pid, __import__("signal").CTRL_BREAK_EVENT)
+                os.kill(proc.pid, signal.CTRL_BREAK_EVENT)
             else:
                 proc.terminate()
             try:
@@ -125,9 +126,6 @@ def main(argv=None):
             print("incompatible fixture ok:", contract["message"])
 
         run_launcher(skeleton, repo, bundle, incompatible)
-        manifest = json.loads((Path(bundle).parent / "manifest.json").read_text()) if (Path(bundle).parent / "manifest.json").is_file() else {}
-        if manifest:
-            assert manifest["contract_built_for"] == build_bundle.CONTRACT_BUILT_FOR, manifest
     print("launcher smoke OK")
     return 0
 
