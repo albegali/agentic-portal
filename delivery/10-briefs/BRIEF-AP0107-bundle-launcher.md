@@ -5,12 +5,12 @@
 - Source: `analysis/30-refined/REFINED_AP0107_bundle_launcher.md` · external tracker URL: n/a
 - Captured at (datetime): 2026-10-21T15:56
 - Captured by: Alberto Galimberti (with Claude)
-- Closed at (datetime):
+- Closed at (datetime): 2026-10-21T17:49
 
 ---
 
 ## Status
-Captured
+Closed
 
 ---
 
@@ -84,3 +84,4 @@ n/a (not a hotfix)
 
 - Spec: SPEC-AP0107
 - RUN: RUN-AP0107
+- PR: https://github.com/albegali/agentic-portal/pull/9

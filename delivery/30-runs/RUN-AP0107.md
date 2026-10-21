@@ -4,14 +4,14 @@
 - Story ID: AP0107
 - Spec: SPEC-AP0107
 - Started at (datetime): 2026-10-21T16:01
-- Completed at (datetime): 2026-10-21T17:30
+- Completed at (datetime): 2026-10-21T17:49
 - Branch: ap0107-bundle-launcher
 - PR: https://github.com/albegali/agentic-portal/pull/9
 
 ---
 
 ## Status
-Persisted
+Closed
 
 ---
 
@@ -223,6 +223,17 @@ Summary:
   - RUN §8 CI → run 39626297391 (HEAD 9a721fb, docs-only) shows `workflow-check` `other-os` (macos, windows) CANCELLED, not failed; `portal-ci` (incl. `launcher` ×3, `release-dry-run`, `e2e`) green on HEAD; `workflow-check` was fully green on c4c70dc → re-run the cancelled jobs and cite the final run in §8.
   - Checked, no finding: Brief/Spec/RUN scope aligned, no skeleton files touched (NFR-14), stdlib only (NFR-08), no Node at runtime (NFR-09), AC1-AC6 each mapped to a test or CI job, gates pass, `make check` OK, no secrets, `server/AGENTS.md` rules respected, tag/ancestor/existing-release/verify/prerelease checks present in `release.yml`.
   - Open at close (not a finding): Pending owner action, first release `v0.1.0`.
+
+### Review #2
+- Date: 2026-10-21
+- Reviewer: review agent (Claude Sonnet 5.5)
+- Outcome: `ok-to-close`
+- Findings:
+  - Review #1 findings resolved: AC4 deviation recorded (RUN §6 Deviation #1, Spec AC4/§11/Revisions aligned); `launcher_smoke.py` imports `signal` at the top, no conditional manifest check left; PR #9 checks on HEAD eca98cb all pass (`launcher` ×3, `release-dry-run`, `other-os`, `e2e`, `secrets`).
+  - RUN §8 CI cites head 718908c; HEAD eca98cb is docs-only and also green → non-blocking, `/close` may refresh the run ids.
+  - RUN §6 Deviation #1 has empty `Approved by`/`Date` (Scope impact Minor, no approval required) → nothing to do.
+  - Checked, no finding: Brief/Spec/RUN aligned, AC1-AC6 mapped to tests/CI, no scope creep or skeleton files touched (NFR-14), stdlib only (NFR-08), no Node at runtime (NFR-09), gates pass, `make check` OK, no secrets, `server/AGENTS.md` rules respected.
+  - Open at close (not a finding): Pending owner action, first release `v0.1.0` (a RUN cannot close with Goal achieved `Yes` while it is open; settle it per `/close`).
 
 ---
 
