@@ -3,6 +3,7 @@ import ipaddress
 import json
 import mimetypes
 import socket
+import socketserver
 import sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -36,6 +37,15 @@ def is_loopback(host: str) -> bool:
     return bool(infos) and all(
         ipaddress.ip_address(i[4][0].split("%")[0]).is_loopback for i in infos
     )
+
+
+class PortalHTTPServer(ThreadingHTTPServer):
+    def server_bind(self):
+        # HTTPServer.server_bind calls socket.getfqdn() (reverse DNS, seconds on macOS): the portal is loopback only
+        socketserver.TCPServer.server_bind(self)
+        host, port = self.server_address[:2]
+        self.server_name = host
+        self.server_port = port
 
 
 def find_static(root: Path) -> Path:
@@ -123,18 +133,26 @@ def create_server(host="127.0.0.1", port=DEFAULT_PORT, root: Path = ROOT, static
     if host == "localhost":
         host = "127.0.0.1"
     bind(root, repo)  # reads the skeleton version once at start
-    return ThreadingHTTPServer((host, port), make_handler(root, static or find_static(root), token, routes))
+    return PortalHTTPServer((host, port), make_handler(root, static or find_static(root), token, routes))
 
 
-def main(argv=None):
+def parse_args(argv=None):
     parser = argparse.ArgumentParser(prog="portal_server")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=DEFAULT_PORT)
-    parser.add_argument("--repo", type=Path, default=None, help="workflow repository root (default: working directory)")
+    parser.add_argument("--repo", type=Path, default=None, help="workflow repository root, must contain project.toml (default: working directory)")
     args = parser.parse_args(argv)
+    args.repo = (args.repo or Path.cwd()).resolve()
+    if not (args.repo / "project.toml").is_file():
+        parser.error("--repo %s has no project.toml: not a workflow repository" % args.repo)
+    return args
+
+
+def main(argv=None):
+    args = parse_args(argv)
     token, generated = resolve_token()
     try:
-        server = create_server(args.host, args.port, token=token, repo=(args.repo or Path.cwd()).resolve())
+        server = create_server(args.host, args.port, token=token, repo=args.repo)
     except ValueError as exc:
         print("error: %s" % exc, file=sys.stderr)
         return 2

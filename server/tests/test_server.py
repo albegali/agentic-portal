@@ -10,7 +10,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from unittest import mock  # noqa: E402
+
 from portal_server import app  # noqa: E402
+from tests.support import make_skeleton  # noqa: E402
 from portal_server.__main__ import check_python  # noqa: E402
 
 
@@ -72,7 +75,7 @@ class HostTest(unittest.TestCase):
                 app.create_server(host, 0)
 
     def test_main_exits_nonzero_on_bad_host(self):
-        self.assertEqual(app.main(["--host", "0.0.0.0"]), 2)
+        self.assertEqual(app.main(["--host", "0.0.0.0", "--repo", str(Path(__file__).resolve().parents[2])]), 2)
 
     def test_accepts_loopback_names(self):
         for host in ("127.0.0.1", "localhost"):
@@ -91,6 +94,61 @@ class PythonCheckTest(unittest.TestCase):
 
     def test_new_python_ok(self):
         check_python((3, 14, 0))
+
+
+class LauncherOptionsTest(unittest.TestCase):  # AP0107 AC3
+    def test_repo_option(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            (repo / "project.toml").write_text("[project]\n")
+            make_skeleton(repo)
+            args = app.parse_args(["--repo", str(repo), "--port", "0"])
+            self.assertEqual(args.repo, repo.resolve())
+            server = app.create_server("127.0.0.1", 0, token=TOKEN, repo=args.repo)
+            threading.Thread(target=server.serve_forever, daemon=True).start()
+            try:
+                base = "http://127.0.0.1:%d" % server.server_address[1]
+                health = json.load(urllib.request.urlopen(base + "/api/health"))
+                self.assertEqual(health["skeleton_version"], "1.2.0")  # read from the fixture repository
+            finally:
+                server.shutdown()
+                server.server_close()
+
+    def test_repo_defaults_to_cwd(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            (Path(tmp) / "project.toml").write_text("[project]\n")
+            with mock.patch("pathlib.Path.cwd", return_value=Path(tmp)):
+                self.assertEqual(app.parse_args([]).repo, Path(tmp).resolve())
+
+    def test_repo_without_project_toml_is_refused(self):
+        with tempfile.TemporaryDirectory() as tmp, mock.patch("sys.stderr", new_callable=io.StringIO) as err:
+            with self.assertRaises(SystemExit) as ctx:
+                app.parse_args(["--repo", tmp])
+            self.assertNotEqual(ctx.exception.code, 0)
+            self.assertIn("project.toml", err.getvalue())
+
+    def test_help_lists_repo(self):
+        with mock.patch("sys.stdout", new_callable=io.StringIO) as out:
+            with self.assertRaises(SystemExit) as ctx:
+                app.parse_args(["--help"])
+        self.assertEqual(ctx.exception.code, 0)
+        self.assertIn("--repo", out.getvalue())
+
+    def test_find_static_in_bundle_and_dev_layouts(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            bundle = Path(tmp) / "bundle"
+            (bundle / "web" / "dist").mkdir(parents=True)  # zip root: portal_server/ next to web/dist/
+            self.assertEqual(app.find_static(bundle), (bundle / "web" / "dist").resolve())
+            dev = Path(tmp) / "dev"
+            (dev / "server").mkdir(parents=True)
+            (dev / "web" / "dist").mkdir(parents=True)  # dev: server/ next to web/dist/
+            self.assertEqual(app.find_static(dev / "server"), (dev / "web" / "dist").resolve())
+
+    def test_bind_does_not_resolve_fqdn(self):
+        with mock.patch("socket.getfqdn", side_effect=AssertionError("reverse DNS at bind")):
+            server = app.create_server("127.0.0.1", 0, token=TOKEN)
+            server.server_close()
+            self.assertEqual(server.server_name, "127.0.0.1")
 
 
 if __name__ == "__main__":

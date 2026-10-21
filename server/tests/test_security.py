@@ -163,7 +163,7 @@ class TokenSourceTest(unittest.TestCase):
             app.create_server = stop
             try:
                 with contextlib.redirect_stdout(out):
-                    app.main(["--port", "0"])
+                    app.main(["--port", "0", "--repo", str(Path(__file__).resolve().parents[2])])
             finally:
                 app.create_server = real
                 os.environ.clear()

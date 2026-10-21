@@ -12,6 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.14"
@@ -20,14 +22,30 @@ jobs:
           node-version: "22"
           cache: npm
           cache-dependency-path: web/package-lock.json
-      - name: Tag must match VERSION
-        run: test "${GITHUB_REF_NAME}" = "v$(cat VERSION)"
+      - name: Tag must equal v$(cat VERSION)
+        run: python scripts/release_checks.py tag "${GITHUB_REF_NAME}"
+      - name: Tag commit must be on main
+        run: |
+          git fetch origin main
+          python scripts/release_checks.py ancestor "${GITHUB_REF_NAME}"
+      - name: Never overwrite an existing release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
+            echo "release ${GITHUB_REF_NAME} already exists: refusing to overwrite it" >&2
+            exit 1
+          fi
       - run: make setup
       - run: make lint
       - run: npm --prefix web run build
       - run: make test
       - run: python scripts/build_bundle.py --out release
+      - name: Verify the zip against its manifest
+        run: python scripts/release_checks.py verify "release/agentic-portal-$(cat VERSION).zip" release/manifest.json
       - name: Publish
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "${GITHUB_REF_NAME}" release/*.zip release/manifest.json --title "${GITHUB_REF_NAME}" --generate-notes
+        run: |
+          gh release create "${GITHUB_REF_NAME}" release/agentic-portal-*.zip release/manifest.json \
+            --title "${GITHUB_REF_NAME}" --generate-notes $(python scripts/release_checks.py prerelease)
