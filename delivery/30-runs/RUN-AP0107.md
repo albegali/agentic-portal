@@ -114,7 +114,11 @@ If FAIL → move to Tuning.
 Tuning accepted by: Alberto Galimberti
 Date: 2026-10-21
 
-No tuning entries: the result was accepted as executed.
+### Entry #1
+- Issue: CI job `launcher` failed on all three OSes: the launcher resolves a relative `PORTAL_BUNDLE` against the fixture repo's working directory ("does not exist").
+- Fix: `launcher_smoke.py` resolves `--bundle` to an absolute path before starting the launcher.
+- Impact: test script only; no product code or Spec change.
+- Verified: Yes (local run with a relative `--bundle` from the repository root); CI result in §8.
 
 ---
 
@@ -162,10 +166,12 @@ Facts, not ticks (`make check` reads them):
 ---
 
 ### Gates
-> Written by `make gates` on 2026-10-21T16:08+02:00; do not edit by hand.
+> Written by `make gates` on 2026-10-21T17:17+02:00; do not edit by hand.
 - test: `${PY:-python3} -m unittest discover -s server/tests -q && ${PY:-python3} scripts/check_deps.py server && ${PY:-python3} -m unittest discover -s scripts/tests -q && npm --prefix web test -- --run` → pass (OK)
 - lint: `${PY:-python3} -m compileall -q server scripts && npm --prefix web run lint && npm --prefix web run typecheck` → pass (> tsc --noEmit)
 - secrets: `/opt/homebrew/opt/python@3.14/bin/python3.14 tools/secret_scan.py --branch` → pass (secret scan: OK)
+
+
 
 
 
@@ -213,7 +219,7 @@ Summary:
 
 > Actions only a person can do that the story still waits for (a tag, a release, a setting, a sign-off), one per line.
 > `make next` lists the open ones of every RUN; a RUN cannot close with Goal achieved `Yes` while one is open.
-- [ ] <action> — owner: <name> — since: <YYYY-MM-DD>
+- [ ] Cut the first release (`v0.1.0`, pre-release) per `docs/RELEASE.md` after merge — owner: Alberto Galimberti — since: 2026-10-21
 
 ---
 

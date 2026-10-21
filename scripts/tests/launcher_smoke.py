@@ -97,7 +97,7 @@ def main(argv=None):
     version = (REPO / "VERSION").read_text().strip()
     with tempfile.TemporaryDirectory() as t:
         tmp = Path(t)
-        bundle = args.bundle or build_bundle.build(REPO, tmp / "release")[0]
+        bundle = args.bundle.resolve() if args.bundle else build_bundle.build(REPO, tmp / "release")[0]
         skeleton_version = (skeleton / "tools" / "VERSION").read_text().strip()
 
         repo = make_fixture(tmp, skeleton, version, other_major=False)
