@@ -52,6 +52,75 @@ jobs:
           SKELETON_DIR: ${{ github.workspace }}/skeleton
           WF_REQUIRE_JSONSCHEMA: "1"
 
+  launcher:
+    # The real chain on three OSes: skeleton launcher (at the pin) -> built bundle -> /api/health, without Node on PATH
+    # for the launcher step (AP0107). Health only, `--no-browser`: the token round trip waits for the launcher token story.
+    needs: full
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: albegali/agentic-skeleton
+          ref: ${{ vars.SKELETON_PIN || 'v1.3.0' }}
+          path: skeleton
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm --prefix web ci
+      - run: npm --prefix web run build
+      - name: Build bundle
+        run: python scripts/build_bundle.py --out release
+      - name: Verify bundle against its manifest
+        run: python scripts/release_checks.py verify release/agentic-portal-$(cat VERSION).zip release/manifest.json
+        shell: bash
+      - name: Launcher smoke test (skeleton launcher, no Node on PATH)
+        run: python scripts/tests/launcher_smoke.py --skeleton skeleton --bundle release/agentic-portal-$(cat VERSION).zip
+        shell: bash
+
+  release-dry-run:
+    # Same checks and build as release.yml, up to (not including) `gh release create`, when the release machinery changes.
+    if: github.event_name == 'pull_request'
+    needs: full
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Touches the release machinery?
+        id: touched
+        run: |
+          if git diff --name-only "origin/${{ github.base_ref }}...HEAD" | grep -qE '^(scripts/build_bundle\.py|scripts/release_checks\.py|\.github/workflows/release\.yml)$'; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.touched.outputs.run == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - if: steps.touched.outputs.run == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - if: steps.touched.outputs.run == 'true'
+        run: |
+          python scripts/release_checks.py tag "v$(cat VERSION)"
+          python scripts/release_checks.py prerelease
+          npm --prefix web ci
+          npm --prefix web run build
+          python scripts/build_bundle.py --out release
+          python scripts/release_checks.py verify "release/agentic-portal-$(cat VERSION).zip" release/manifest.json
+
   e2e:
     needs: full
     runs-on: ubuntu-latest

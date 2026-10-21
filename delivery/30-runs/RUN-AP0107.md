@@ -3,7 +3,7 @@
 ## References
 - Story ID: AP0107
 - Spec: SPEC-AP0107
-- Started at (datetime):
+- Started at (datetime): 2026-10-21T16:01
 - Completed at (datetime):
 - Branch: ap0107-bundle-launcher
 - PR:
@@ -11,7 +11,7 @@
 ---
 
 ## Status
-Approved
+Persisted
 
 ---
 
@@ -76,27 +76,32 @@ Date: 2026-10-21
 # 3. Execution Log (Agent)
 
 ### Steps
-- Step 1: …
-- Step 2: …
+- Step 1 (TSK-01): `build_bundle.py` writes manifest format 1, root layout `portal_server/`, `web/dist/`, `VERSION`, `check_entry_name` on every entry, partial zip removed on failure; `test_bundle.py` updated (manifest, layout, unsafe names, abort without zip, extraction cwd = zip root, `--repo` fixture).
+- Step 2 (TSK-02): `parse_args` (`--repo` default cwd, must contain `project.toml`, `--help` lists it), `PortalHTTPServer.server_bind` without `getfqdn()`; tests added; `find_static` needed no change (tests cover both layouts); two existing `main()` tests now pass `--repo`.
+- Step 3 (TSK-03): `scripts/release_checks.py` (`tag`, `ancestor`, `prerelease`, `verify`) with `test_release_checks.py`; `verify` also run on the real built bundle.
+- Step 4 (TSK-04): `scripts/tests/launcher_smoke.py` (real launcher, PATH without node, compatible and other-major fixtures) run locally with this repository's `tools/`; CI job `launcher` (3 OS, skeleton checkout at the pin) added.
+- Step 5 (TSK-05): `release.yml` hardened (tag = VERSION, ancestor of origin/main, existing release refused, verify before publish, `--prerelease` for 0.x); job `release-dry-run` on pull requests touching the release machinery.
+- Step 6 (TSK-06): `docs/RELEASE.md`, pointer in `server/AGENTS.md`.
 
 ### Changes (high-level)
-- Code:
-- Interfaces:
-- Domain:
-- Tests:
-- Specs:
+- Code: `scripts/build_bundle.py`, `scripts/release_checks.py` (new), `server/portal_server/app.py`.
+- Interfaces: bundle manifest format 1 and zip layout; `portal_server --repo` validated; workflows `ci.yml` (jobs `launcher`, `release-dry-run`), `release.yml`.
+- Domain: none.
+- Tests: ${PY:-python3} -m unittest discover -s server/tests -q && ${PY:-python3} scripts/check_deps.py server && ${PY:-python3} -m unittest discover -s scripts/tests -q && npm --prefix web test -- --run → pass
+- Specs: none.
 
 ---
 
 # 4. Verification
 
-- Build: OK / FAIL
-- Tests: OK / FAIL
-- Interfaces / target platforms: OK / FAIL
-- Manual (if any): OK / FAIL
+- Build: OK (`make lint`; bundle built from `web/dist`)
+- Tests: OK (`make test` with Python 3.14: server 83 run / 2 skipped, scripts 17)
+- Interfaces / target platforms: OK on macOS (local launcher smoke against `tools/portal.py` of this repository, compatible and incompatible fixtures); Linux and Windows run in CI only after push, workflows only syntax-checked locally
+- Manual (if any): not run (first release, browser matrix are owner actions)
 
 Notes:
-- …
+- AC4 wording "health and the version gate report `incompatible`": the gate state is `incompatible` on `GET /api/contract`; `/api/health` carries no state and shows the skeleton contract (`unknown` for a 2.x envelope, which fails the 1.x schemas). The smoke asserts exactly that.
+- `launcher_smoke.py` takes `--skeleton`; CI passes the checkout at the pin, local runs default to this repository's vendored `tools/`.
 
 If FAIL → move to Tuning.
 
@@ -106,17 +111,10 @@ If FAIL → move to Tuning.
 
 > Only within scope. The acceptance is the human's: fill it when they run `/persist` (or say the result is accepted).
 
-Tuning accepted by:
-Date:
+Tuning accepted by: Alberto Galimberti
+Date: 2026-10-21
 
-### Entry #1
-- Issue:
-- Fix:
-- Impact:
-- Verified: Yes / No
-
-### Entry #2
-- …
+No tuning entries: the result was accepted as executed.
 
 ---
 
@@ -136,12 +134,12 @@ Date:
 
 # 7. Persistence / Reconciliation
 
-- [ ] Spec updated (if needed)
-- [ ] Reference docs updated (if needed)
-- [ ] Acceptance Criteria aligned
+- [x] Spec updated (if needed)
+- [x] Reference docs updated (if needed)
+- [x] Acceptance Criteria aligned
 
 Summary:
-- …
+- Spec §11 written, ACs ticked, status Done. Docs touched: `docs/RELEASE.md` (new), `server/AGENTS.md` (Distribution). No `reference/` change needed: ADR-003 and its revisions already describe format 1 and the layout.
 
 ---
 
@@ -149,10 +147,10 @@ Summary:
 
 Facts, not ticks (`make check` reads them):
 
-- AC: n/n met (Spec §4; the tests named there)
-- Tests: <command> → pass / fail (counts)
-- Out-of-scope changes: none / <files and why>
-- CI: green / red / none (no remote) — <PR URL>
+- AC: 6/6 met (Spec §4; AC1 and AC2 rest on the CI jobs `launcher` and `release-dry-run`, the real release is the owner's tag)
+- Tests: `PY=python3.14 make test` → pass (server 83 run, 2 skipped; scripts 17); `python3.14 scripts/tests/launcher_smoke.py` → pass (macOS)
+- Out-of-scope changes: none (existing `main()` tests in `server/tests/test_server.py` and `test_security.py` got `--repo`, a consequence of the new `project.toml` check)
+- CI: pending
 
 ### Security review
 > Only for security-sensitive stories, written by `/security-review` (`workflow/steps/security.md`); delete otherwise.
@@ -163,29 +161,37 @@ Facts, not ticks (`make check` reads them):
 
 ---
 
+### Gates
+> Written by `make gates` on 2026-10-21T16:08+02:00; do not edit by hand.
+- test: `${PY:-python3} -m unittest discover -s server/tests -q && ${PY:-python3} scripts/check_deps.py server && ${PY:-python3} -m unittest discover -s scripts/tests -q && npm --prefix web test -- --run` → pass (OK)
+- lint: `${PY:-python3} -m compileall -q server scripts && npm --prefix web run lint && npm --prefix web run typecheck` → pass (> tsc --noEmit)
+- secrets: `/opt/homebrew/opt/python@3.14/bin/python3.14 tools/secret_scan.py --branch` → pass (secret scan: OK)
+
+
+
 # 9. Outcome
 
 Tasks completed:
-- TSK-...
+- TSK-AP0107-01, TSK-AP0107-02, TSK-AP0107-03, TSK-AP0107-04, TSK-AP0107-05, TSK-AP0107-06
 
 Tasks deferred:
-- …
+- none
 
 Goal achieved:
-- [ ] Yes
+- [x] Yes
 - [ ] Partial
 - [ ] No
 
 Summary:
-- …
+- The release pipeline builds and verifies a format-1 bundle that the skeleton launcher starts; CI proves the chain on three OSes and hardens the release.
 
 ---
 
 # 10. Next Steps
 
-- Follow-ups:
-- Risks:
-- Improvements:
+- Follow-ups: owner cuts the first release (`v0.1.0`) per `docs/RELEASE.md` after merge; confirm the 0.x pre-release scheme there.
+- Risks: PATH stripping of Node on hosted runners (`/usr/bin` may hold `node`); the real `release.yml` is exercised only at the first tag.
+- Improvements: token round trip in the smoke once the launcher token story (AP0110) is in the pinned tag.
 
 ---
 

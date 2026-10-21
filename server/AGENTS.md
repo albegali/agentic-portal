@@ -21,6 +21,9 @@ Python ≥ 3.14, **standard library only** at runtime (NFR-08). See `reference/a
 - API routes return `(status, body)` or a body; `/api/contract*` and health are exempt from the 409 guard, never from auth. Contract tests: `jsonschema` is allowed only under `server/tests/` (`scripts/check_deps.py`).
 - Recorded envelopes in `server/tests/fixtures/envelopes/` come from real emitter output (re-record when the pin moves); `SKELETON_PIN` is in `project.toml [portal] skeleton_pin` and CI.
 
+## Distribution
+- The bundle is built by `scripts/build_bundle.py` (manifest format 1, `portal_server/` at the zip root) and started by the skeleton launcher with `--repo <root>`; `--repo` must contain `project.toml`. `PortalHTTPServer` overrides `server_bind` (no reverse DNS). Release procedure: `docs/RELEASE.md`.
+
 ## Commands
 - Test: `python3 -m unittest discover -s server/tests -q`
 - Lint: `python3 -m compileall -q server`

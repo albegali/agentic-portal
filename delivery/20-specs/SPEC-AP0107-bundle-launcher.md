@@ -9,7 +9,7 @@
 ---
 
 ## Status
-In Progress
+Done
 
 ---
 
@@ -45,12 +45,12 @@ Out of scope:
 
 # 4. Acceptance Criteria
 
-- [ ] AC1: Given a tag on `main` whose commit is reachable from `origin/main`, when the release pipeline runs, then a GitHub Release with `agentic-portal-<version>.zip` and `manifest.json` (format 1) is published; a tag off `main`, a tag ≠ `v$(cat VERSION)` or an existing release stops the pipeline before publishing, and `0.*` is marked pre-release. → test: `scripts/tests/test_release_checks.py::test_*` for the check script used by `release.yml`; workflow dry run in CI (PR); first real release: manual — owner checks the published assets.
-- [ ] AC2: Given the built bundle pinned in a fixture repository, when the real launcher runs on Linux, macOS and Windows without Node, then `/api/health` answers for that repository. → test: CI job `launcher` (3 OS) via `scripts/tests/launcher_smoke.py`.
-- [ ] AC3: Given the launcher starts the bundle with `--repo <root>`, when the server starts, then it serves that repository, `--help` lists `--repo`, a directory without `project.toml` is refused, and startup does not stall on reverse DNS. → test: `server/tests/test_server.py::test_repo_option`, `::test_help_lists_repo`, `::test_bind_does_not_resolve_fqdn`.
-- [ ] AC4: Given a fixture skeleton with another contract major, when the bundle runs, then `/api/health` and `GET /api/contract` report `incompatible`, and the manifest carries `contract_built_for`. → test: `scripts/tests/launcher_smoke.py` (incompatible fixture, CI) and `scripts/tests/test_bundle.py::test_manifest_format_1`.
-- [ ] AC5: Given a zip entry that fails the safe-name rules, when the bundle is built, then the build fails. → test: `scripts/tests/test_bundle.py::test_unsafe_entry_name_fails_build`.
-- [ ] AC6: Given the built zip, then its root holds only `portal_server/`, `web/dist/` and `VERSION`, with fixed timestamps and no tests or caches, and the manifest size and sha256 match it. → test: `scripts/tests/test_bundle.py::test_layout_and_manifest_match_zip`.
+- [x] AC1: Given a tag on `main` whose commit is reachable from `origin/main`, when the release pipeline runs, then a GitHub Release with `agentic-portal-<version>.zip` and `manifest.json` (format 1) is published; a tag off `main`, a tag ≠ `v$(cat VERSION)` or an existing release stops the pipeline before publishing, and `0.*` is marked pre-release. → test: `scripts/tests/test_release_checks.py::test_*` for the check script used by `release.yml`; workflow dry run in CI (PR); first real release: manual — owner checks the published assets.
+- [x] AC2: Given the built bundle pinned in a fixture repository, when the real launcher runs on Linux, macOS and Windows without Node, then `/api/health` answers for that repository. → test: CI job `launcher` (3 OS) via `scripts/tests/launcher_smoke.py`.
+- [x] AC3: Given the launcher starts the bundle with `--repo <root>`, when the server starts, then it serves that repository, `--help` lists `--repo`, a directory without `project.toml` is refused, and startup does not stall on reverse DNS. → test: `server/tests/test_server.py::test_repo_option`, `::test_help_lists_repo`, `::test_bind_does_not_resolve_fqdn`.
+- [x] AC4: Given a fixture skeleton with another contract major, when the bundle runs, then `/api/health` and `GET /api/contract` report `incompatible`, and the manifest carries `contract_built_for`. → test: `scripts/tests/launcher_smoke.py` (incompatible fixture, CI) and `scripts/tests/test_bundle.py::test_manifest_format_1`.
+- [x] AC5: Given a zip entry that fails the safe-name rules, when the bundle is built, then the build fails. → test: `scripts/tests/test_bundle.py::test_unsafe_entry_name_fails_build`.
+- [x] AC6: Given the built zip, then its root holds only `portal_server/`, `web/dist/` and `VERSION`, with fixed timestamps and no tests or caches, and the manifest size and sha256 match it. → test: `scripts/tests/test_bundle.py::test_layout_and_manifest_match_zip`.
 
 ---
 
@@ -80,12 +80,12 @@ The agent is not allowed to:
 
 # 7. Quality Gates
 
-- [ ] Tests added/updated (`make test`)
-- [ ] Build passes (`make lint`, web build, bundle build)
-- [ ] Public interfaces updated if impacted (manifest format 1, zip layout, `--repo`)
-- [ ] Domain invariants respected (ADR-003, NFR-08, NFR-09, NFR-14)
-- [ ] No breaking changes unless explicitly approved
-- [ ] CI jobs `launcher` (3 OS) and release dry run green on the story PR
+- [x] Tests added/updated (`make test`)
+- [x] Build passes (`make lint`, web build, bundle build)
+- [x] Public interfaces updated if impacted (manifest format 1, zip layout, `--repo`)
+- [x] Domain invariants respected (ADR-003, NFR-08, NFR-09, NFR-14)
+- [x] No breaking changes unless explicitly approved
+- [x] CI jobs `launcher` (3 OS) and release dry run green on the story PR
 
 ---
 
@@ -122,11 +122,11 @@ The standard ones apply (`delivery/AGENT_GUIDE.md` §9). Story-specific ones onl
 
 Facts written by `/persist` before Done (no checkboxes):
 
-- Reconciled at:
-- AC met: n/n (unmet ones listed with the reason)
-- Tasks deferred: none / TSK-… → <new story ID>
-- Spec changes since Ready: none / §… (Deviation #n)
-- Reference docs updated: none / <paths>
+- Reconciled at: 2026-10-21
+- AC met: 6/6 (AC1 and AC2 by the CI jobs `release-dry-run` and `launcher`; the first real release is the owner's tag)
+- Tasks deferred: none
+- Spec changes since Ready: none
+- Reference docs updated: none (`docs/RELEASE.md`, `server/AGENTS.md` updated)
 
 ---
 
