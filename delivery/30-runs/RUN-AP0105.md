@@ -9,7 +9,7 @@
   - Fill at `/close`, after the review.
 - Branch:            ap0105-upstream-gates-tool (portal: story branch created at approval; skeleton: `feat/ap0105-gates-cli` from `main`, in ~/projects/agentic-skeleton)
 - Upstream:          only for a story with `repo = "<name>"` in stories.toml: the commit or tag in that repository
-- PR:                portal: (see below); skeleton: https://github.com/albegali/agentic-skeleton/pull/41 (branch `feat/ap0105-gates-cli`, commit 52b71f5)
+- PR:                portal: https://github.com/albegali/agentic-portal/pull/10; skeleton: https://github.com/albegali/agentic-skeleton/pull/41 (branch `feat/ap0105-gates-cli`, commit 52b71f5)
 
 ---
 
@@ -178,7 +178,7 @@ Facts, not ticks (`make check` reads them):
 - AC: 6/6 met (AC1–AC5 by `tools/tests/test_gates.py`; AC6 by skeleton CI on 3.11 and 3.14, see CI)
 - Tests: skeleton `python -m unittest discover` → pass (127 tests, Python 3.12; `test_gates` 12 tests also on 3.14)
 - Out-of-scope changes: none
-- CI: pending — https://github.com/albegali/agentic-skeleton/pull/41
+- CI: red — skeleton PR https://github.com/albegali/agentic-skeleton/pull/41: `other-os (windows-latest)` fails in `test_gates.test_approve_commits_the_field_alone_as_the_owner` (test compares `\\` and `/` path separators; code is fine); check 3.11, 3.14, macOS green, `secrets` pending. Portal PR https://github.com/albegali/agentic-portal/pull/10: all checks green except `e2e` still queued at the time of writing.
 
 ---
 
@@ -211,7 +211,7 @@ Summary:
 
 # 10. Next Steps
 
-- Follow-ups:
+- Follow-ups: `/run AP0105 tuning: normalize path separators in test_gates (Windows CI)`, then `/persist AP0105` again.
 - Risks:
 - Improvements:
 
