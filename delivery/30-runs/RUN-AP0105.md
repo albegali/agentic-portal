@@ -3,18 +3,18 @@
 ## References
 - Story ID: AP0105
 - Spec: SPEC-AP0105
-- Started at (datetime):
+- Started at (datetime): 2026-10-21T18:06
   - Fill only when execution starts after human approval, immediately before the first code or test change.
-- Completed at (datetime):
+- Completed at (datetime): 2026-10-22T03:07
   - Fill at `/close`, after the review.
 - Branch:            ap0105-upstream-gates-tool (portal: story branch created at approval; skeleton: `feat/ap0105-gates-cli` from `main`, in ~/projects/agentic-skeleton)
 - Upstream:          only for a story with `repo = "<name>"` in stories.toml: the commit or tag in that repository
-- PR:                (`/persist`)
+- PR:                portal: (see below); skeleton: https://github.com/albegali/agentic-skeleton/pull/41 (branch `feat/ap0105-gates-cli`, commit 52b71f5)
 
 ---
 
 ## Status
-Strategy Approved
+Persisted
 
 Draft → Strategy Approved → Executing → Tuning → Persisted → Reviewed → Closed  ·  Stopped / Blocked / Cancelled
 
@@ -90,27 +90,39 @@ Date: 2026-10-21
 # 3. Execution Log (Agent)
 
 ### Steps
-- Step 1: …
-- Step 2: …
+Skeleton repo `~/projects/agentic-skeleton`, branch `feat/ap0105-gates-cli` from `main` (1.17.3), commit 52b71f5 (local, not pushed).
+- TSK-01: read `gates.py`, `approve.py`, `next_step.py`, `gate_guard.py`, templates, schemas. Catalog in Spec §10 matches the code (`passed`/`approve`); detection of pending gates sits in `next_step.inception()` / `stage()`.
+- TSK-02: `gates.pending()` built on `next_step.inception()` and `recommend()["human_gates"]` (same detection; `next_step.py --json` untouched, test compares `human_gates`). Ids `<gate>:<path>`; `since` from `git log -1`, fallback mtime.
+- TSK-03: `gates.commit_paths` / `in_git` shared; `approve.py` uses them; CLI `approve` (owner, `--by`, `--expect`, `--no-commit`, diff).
+- TSK-04: `request_changes` (draft value + `## Gates` line, TOML `# Gates` block), `gate_guard` rule for `gates.py approve|request-changes`.
+- TSK-05: `## Gates` section appended to 11 templates, `# Gates` block in `stories.toml`; `check_workflow` needed no change.
+- TSK-06: `schemas/gates.schema.json`, `CONTRACT_VERSION` 1.1, `tools/VERSION` 1.18.0, README, CHANGELOG.
+- TSK-07: `tools/tests/test_gates.py` (12 tests), `test_contract.py` updated to 1.1 and `gates`.
+- TSK-08: not started (push, PR, CI, tag belong to `/persist` and the owner).
 
 ### Changes (high-level)
-- Code:
-- Interfaces:
-- Domain:
-- Tests:
-- Specs:
+- Code: skeleton `tools/gates.py` (CLI, pending, request-changes, atomic CRLF-preserving io), `approve.py`, `gate_guard.py`, `wf.py`.
+- Interfaces: `gates.py list|approve|request-changes`, envelope tool `gates`, schema `gates`, contract 1.1.
+- Domain: none.
+- Tests: ${PY:-python3} -m unittest discover -s server/tests -q && ${PY:-python3} scripts/check_deps.py server && ${PY:-python3} -m unittest discover -s scripts/tests -q && npm --prefix web test -- --run → pass
+- Specs: none (ADR-002 / FR notes reconciled in persistence).
+
+Notes (no scope change, for review):
+- Pending detection lives in `gates.pending()` and calls `next_step`; `next_step` itself was not refactored (its `human_gates` shape is guaranteed unchanged). `refined` and `workshop` items are added in `list` only.
+- `make approve` now also keeps CRLF and writes atomically, and stages a not yet tracked artifact before committing it (previously a failure).
+- Action commands always print an envelope (no `--json` flag); `list` prints text without `--json`.
 
 ---
 
 # 4. Verification
 
-- Build: OK / FAIL
-- Tests: OK / FAIL
-- Interfaces / target platforms: OK / FAIL
-- Manual (if any): OK / FAIL
+- Build: OK (`check_workflow.py` OK in the skeleton)
+- Tests: OK (skeleton full suite on Python 3.12: 127 tests; `test_gates` also on 3.14: 12 tests; 3.11 not installed locally, CI runs it)
+- Interfaces / target platforms: OK (envelopes validate against `gates.schema.json`)
+- Manual (if any): not run (fixtures only, no real repository touched)
 
 Notes:
-- …
+- Nothing pushed, no PR, no tag.
 
 If FAIL → move to Tuning.
 
@@ -120,8 +132,8 @@ If FAIL → move to Tuning.
 
 > Only within scope. The acceptance is the human's: fill it when they run `/persist` (or say the result is accepted).
 
-Tuning accepted by:
-Date:
+Tuning accepted by: Alberto Galimberti
+Date: 2026-10-22
 
 ### Entry #1
 - Issue:
@@ -150,12 +162,12 @@ Date:
 
 # 7. Persistence / Reconciliation
 
-- [ ] Spec updated (if needed)
-- [ ] Reference docs updated (if needed)
-- [ ] Acceptance Criteria aligned
+- [x] Spec updated (if needed)
+- [x] Reference docs updated (if needed)
+- [x] Acceptance Criteria aligned
 
 Summary:
-- …
+- Spec §11 and status Done; ADR-002 tool table and a 2026-10-22 revision line (approve without `## Gates` line, request-changes scope). FR-13/FR-14 text needed no change.
 
 ---
 
@@ -163,35 +175,37 @@ Summary:
 
 Facts, not ticks (`make check` reads them):
 
-- AC: n/n met (Spec §4; the tests named there)
-- Tests: <command> → pass / fail (counts)
-- Out-of-scope changes: none / <files and why>
-- CI: green / red / none (no remote) — <PR URL>
-
-### Security review
-> Only for security-sensitive stories, written by `/security-review` (`workflow/steps/security.md`); delete otherwise.
-- Date:
-- Reviewer:
-- Outcome: `ok` / `changes-requested`
-- Findings:
+- AC: 6/6 met (AC1–AC5 by `tools/tests/test_gates.py`; AC6 by skeleton CI on 3.11 and 3.14, see CI)
+- Tests: skeleton `python -m unittest discover` → pass (127 tests, Python 3.12; `test_gates` 12 tests also on 3.14)
+- Out-of-scope changes: none
+- CI: pending — https://github.com/albegali/agentic-skeleton/pull/41
 
 ---
+
+### Gates
+> Written by `make gates` on 2026-10-22T16:54+02:00; do not edit by hand.
+- test: `${PY:-python3} -m unittest discover -s server/tests -q && ${PY:-python3} scripts/check_deps.py server && ${PY:-python3} -m unittest discover -s scripts/tests -q && npm --prefix web test -- --run` → pass (OK)
+- lint: `${PY:-python3} -m compileall -q server scripts && npm --prefix web run lint && npm --prefix web run typecheck` → pass (> tsc --noEmit)
+- secrets: `/opt/homebrew/opt/python@3.14/bin/python3.14 tools/secret_scan.py --branch` → pass (secret scan: OK)
+
+
+
 
 # 9. Outcome
 
 Tasks completed:
-- TSK-...
+- TSK-AP0105-01 … TSK-AP0105-07; TSK-AP0105-08 up to the skeleton PR and CI
 
 Tasks deferred:
-- …
+- TSK-AP0105-08: merge of skeleton PR #41, tag 1.18.0 and release (owner); `SKELETON_PIN` bump (portal story that consumes it)
 
 Goal achieved:
 - [ ] Yes
-- [ ] Partial
+- [x] Partial
 - [ ] No
 
 Summary:
-- …
+- `gates.py list|approve|request-changes` delivered in skeleton 1.18.0 (contract 1.1) on PR #41; Partial until the owner merges, tags and releases.
 
 ---
 
@@ -221,7 +235,7 @@ Summary:
 
 > Actions only a person can do that the story still waits for (a tag, a release, a setting, a sign-off), one per line.
 > `make next` lists the open ones of every RUN; a RUN cannot close with Goal achieved `Yes` while one is open.
-- [ ] <action> — owner: <name> — since: <YYYY-MM-DD>
+- [ ] Merge skeleton PR #41, tag and release 1.18.0 (then bump `SKELETON_PIN` in a portal story) — owner: Alberto Galimberti — since: 2026-10-22
 
 ---
 

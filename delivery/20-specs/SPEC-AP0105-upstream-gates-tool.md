@@ -9,7 +9,7 @@
 ---
 
 ## Status
-In Progress
+Done
 
 ---
 
@@ -52,12 +52,12 @@ Out of scope:
 
 # 4. Acceptance Criteria
 
-- [ ] AC1: Given a repository with pending gates, when `gates.py list --json` runs, then each gate carries artifact, gate, field, current, proposed and age in a `{contract, tool: "gates", data}` envelope that validates against its schema; `next_step.py --json` `human_gates` is unchanged.
-- [ ] AC2: Given a pending gate, when `gates.py approve` runs, then only the gate field changes to the approved value, the change is committed alone with the owner in `Approved-by` and the date in `Approved-at`, and the result carries the diff.
-- [ ] AC3: Given a pending gate that supports it, when `gates.py request-changes` runs with a comment, then the comment is recorded in `## Gates`, the field holds its draft value and no approval value is written.
-- [ ] AC4: Given an unknown, stale or already resolved gate, a missing owner or a missing comment, when an action runs, then the matching error envelope is returned, the exit code is non-zero and no file changes.
-- [ ] AC5: Given CRLF files and a directory without git, when an action or `list` runs, then line endings and all other bytes are preserved, `since` falls back to mtime and `approve` sets the field without a commit.
-- [ ] AC6: Given the skeleton CI on Python 3.11 and 3.14, when it runs, then it is green; the release tag follows human approval.
+- [x] AC1: Given a repository with pending gates, when `gates.py list --json` runs, then each gate carries artifact, gate, field, current, proposed and age in a `{contract, tool: "gates", data}` envelope that validates against its schema; `next_step.py --json` `human_gates` is unchanged.
+- [x] AC2: Given a pending gate, when `gates.py approve` runs, then only the gate field changes to the approved value, the change is committed alone with the owner in `Approved-by` and the date in `Approved-at`, and the result carries the diff.
+- [x] AC3: Given a pending gate that supports it, when `gates.py request-changes` runs with a comment, then the comment is recorded in `## Gates`, the field holds its draft value and no approval value is written.
+- [x] AC4: Given an unknown, stale or already resolved gate, a missing owner or a missing comment, when an action runs, then the matching error envelope is returned, the exit code is non-zero and no file changes.
+- [x] AC5: Given CRLF files and a directory without git, when an action or `list` runs, then line endings and all other bytes are preserved, `since` falls back to mtime and `approve` sets the field without a commit.
+- [x] AC6: Given the skeleton CI on Python 3.11 and 3.14, when it runs, then it is green; the release tag follows human approval.
 
 ---
 
@@ -92,11 +92,11 @@ The agent is not allowed to:
 
 # 7. Quality Gates
 
-- [ ] Tests added/updated
-- [ ] Build passes (skeleton CI green on 3.11 and 3.14)
-- [ ] Public interfaces updated (`gates` schema, `tools/README.md`, templates)
-- [ ] Domain invariants respected (approve changes only the gate field, as `make approve`; request-changes only the gate field and one `## Gates` line; errors never carry `data`)
-- [ ] No breaking changes unless explicitly approved
+- [x] Tests added/updated
+- [x] Build passes (skeleton CI green on 3.11 and 3.14)
+- [x] Public interfaces updated (`gates` schema, `tools/README.md`, templates)
+- [x] Domain invariants respected (approve changes only the gate field, as `make approve`; request-changes only the gate field and one `## Gates` line; errors never carry `data`)
+- [x] No breaking changes unless explicitly approved
 
 ---
 
@@ -154,12 +154,12 @@ Doubts for the human review (Spec gate):
 
 # 11. Final Reconciliation
 
-To be completed before marking Done.
+Completed at persistence 2026-10-22.
 
-- [ ] Acceptance criteria still aligned
-- [ ] Tasks completed or explicitly deferred
-- [ ] Specs updated if needed
-- [ ] RUN completed and persisted
+- [x] Acceptance criteria still aligned
+- [x] Tasks completed or explicitly deferred
+- [x] Specs updated if needed
+- [x] RUN completed and persisted
 
 Summary:
-- …
+- Delivered in agentic-skeleton on `feat/ap0105-gates-cli` (skeleton 1.18.0, contract 1.1): `gates.py list|approve|request-changes`, schema `gates`, `## Gates` in 11 templates, `gate_guard` rule, 12 new tests. Deferred: TSK-08 tag and release (owner), `SKELETON_PIN` bump (portal story). ADR-002 reconciled.
