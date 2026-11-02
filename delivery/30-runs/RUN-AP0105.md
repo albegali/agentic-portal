@@ -5,7 +5,7 @@
 - Spec: SPEC-AP0105
 - Started at (datetime): 2026-10-21T18:06
   - Fill only when execution starts after human approval, immediately before the first code or test change.
-- Completed at (datetime): 2026-10-22T03:07
+- Completed at (datetime): 2026-11-02T16:15
   - Fill at `/close`, after the review.
 - Branch:            ap0105-upstream-gates-tool (portal: story branch created at approval; skeleton: `feat/ap0105-gates-cli` from `main`, in ~/projects/agentic-skeleton)
 - Upstream:          only for a story with `repo = "<name>"` in stories.toml: the commit or tag in that repository
@@ -14,7 +14,7 @@
 ---
 
 ## Status
-Reviewed
+Closed
 
 Draft → Strategy Approved → Executing → Tuning → Persisted → Reviewed → Closed  ·  Stopped / Blocked / Cancelled
 

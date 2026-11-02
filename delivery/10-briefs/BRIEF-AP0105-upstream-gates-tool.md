@@ -5,12 +5,12 @@
 - Source: `analysis/30-refined/REFINED_AP0105_upstream_gates_tool.md` · external tracker URL: n/a
 - Captured at (datetime): 2026-10-20T22:24
 - Captured by: Alberto Galimberti (with Claude)
-- Closed at (datetime):
+- Closed at (datetime): 2026-11-02T16:15
 
 ---
 
 ## Status
-Refined into Spec
+Closed
 
 ---
 
@@ -86,3 +86,4 @@ Gate catalog (type, artifact, field, current/proposed values) and shared detecti
 
 - Spec: SPEC-AP0105
 - RUN: RUN-AP0105
+- PR: https://github.com/albegali/agentic-portal/pull/10 (portal); https://github.com/albegali/agentic-skeleton/pull/41 (skeleton)
