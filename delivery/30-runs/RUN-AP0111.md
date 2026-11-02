@@ -97,6 +97,12 @@ Date: 2026-11-02
 - Verified: Yes (CI green on 40fdf60)
 - Owner decision (`project-journal/decisions/2026-11-02-approval-order-skeleton-sync.md`): fix upstream in skeleton 1.25.2 (exempt skeleton-sync commits in `check_approval_order`); no rebase or force-push. Next: `make sync-skeleton`, then `/persist AP0111`.
 
+### Entry #3 (Review #2)
+- Issue: §8 had no `CI:` line (the persist commit removed `CI: red` without a replacement).
+- Fix: added `CI: green` with the PR #11 URL to §8 (all checks pass on head cda13cb, runs 41526338642 / 41526338634).
+- Impact: none on code.
+- Verified: Yes (`gh pr checks 11`: all pass)
+
 ---
 
 # 7. Persistence / Reconciliation
@@ -113,10 +119,11 @@ Summary:
 # 8. Quality Gates Check
 
 ### Gates
-> Written by `make gates` on 2026-11-02T22:12+01:00; do not edit by hand.
+> Written by `make gates` on 2026-11-02T22:22+01:00; do not edit by hand.
 - test: `${PY:-python3} -m unittest discover -s server/tests -q && ${PY:-python3} scripts/check_deps.py server && ${PY:-python3} -m unittest discover -s scripts/tests -q && npm --prefix web test -- --run` → pass (OK)
 - lint: `${PY:-python3} -m compileall -q server scripts && npm --prefix web run lint && npm --prefix web run typecheck` → pass (> tsc --noEmit)
 - secrets: `/opt/homebrew/opt/python@3.14/bin/python3.14 tools/secret_scan.py --branch` → pass (secret scan: OK)
+
 
 
 # 9. Closure
@@ -137,3 +144,11 @@ Summary:
   - SPEC-AP0111-validator-anyof.md:71 → "App starts and the smoke path works" unchecked without justification → run `make run` smoke or note n/a (no runtime change) in the RUN.
   - SPEC-AP0111-validator-anyof.md → uncommitted local modification in the working tree (git status) → commit or discard it before closing.
 - Checked, no findings: Brief/Spec/RUN aligned; AC1–AC4 map to existing tests (`test_any_of`, `test_unsupported_keyword_raises_at_load`, `SkeletonSchemasTest`); scope limited to validator.py, its test, ADR-002 revision line (cites owner decision), no skeleton/`schemas/` edits in the story commits (NFR-14); gates pass; no secrets in diff.
+
+### Review #2
+- Date: 2026-11-02
+- Reviewer: review agent
+- Outcome: changes-requested
+- Findings:
+  - RUN-AP0111.md:113-119 → §8 has no `CI:` line (persist commit cda13cb deleted the old `CI: red` and added no replacement), so CI is not recorded where `make check` and the review read it → add `- CI: green — https://github.com/albegali/agentic-portal/pull/11` (head cda13cb: all PR #11 checks pass, incl. portal-ci and workflow-check, runs 41526338642 / 41526338634), then `/persist AP0111`.
+- Checked, no findings: Review #1 findings 2–4 resolved (release notes and smoke recorded in §5 #2, Spec §7 ticked, working tree clean); Brief/Spec/RUN aligned; AC1–AC4 map to tests (`test_any_of`, `test_unsupported_keyword_raises_at_load`, `SkeletonSchemasTest`); `anyOf` implemented per Spec (valid when ≥1 alternative has no errors; `check_subset` walks alternatives), no other keywords added; story-owned changes limited to validator.py, its test, ADR-002 revision line citing the owner decision; skeleton-sync commits (1.25.1/1.25.2) are the NFR-14 sanctioned path (`make sync-skeleton`); gates pass; no secrets; approval-order exception covered by owner decision 2026-11-02-approval-order-skeleton-sync.
