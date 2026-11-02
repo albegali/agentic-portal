@@ -103,6 +103,12 @@ Date: 2026-11-02
 - Impact: none on code.
 - Verified: Yes (`gh pr checks 11`: all pass)
 
+### Entry #4 (Review #3)
+- Issue: §8 still had no `CI:` line; Entry #3 claimed it, but the commit touched only §5/§11, and a line inside the generated Gates block would be overwritten.
+- Fix: added the §8 facts (AC, Tests, Out-of-scope, `CI: green` with the PR #11 URL) outside the generated `### Gates` block.
+- Impact: none on code.
+- Verified: Yes (`gh pr checks 11`: all pass)
+
 ---
 
 # 7. Persistence / Reconciliation
@@ -118,11 +124,20 @@ Summary:
 
 # 8. Quality Gates Check
 
+Facts, not ticks (`make check` reads them):
+
+- AC: 4/4 met (Spec §4; `test_any_of`, `test_unsupported_keyword_raises_at_load`, `SkeletonSchemasTest`)
+- Tests: `python3.14 -m unittest discover -s server/tests -q && scripts/check_deps.py server && unittest scripts/tests && npm --prefix web test -- --run` → pass (see Gates)
+- Out-of-scope changes: none
+- CI: green — https://github.com/albegali/agentic-portal/pull/11
+
 ### Gates
-> Written by `make gates` on 2026-11-02T22:22+01:00; do not edit by hand.
+> Written by `make gates` on 2026-11-02T22:31+01:00; do not edit by hand.
 - test: `${PY:-python3} -m unittest discover -s server/tests -q && ${PY:-python3} scripts/check_deps.py server && ${PY:-python3} -m unittest discover -s scripts/tests -q && npm --prefix web test -- --run` → pass (OK)
 - lint: `${PY:-python3} -m compileall -q server scripts && npm --prefix web run lint && npm --prefix web run typecheck` → pass (> tsc --noEmit)
 - secrets: `/opt/homebrew/opt/python@3.14/bin/python3.14 tools/secret_scan.py --branch` → pass (secret scan: OK)
+
+
 
 
 
@@ -152,3 +167,11 @@ Summary:
 - Findings:
   - RUN-AP0111.md:113-119 → §8 has no `CI:` line (persist commit cda13cb deleted the old `CI: red` and added no replacement), so CI is not recorded where `make check` and the review read it → add `- CI: green — https://github.com/albegali/agentic-portal/pull/11` (head cda13cb: all PR #11 checks pass, incl. portal-ci and workflow-check, runs 41526338642 / 41526338634), then `/persist AP0111`.
 - Checked, no findings: Review #1 findings 2–4 resolved (release notes and smoke recorded in §5 #2, Spec §7 ticked, working tree clean); Brief/Spec/RUN aligned; AC1–AC4 map to tests (`test_any_of`, `test_unsupported_keyword_raises_at_load`, `SkeletonSchemasTest`); `anyOf` implemented per Spec (valid when ≥1 alternative has no errors; `check_subset` walks alternatives), no other keywords added; story-owned changes limited to validator.py, its test, ADR-002 revision line citing the owner decision; skeleton-sync commits (1.25.1/1.25.2) are the NFR-14 sanctioned path (`make sync-skeleton`); gates pass; no secrets; approval-order exception covered by owner decision 2026-11-02-approval-order-skeleton-sync.
+
+### Review #3
+- Date: 2026-11-02
+- Reviewer: review agent
+- Outcome: changes-requested
+- Findings:
+  - RUN-AP0111.md:119-127 → §8 still has no `CI:` line (grep `CI:` matches only §5 #3 and §11): Tuning Entry #3 says it was added, but commit 0e00375 only touched §5/§11; the `make gates` block is generated, so a line inside it would be overwritten → add `- CI: green — https://github.com/albegali/agentic-portal/pull/11` in §8 outside the generated `### Gates` block (template facts: AC 4/4 met, Tests, Out-of-scope changes: none, CI), then `/persist AP0111`.
+- Checked, no findings: code diff (validator.py `anyOf` in SUPPORTED/`check_subset`/`_check` via `_probe`, `test_any_of`, unsupported-list test) matches Spec, no other keywords, no skeleton edits by the story (NFR-14); AC1–AC4 map to tests; Spec Done with 4/4; gates pass; PR #11 checks all pass on head 0e00375; no secrets; working tree clean.
