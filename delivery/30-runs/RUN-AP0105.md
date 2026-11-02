@@ -14,7 +14,7 @@
 ---
 
 ## Status
-Persisted
+Reviewed
 
 Draft → Strategy Approved → Executing → Tuning → Persisted → Reviewed → Closed  ·  Stopped / Blocked / Cancelled
 
@@ -225,11 +225,14 @@ Summary:
 > `changes-requested` → RUN `Tuning`, findings applied with `/run AP0105 tuning: …`, then `/persist` and a new review.
 
 ### Review #1
-- Date:
-- Reviewer:
-- Outcome: `ok-to-close` / `changes-requested`
-- Findings:
-  - …
+- Date: 2026-11-02
+- Reviewer: review agent (Claude Code, balanced tier)
+- Outcome: `ok-to-close`
+- Findings (none blocking):
+  - SPEC-AP0105 §AC (lines 55-60) → no AC names its test (`make check` WARN) → add `→ test: tools/tests/test_gates.py::<name>` (skeleton repo) to AC1-AC5 and `→ test: manual — skeleton CI` to AC6, as a revision at or after `/close`.
+  - RUN-AP0105 lines 83, 145, 232 → template placeholders (`…`) left in §6 / Entry #2 / §11 → delete or fill.
+  - Portal PR #10 → the last push (`record CI result`, docs only) still has `full` pending → `/close` waits on `gh pr checks 10 --required --watch` anyway.
+  - Alignment: Brief/Spec/RUN consistent; diff is docs only (Brief, Spec, RUN, README index, ADR-002 table + revision line) — no scope creep, no secrets, NFR-14 respected (skeleton change upstream, PR #41 merged, tag v1.18.0, CI incl. Windows green); Goal Partial and owner action recorded.
 
 ---
 
