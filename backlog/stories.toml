@@ -817,3 +817,25 @@ ac = [
 ]
 notes = ""
 out_of_scope = "Custom themes."
+
+[[story]]
+id = "AP0111"
+epic = "EP-01"
+slug = "validator-anyof"
+title = "Skeleton 1.25.1 upgrade: validator accepts anyOf"
+type = "chore"
+as_a = "portal maintainer"
+i_want = "the contract validator to support `anyOf` so the skeleton 1.25.1 schemas load"
+so_that = "the 1.25.1 upgrade passes the contract tests and CI"
+priority = "Must"
+release = "R1"
+size = "XS"
+fr = []
+nfr = ["NFR-14"]
+deps = ["AP0105"]
+ac = [
+  ["the 1.25.1 schemas", "they are loaded", "check_subset accepts them (anyOf included)"],
+  ["a value matching none of the anyOf alternatives", "it is validated", "an error is reported; one or several matching alternatives pass"],
+]
+notes = "Owner decision: project-journal/decisions/2026-11-02-validator-anyof.md. Same branch chore/skeleton-1.25.1 and PR #11; upgrade commit and fix commit separate."
+out_of_scope = "Other JSON Schema keywords; upstream schema changes."
