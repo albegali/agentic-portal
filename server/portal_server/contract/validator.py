@@ -1,7 +1,7 @@
 """Stdlib validator for the JSON Schema 2020-12 subset used by the skeleton's `schemas/` (ADR-002 revision 2026-10-20).
 
 Supported: $schema/$id/title/description (ignored), $ref (local `#/...` and sibling files), $defs, type, properties,
-required, additionalProperties, items, const, enum, minLength, minimum, pattern, oneOf, not.
+required, additionalProperties, items, const, enum, minLength, minimum, pattern, oneOf, anyOf, not.
 Any other keyword raises UnsupportedSchemaKeyword when the schemas are loaded, so drift is caught by CI.
 """
 import json
@@ -10,7 +10,7 @@ from pathlib import Path
 
 IGNORED = {"$schema", "$id", "title", "description"}
 SUPPORTED = IGNORED | {"$ref", "$defs", "type", "properties", "required", "additionalProperties", "items",
-                       "const", "enum", "minLength", "minimum", "pattern", "oneOf", "not"}
+                       "const", "enum", "minLength", "minimum", "pattern", "oneOf", "anyOf", "not"}
 TYPES = {"object": dict, "array": list, "string": str, "boolean": bool, "null": type(None)}
 
 
@@ -32,9 +32,9 @@ def check_subset(schema, where="#"):
                 check_subset(sub, "%s/%s/%s" % (where, key, name))
         elif key in ("items", "not") or (key == "additionalProperties" and not isinstance(value, bool)):
             check_subset(value, "%s/%s" % (where, key))
-        elif key == "oneOf":
+        elif key in ("oneOf", "anyOf"):
             for i, sub in enumerate(value):
-                check_subset(sub, "%s/oneOf/%d" % (where, i))
+                check_subset(sub, "%s/%s/%d" % (where, key, i))
 
 
 def load_schemas(directory) -> dict:
@@ -143,3 +143,11 @@ class Validator:
                 matching += not probe
             if matching != 1:
                 out.append("%s: matches %d of the oneOf alternatives (need exactly 1)" % (path, matching))
+        if "anyOf" in schema:
+            if not any(not self._probe(value, sub, root, doc, path) for sub in schema["anyOf"]):
+                out.append("%s: matches none of the anyOf alternatives" % path)
+
+    def _probe(self, value, schema, root, doc, path):
+        errors = []
+        self._check(value, schema, root, doc, path, errors)
+        return errors

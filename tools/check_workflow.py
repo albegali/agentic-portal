@@ -12,7 +12,8 @@ Chain:     naming of Story/Analysis/Refined Story/Brief/Spec/RUN/spike note; Spe
            RUN without an open §6 deviation; RUN still open on a cancelled story; Spec Done / RUN Closed with an unchecked
            acceptance criterion or gate; template placeholders left in Briefs, Specs and RUNs past Draft. --git: closed artifacts changed later without a Revisions line;
            on a story branch, code committed before or with the RUN §2 approval (base: $WF_BASE, origin/$GITHUB_BASE_REF or main).
-Adapters:  generated tool files are up to date (tools/render_agents.py --check).
+Adapters:  generated tool files are up to date (tools/render_agents.py --check); the always-loaded prefix (AGENTS.md, CLAUDE.md,
+           command and agent descriptions) within project.toml [context] prefix_budget tokens (0 = off), reported in the text view.
 --json:    contract envelope `check`, data {"ok", "errors", "warnings", "counts", "issues": [{"level", "area", "message"}]}
            (same exit code: a workflow with errors is still a successful check, reported in data).
 """
@@ -24,6 +25,7 @@ import os
 import re
 import subprocess
 import sys
+import tomllib
 
 sys.path.insert(0, os.path.dirname(__file__))
 import quality_gates  # noqa: E402
@@ -233,6 +235,17 @@ def unchecked(text: str, heading_rx: str) -> list[str]:
     return [m.strip() for m in UNCHECKED.findall(sec) if not re.search(r"\b(deferred|n/a|not applicable)\b", m, re.I)]
 
 
+def unplanned_steps(text: str) -> list[str]:
+    """RUN §3 `### Steps` lines (top-level bullets, placeholders skipped) that do not start with a TSK ID of the §1 Plan.
+    A plan without TSK IDs (RUNs before 1.11) is not checked."""
+    plan = set(re.findall(r"^\s*-\s*(TSK-[A-Za-z]+\d{4}-\d+)\b", wf.heading_section(text, r"^###\s+Plan\b") or "", re.M))
+    if not plan:
+        return []
+    steps = re.findall(r"^-\s*(.+)$", wf.heading_section(wf.heading_section(text, r"^#\s+3\.") or "", r"^###\s+Steps\b") or "", re.M)
+    real = [s for s in steps if "<ID>" not in s and not PLACEHOLDER.search("- " + s)]
+    return [s for s in real if (s.split(":")[0].split()[:1] or [""])[0] not in plan]
+
+
 PLACEHOLDER = re.compile(r"^\s*(?:-\s*)?(?:…|\.\.\.)\s*$|^\s*-\s*Step \d+:\s*…\s*$|(?:^|[\s(])<[A-Z][^<>\n]{0,60}>|\bYYYY-MM-DD\b|\bN?FR-xx\b")
 
 
@@ -309,7 +322,7 @@ def check_chain() -> None:
         t = wf.read(p)
         i = os.path.basename(p).split("-")[1]
         raw = wf.md_status(t)
-        bad_status(f"SPEC-{i}", "spec", raw)
+        bad_status(wf.rel(p), "spec", raw)
         s = wf.status("spec", raw)
         if f"BRIEF-{i}" not in t:
             E.append(f"SPEC-{i}: does not reference BRIEF-{i}")
@@ -336,7 +349,7 @@ def check_chain() -> None:
             continue
         i = m.group(1)
         raw = wf.md_status(t)
-        bad_status(f"RUN-{i}", "run", raw)
+        bad_status(wf.rel(p), "run", raw)
         s = wf.status("run", raw)
         if not wf.matches(f"delivery/20-specs/SPEC-{i}-*.md"):
             E.append(f"RUN-{i}: SPEC-{i} missing")
@@ -344,6 +357,9 @@ def check_chain() -> None:
             E.append(f"RUN-{i}: Execution Strategy missing")
         if s and s not in ("Draft", "Stopped", "Cancelled") and not wf.run_approved(t):
             E.append(f"RUN-{i}: status {s} without recorded approval (§2)")
+        if s == "Executing" and (bad := unplanned_steps(t)):
+            W.append(f"RUN-{i}: Executing with §3 Steps lines that do not start with a §1 Plan task (`- TSK-…-NN: done · files: … · "
+                     f"tests: … · next: …`, the resume checkpoint): " + "; ".join(b[:60] for b in bad))
         if s == "Blocked" and not wf.open_deviations(t):
             W.append(f"RUN-{i}: Blocked without a §6 deviation awaiting approval (`Scope impact: Requires approval`)")
         if s not in ("Closed", "Cancelled") and (gone := stories.get(i, {}).get("status")) in ("cancelled", "superseded"):
@@ -458,7 +474,8 @@ def check_revisions() -> None:
 
 def check_approval_order() -> None:
     """--git: on a story branch, the commit that records the strategy approval (RUN §2) precedes every code commit and
-    holds no code itself. Code = any path outside the workflow artifacts (tools/gates.py WORKFLOW_PATHS)."""
+    holds no code itself. Code = any path outside the workflow artifacts (tools/gates.py WORKFLOW_PATHS); a skeleton-sync commit
+    (version bump + only skeleton-installed files) is not code."""
     import gates
     tries = [os.environ.get("WF_BASE"), f"origin/{os.environ['GITHUB_BASE_REF']}" if os.environ.get("GITHUB_BASE_REF") else None, "origin/main", "main"]
     base = next((b for b in tries if b and git("rev-parse", "--verify", "--quiet", b) is not None), None)
@@ -468,9 +485,24 @@ def check_approval_order() -> None:
     if not commits:
         return
 
+    def skeleton_version(c: str) -> str | None:
+        try:
+            return tomllib.loads(git("show", f"{c}:project.toml") or "").get("skeleton", {}).get("version")
+        except tomllib.TOMLDecodeError:
+            return None
+
+    def skeleton_sync(c: str, files: list[str]) -> bool:
+        """`make sync-skeleton` commit: bumps `[skeleton] version` and touches only files the skeleton installs."""
+        parent = git("rev-parse", "--verify", "--quiet", f"{c}^")
+        if parent is None or skeleton_version(c) == skeleton_version(f"{c}^"):
+            return False
+        return all(f.startswith(gates.WORKFLOW_PATHS) or wf.is_skeleton_path(f) for f in files)
+
     def code(c: str) -> list[str]:
-        files = (git("diff-tree", "--no-commit-id", "--name-only", "-r", "--root", c) or "").split("\n")
-        return [f for f in files if f and not f.startswith(gates.WORKFLOW_PATHS)]
+        files = [f for f in (git("diff-tree", "--no-commit-id", "--name-only", "-r", "--root", c) or "").split("\n") if f]
+        if skeleton_sync(c, files):
+            return []
+        return [f for f in files if not f.startswith(gates.WORKFLOW_PATHS)]
     first_code = next(((c, f) for c in commits if (f := code(c))), None)
     for p in wf.matches("delivery/30-runs/RUN-*.md"):
         r = wf.rel(p)
@@ -498,6 +530,15 @@ def check_adapters() -> None:
         if model != balanced:
             W.append(f"{s}: session default model {model!r} is not the balanced tier {balanced!r}: "
                      "follow-ups outside a command run on it (set it, or keep it on purpose)")
+    used, budget = prefix()
+    if budget and used > budget:
+        W.append(f"always-loaded prefix ~{used} tokens over the budget of {budget} (project.toml [context] prefix_budget): "
+                 "shorten AGENTS.md, CLAUDE.md or the command/agent descriptions in workflow/workflow.toml (each token is paid on every call)")
+
+
+def prefix() -> tuple[int, int]:
+    """(tokens, budget) of what every agent call loads; budget 0 = no check."""
+    return sum(wf.prefix_tokens().values()), int(wf.project().get("context", {}).get("prefix_budget", 0) or 0)
 
 
 def main() -> None:
@@ -522,7 +563,8 @@ def main() -> None:
     if "--json" in sys.argv:
         wf.dump_envelope("check", {"ok": not E, "errors": len(E), "warnings": len(W), "counts": counts, "issues": issues})
         sys.exit(1 if E else 0)
-    print(" · ".join(f"{k} {v}" for k, v in counts.items()))
+    used, budget = prefix()
+    print(" · ".join(f"{k} {v}" for k, v in counts.items()) + f" · prefix ~{used}" + (f"/{budget}" if budget else "") + " tokens")
     for w in W:
         print("WARN ", w)
     for e in E:

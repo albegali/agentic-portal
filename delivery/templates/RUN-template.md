@@ -15,6 +15,7 @@
 
 ## Status
 Draft → Strategy Approved → Executing → Tuning → Persisted → Reviewed → Closed  ·  Stopped / Blocked / Cancelled
+(the §2 approval sets `Strategy Approved`, never `Approved`: any other value fails `make check`)
 
 > A RUN MUST NOT be Closed before Persisted and Reviewed (§11).
 > Stopped: the human stopped it at §2 (resume with `/run <ID> revise: …`). Blocked: a §6 deviation awaits approval
@@ -76,8 +77,8 @@ Date:
 # 3. Execution Log (Agent)
 
 ### Steps
-- Step 1: …
-- Step 2: …
+> One line per plan step when it is done, append-only: the checkpoint a resumed `/run` starts from.
+- TSK-<ID>-01: done · files: … · tests: … · next: TSK-<ID>-02
 
 ### Changes (high-level)
 - Code:
@@ -216,3 +217,9 @@ Summary:
 > Post-closure only: factual corrections (links, typos, recorded results), one line each with date and source.
 > A change in behaviour is a new story with `supersedes = "<ID>"` in `backlog/stories.toml`, never a revision.
 
+
+---
+
+## Gates
+
+> Changes requested at a human gate (`gates.py request-changes`), one line each: `YYYY-MM-DD — changes requested by <owner>: <comment>`. Leave empty otherwise.
