@@ -38,10 +38,10 @@ Out of scope:
 
 # 4. Acceptance Criteria
 
-- [ ] AC1: the 1.25.1 schemas load (`check_subset` accepts `anyOf`, including nested alternatives) → test: `server/tests/test_contract_validator.py::SkeletonSchemasTest::test_every_schema_file_stays_inside_the_subset` (fails before the fix)
-- [ ] AC2: a value matching none of the `anyOf` alternatives is rejected, one or several matches pass → test: `server/tests/test_contract_validator.py::KeywordTest::test_any_of`
-- [ ] AC3: the rest of the subset is unchanged (`allOf`, `if`, `format` still raise) → test: `server/tests/test_contract_validator.py::KeywordTest::test_unsupported_keyword_raises_at_load`
-- [ ] AC4: recorded gates envelopes validate against `gates.schema.json` → test: `server/tests/test_contract_*` (full suite)
+- [x] AC1: the 1.25.1 schemas load (`check_subset` accepts `anyOf`, including nested alternatives) → test: `server/tests/test_contract_validator.py::SkeletonSchemasTest::test_every_schema_file_stays_inside_the_subset` (fails before the fix)
+- [x] AC2: a value matching none of the `anyOf` alternatives is rejected, one or several matches pass → test: `server/tests/test_contract_validator.py::KeywordTest::test_any_of`
+- [x] AC3: the rest of the subset is unchanged (`allOf`, `if`, `format` still raise) → test: `server/tests/test_contract_validator.py::KeywordTest::test_unsupported_keyword_raises_at_load`
+- [x] AC4: recorded gates envelopes validate against `gates.schema.json` → test: `server/tests/test_contract_*` (full suite)
 
 ---
 
@@ -66,12 +66,12 @@ The agent is not allowed to:
 
 # 7. Quality Gates
 
-- [ ] Full test suite green
-- [ ] Build and lint pass
+- [x] Full test suite green
+- [x] Build and lint pass
 - [ ] App starts and the smoke path works (`make run`)
-- [ ] No public interface change (API, CLI, formats)
+- [x] No public interface change (API, CLI, formats)
 - [ ] Release notes / advisories of each upgraded package read; breaking changes listed in the RUN
-- [ ] Lockfile diff limited to the intended packages (no lockfile change expected)
+- [x] Lockfile diff limited to the intended packages (no lockfile change expected)
 
 ---
 
@@ -103,11 +103,11 @@ The agent is not allowed to:
 
 Facts written by `/persist` before Done (no checkboxes):
 
-- Reconciled at:
-- AC met:
-- Tasks deferred:
-- Spec changes since Ready:
-- Reference docs updated:
+- Reconciled at: 2026-11-02
+- AC met: 4/4
+- Tasks deferred: none
+- Spec changes since Ready: none
+- Reference docs updated: reference/architecture/ADR-002-skeleton-contract.md
 ---
 
 ## Revisions

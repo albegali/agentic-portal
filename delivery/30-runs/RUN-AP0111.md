@@ -11,7 +11,7 @@
 ---
 
 ## Status
-Tuning
+Persisted
 
 ---
 
@@ -74,16 +74,50 @@ Date: 2026-11-02
 - Code: `anyOf` in `SUPPORTED`, `check_subset`, `_check` (+ `_probe` helper)
 - Interfaces: none
 - Domain: none
-- Tests: `test_any_of`; unsupported-keyword test now uses `allOf` and `anyOf` with an unsupported `format`
+- Tests: ${PY:-python3} -m unittest discover -s server/tests -q && ${PY:-python3} scripts/check_deps.py server && ${PY:-python3} -m unittest discover -s scripts/tests -q && npm --prefix web test -- --run → pass
 - Specs: ADR-002 revision 2026-11-02
+
+---
+
+# 5. Tuning Log (If needed)
+
+Tuning accepted by: Alberto Galimberti
+Date: 2026-11-02
+
+### Entry #1
+- Issue: RUN status was set to `Approved`, which is not a valid status.
+- Fix: status set to `Tuning`; pending AP0111 artifacts committed (`b201ea5`).
+- Impact: none on code.
+- Verified: Yes
+
+---
+
+# 7. Persistence / Reconciliation
+
+- [x] Spec updated (if needed)
+- [x] Reference docs updated (if needed)
+- [x] Acceptance Criteria aligned
+
+Summary:
+- `anyOf` added to the contract validator subset; ADR-002 revision line cites the owner decision.
 
 ---
 
 # 8. Quality Gates Check
 
 ### Gates
-> Written by `make gates` on 2026-11-02T18:01+01:00; do not edit by hand.
+> Written by `make gates` on 2026-11-02T21:10+01:00; do not edit by hand.
 - test: `${PY:-python3} -m unittest discover -s server/tests -q && ${PY:-python3} scripts/check_deps.py server && ${PY:-python3} -m unittest discover -s scripts/tests -q && npm --prefix web test -- --run` → pass (OK)
 - lint: `${PY:-python3} -m compileall -q server scripts && npm --prefix web run lint && npm --prefix web run typecheck` → pass (> tsc --noEmit)
 - secrets: `/opt/homebrew/opt/python@3.14/bin/python3.14 tools/secret_scan.py --branch` → pass (secret scan: OK)
 
+- AC: 4/4
+- Tests: `PY=python3.14 make gates ID=AP0111` → pass (default python3 is 3.12, below the required 3.14)
+- Out-of-scope changes: none
+- CI:
+
+---
+
+# 9. Closure
+
+- Tasks deferred: none
