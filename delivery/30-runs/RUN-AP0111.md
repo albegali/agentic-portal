@@ -4,14 +4,14 @@
 - Story ID: AP0111
 - Spec: SPEC-AP0111
 - Started at (datetime): 2026-11-02T17:59+01:00
-- Completed at (datetime): 2026-11-02T22:00+01:00
+- Completed at (datetime): 2026-11-02T22:37+01:00
 - Branch: chore/skeleton-1.25.1
 - PR: #11 (https://github.com/albegali/agentic-portal/pull/11)
 
 ---
 
 ## Status
-Persisted
+Closed
 
 ---
 
@@ -175,3 +175,11 @@ Facts, not ticks (`make check` reads them):
 - Findings:
   - RUN-AP0111.md:119-127 → §8 still has no `CI:` line (grep `CI:` matches only §5 #3 and §11): Tuning Entry #3 says it was added, but commit 0e00375 only touched §5/§11; the `make gates` block is generated, so a line inside it would be overwritten → add `- CI: green — https://github.com/albegali/agentic-portal/pull/11` in §8 outside the generated `### Gates` block (template facts: AC 4/4 met, Tests, Out-of-scope changes: none, CI), then `/persist AP0111`.
 - Checked, no findings: code diff (validator.py `anyOf` in SUPPORTED/`check_subset`/`_check` via `_probe`, `test_any_of`, unsupported-list test) matches Spec, no other keywords, no skeleton edits by the story (NFR-14); AC1–AC4 map to tests; Spec Done with 4/4; gates pass; PR #11 checks all pass on head 0e00375; no secrets; working tree clean.
+
+### Review #4
+- Date: 2026-11-02
+- Reviewer: review agent
+- Outcome: ok-to-close
+- Findings:
+  - none blocking. Non-blocking: `make check` WARN `PLAN.md: stories in no sprint: AP0111` → add AP0111 to a sprint in PLAN.md at close (optional).
+- Checked, no findings: Review #3 finding resolved (§8 has AC 4/4, Tests, Out-of-scope, `CI: green` with the PR #11 URL, outside the generated Gates block); Brief/Spec/RUN aligned; code diff (validator.py `anyOf` in SUPPORTED/`check_subset`/`_check` via `_probe`, `test_any_of`, unsupported-list test) matches the Spec, no other keywords, no skeleton or `schemas/` edits by the story (NFR-14; skeleton syncs 1.25.1/1.25.2 via `make sync-skeleton`); ADR-002 revision line cites the owner decision; AC1–AC4 map to tests; gates pass; `gh pr checks 11`: all 14 checks pass (runs 41529072841 / 41529072854); no secrets; working tree clean; `make check` OK.

@@ -5,12 +5,12 @@
 - Source: `analysis/10-stories/STORY_AP0111_validator_anyof.md` · external tracker URL: n/a
 - Captured at (datetime): 2026-11-02
 - Captured by: Alberto Galimberti (owner decision `project-journal/decisions/2026-11-02-validator-anyof.md`)
-- Closed at (datetime):
+- Closed at (datetime): 2026-11-02T22:37+01:00
 
 ---
 
 ## Status
-Captured
+Closed
 
 ---
 
@@ -67,6 +67,7 @@ Add `anyOf` (at least one alternative matches) to the validator, tests, and an A
 
 - Spec: SPEC-AP0111
 - RUN: RUN-AP0111
+- PR: #11 (https://github.com/albegali/agentic-portal/pull/11)
 
 ---
 
