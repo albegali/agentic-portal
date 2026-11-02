@@ -4,14 +4,14 @@
 - Story ID: AP0111
 - Spec: SPEC-AP0111
 - Started at (datetime): 2026-11-02T17:59+01:00
-- Completed at (datetime):
+- Completed at (datetime): 2026-11-02T22:00+01:00
 - Branch: chore/skeleton-1.25.1
-- PR: #11 (retitle to AP0111)
+- PR: #11 (https://github.com/albegali/agentic-portal/pull/11)
 
 ---
 
 ## Status
-Tuning
+Persisted
 
 ---
 
@@ -94,7 +94,7 @@ Date: 2026-11-02
 - Issue: CI `green` in §8 not backed; Spec §7 release notes and smoke unrecorded; stray Spec edit in the working tree.
 - Fix: stray Spec edit discarded (it reverted AC ticks and status to Ready). Release notes: `tools/CHANGELOG.md` 1.25.1 read, breaking changes: none ("Upgrade: nothing to do by hand"). Smoke `make run`: n/a, no runtime change beyond the validator subset (server suite green). CI on head 741c83e: `portal-ci` success (run 41516926536); `workflow-check` FAILED (run 41516926661): `RUN-AP0111: code committed before the strategy approval (87dc32d …)`: the skeleton upgrade commit precedes the approval commit cd55ca6, and `check_approval_order` counts it as code.
 - Impact: none on code. Not fixable in scope: the Spec forbids amending 87dc32d, and reordering needs a history rewrite of a pushed branch (owner decision); a skeleton exemption goes upstream.
-- Verified: No (workflow-check red)
+- Verified: Yes (CI green on 40fdf60)
 - Owner decision (`project-journal/decisions/2026-11-02-approval-order-skeleton-sync.md`): fix upstream in skeleton 1.25.2 (exempt skeleton-sync commits in `check_approval_order`); no rebase or force-push. Next: `make sync-skeleton`, then `/persist AP0111`.
 
 ---
@@ -113,17 +113,11 @@ Summary:
 # 8. Quality Gates Check
 
 ### Gates
-> Written by `make gates` on 2026-11-02T21:10+01:00; do not edit by hand.
+> Written by `make gates` on 2026-11-02T22:12+01:00; do not edit by hand.
 - test: `${PY:-python3} -m unittest discover -s server/tests -q && ${PY:-python3} scripts/check_deps.py server && ${PY:-python3} -m unittest discover -s scripts/tests -q && npm --prefix web test -- --run` → pass (OK)
 - lint: `${PY:-python3} -m compileall -q server scripts && npm --prefix web run lint && npm --prefix web run typecheck` → pass (> tsc --noEmit)
 - secrets: `/opt/homebrew/opt/python@3.14/bin/python3.14 tools/secret_scan.py --branch` → pass (secret scan: OK)
 
-- AC: 4/4
-- Tests: `PY=python3.14 make gates ID=AP0111` → pass (default python3 is 3.12, below the required 3.14)
-- Out-of-scope changes: none
-- CI: red — portal-ci success (https://github.com/albegali/agentic-portal/actions/runs/41516926536), workflow-check failure (https://github.com/albegali/agentic-portal/actions/runs/41516926661): approval-order check on 87dc32d, see §5 Entry #2
-
----
 
 # 9. Closure
 
