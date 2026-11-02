@@ -37,8 +37,8 @@ Schemas (JSON Schema 2020-12) for every v1.0 tool ship in the skeleton under `sc
 Later minor versions (not in v1.0):
 | Tool | Output | Story |
 |---|---|---|
-| `gates.py list --json` | pending human gates: artifact, field, current value, proposed value | AP0105 |
-| `gates.py approve|request-changes <gate-id> --by <owner> [--comment]` | applies the change, returns the diff | AP0105 |
+| `gates.py list --json` | pending human gates: id, gate, artifact, field, current, proposed, since, age (skeleton 1.18.0, contract 1.1) | AP0105 |
+| `gates.py approve <gate-id> [--expect] [--by <owner>] [--no-commit]` · `request-changes <gate-id> --comment <text> [--expect] [--by <owner>]` | applies the change, returns the diff; approve commits like `make approve` | AP0105 |
 | `context.py <step> <IDs> --json` | file list and token estimate (used for run scope) | to be created |
 | `repo_map.py --json` | packages, files, sizes (Insights, diagrams) | to be created |
 
@@ -54,3 +54,4 @@ Later minor versions (not in v1.0):
 
 ## Reversibility
 High: every screen depends on the contract. Additions are cheap (minor versions); a new major needs a coordinated release.
+- Revision 2026-10-22, AP0105 delivered upstream (skeleton 1.18.0, contract 1.1; Spec §10 confirmed by the Spec `Ready`): `approve` sets the same fields as `make approve` (owner and date in the commit trailers, no `## Gates` line) and commits on the current branch; only `request-changes` writes the `## Gates` line (spec, strategy, inception, stack, spike, refined; not deviation, tuning, workshop). This narrows the 2026-10-20 line above.
