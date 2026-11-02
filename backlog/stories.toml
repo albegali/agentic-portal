@@ -839,3 +839,25 @@ ac = [
 ]
 notes = "Owner decision: project-journal/decisions/2026-11-02-validator-anyof.md. Same branch chore/skeleton-1.25.1 and PR #11; upgrade commit and fix commit separate."
 out_of_scope = "Other JSON Schema keywords; upstream schema changes."
+
+[[story]]
+id = "AP0112"
+epic = "EP-01"
+slug = "skeleton-pin-bump"
+title = "Bump the contract-test skeleton pin to the current release"
+type = "chore"
+as_a = "portal maintainer"
+i_want = "`skeleton_pin` in project.toml and the CI `SKELETON_PIN` fallback to follow the skeleton version the portal is synced to"
+so_that = "the contract tests and recorded envelopes run against the real emitters in use, not v1.3.0"
+priority = "Should"
+release = "R1"
+size = "XS"
+fr = []
+nfr = ["NFR-14"]
+deps = ["AP0111"]
+ac = [
+  ["skeleton_pin and the CI fallback", "they are read", "they name the release matching `[skeleton] version`"],
+  ["the envelopes in server/tests/fixtures/envelopes/", "they are re-recorded at the new pin", "test_contract_* pass locally and in CI"],
+]
+notes = "Owner decision: project-journal/decisions/2026-11-02-ap0105-release-confirmed.md. Set the repository variable SKELETON_PIN too (owner action, none is set today)."
+out_of_scope = "Contract version changes; new emitters."
