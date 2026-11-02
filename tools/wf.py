@@ -16,7 +16,7 @@ from functools import lru_cache
 ROOT = os.path.abspath(os.environ.get("WF_ROOT") or os.path.join(os.path.dirname(__file__), ".."))
 TIERS = ("fast", "balanced", "deep")
 SCHEMA = 1  # legacy flat --json of context.py (outside the contract)
-CONTRACT_VERSION = "1.0"  # semver of the --json envelope (tools/README.md "JSON contract"): minor adds fields, major breaks
+CONTRACT_VERSION = "1.1"  # semver of the --json envelope (tools/README.md "JSON contract"): minor adds fields, major breaks
 
 for _s in (sys.stdout, sys.stderr):  # the text views print → ≈ ⚠ ✓: a cp1252 console or pipe (Windows) must not crash
     try:
@@ -83,6 +83,17 @@ def fail_envelope(tool: str, code: str, message: str, exit_code: int = 1) -> Non
 def approx_tokens(chars: int) -> int:
     """Rough token estimate (≈ 4 characters per token) for context budgets."""
     return (chars + 3) // 4
+
+
+PREFIX_DESCRIBED = (".claude/commands/*.md", ".claude/agents/*.md")
+
+
+def prefix_tokens() -> dict[str, int]:
+    """Tokens loaded into every call of an agent session (Claude Code's view, the largest): AGENTS.md, CLAUDE.md and the
+    command and agent descriptions listed in the system prompt."""
+    out = {p: approx_tokens(len(read(p))) for p in ("AGENTS.md", "CLAUDE.md") if exists(p)}
+    out["descriptions"] = approx_tokens(sum(len(front(read(p), "description") or "") for pat in PREFIX_DESCRIBED for p in matches(pat)))
+    return out
 
 
 def load_toml(p: str) -> dict:

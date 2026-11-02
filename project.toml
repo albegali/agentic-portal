@@ -52,5 +52,13 @@ mutation = ""                # optional, slow
 [skeleton]
 # The skeleton version this project's workflow files come from (set by /kickoff, tools/adopt.py and the upgrade).
 # Update with `make sync-skeleton` (tools/sync_skeleton.py): a 3-way merge, nothing written on conflict.
-version = "1.17.3"
+version = "1.25.0"
 source = "https://github.com/albegali/agentic-skeleton.git"                  # skeleton repository (URL or path); default https://github.com/albegali/agentic-skeleton
+
+[context]
+max_read_lines = 400         # tools/gate_guard.py blocks a full read of a text file longer than this (Claude Code); 0 = off
+prefix_budget = 2500         # make check warns when AGENTS.md + CLAUDE.md + command/agent descriptions exceed these tokens; 0 = off
+checkpoint_tokens = 80000    # tools/context_watch.py asks the agent to checkpoint and /clear past this context size (Claude Code); 0 = off
+
+[guard]
+write_paths = ["~/projects/agentic-skeleton"]   # directories outside the repository agents may edit (Claude Code hook), e.g. ["~/projects/agentic-skeleton"]
