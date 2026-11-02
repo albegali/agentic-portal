@@ -76,6 +76,8 @@ def merge(p: str, generated: str, block: str | None) -> str:
             data.setdefault("model", gen["model"])
         for event, entries in gen.get("hooks", {}).items():  # our hook entries are added once; the project's stay
             mine = data.setdefault("hooks", {}).setdefault(event, [])
+            ours = lambda e: any(f"tools/{h}" in json.dumps(e) for h in OUR_HOOKS)
+            mine[:] = [e for e in mine if e in entries or not ours(e)]  # an older matcher of our hook is replaced, not duplicated
             mine += [e for e in entries if e not in mine]
         return json.dumps(data, indent=2, ensure_ascii=False) + "\n"
     if block is not None and (BEGIN in cur or not cur.startswith("<!-- Generated")):
@@ -122,12 +124,17 @@ SETTINGS = {
                   "Bash(python3 tools/check_workflow.py)", "Bash(git status)", "Bash(git diff:*)", "Bash(git log:*)"],
         "deny": ["Bash(git push --force:*)", "Bash(git push -f:*)", "Bash(git push --force-with-lease:*)", "Bash(git push origin --delete:*)",
                  "Bash(git reset --hard:*)", "Bash(git branch -D:*)", "Bash(make approve:*)", "Bash(python3 tools/approve.py:*)",
-                 "Bash(cat .env:*)", "Bash(terraform apply:*)", "Read(./.env)", "Read(./.env.*)"],
+                 "Bash(cat .env:*)", "Bash(terraform apply:*)", "Read(./.env)", "Read(./.env.*)",
+                 "Bash(sudo:*)", "Bash(mkfs:*)", "Bash(shred:*)", "Bash(diskutil eraseDisk:*)", "Bash(diskutil eraseVolume:*)"],
     },
-    # human gates and mode boundaries (tools/gate_guard.py); the deny list above only matches command prefixes
-    "hooks": {"PreToolUse": [{"matcher": "Edit|Write|MultiEdit|Bash",
-                              "hooks": [{"type": "command", "command": 'python3 "$CLAUDE_PROJECT_DIR/tools/gate_guard.py"'}]}]},
+    # human gates and mode boundaries (tools/gate_guard.py); the deny list above only matches command prefixes;
+    # context checkpoint past `[context] checkpoint_tokens` (tools/context_watch.py)
+    "hooks": {"PreToolUse": [{"matcher": "Edit|Write|MultiEdit|Bash|Read",
+                              "hooks": [{"type": "command", "command": 'python3 "$CLAUDE_PROJECT_DIR/tools/gate_guard.py"'}]}],
+              "PostToolUse": [{"matcher": "*",
+                               "hooks": [{"type": "command", "command": 'python3 "$CLAUDE_PROJECT_DIR/tools/context_watch.py"'}]}]},
 }
+OUR_HOOKS = ("gate_guard.py", "context_watch.py")  # an entry naming one of these is ours: replaced on render, not duplicated
 
 
 def settings() -> dict:
@@ -147,9 +154,9 @@ def render() -> dict[str, str]:
     if "claude-code" in tools:
         claude = ("@AGENTS.md\n\n"
                   "Claude Code specifics:\n"
-                  "- Start with `/next`; between steps use `/clear` (except the `/run` chain of the same story).\n"
-                  "- Each command pins its model in the frontmatter (tier → model in `models.toml`) for its own turn; the session default in `.claude/settings.json` is the balanced tier. Answer gates with the command (`/run <ID> approve`, `/run <ID> tuning: …`), not free text, so the pinned model runs them. L/XL stories use `/run-deep`. Do not switch to a larger model unless the user asks.\n"
-                  "- Subagents in `.claude/agents/` only for independent workstreams.\n")
+                  "- Start with `/next`; `/clear` between steps (not within the `/run` chain of one story).\n"
+                  "- Each command pins its model for its own turn (tier → `models.toml`); the session default (`.claude/settings.json`) is the balanced tier. Answer gates with the command (`/run <ID> approve`, `/run <ID> tuning: …`), not free text, so the pinned model runs them. L/XL stories: `/run-deep`. No larger model unless the user asks.\n"
+                  "- Subagents (`.claude/agents/`): AGENTS.md §5; the `reader` subagent for questions that span many files.\n")
         out["CLAUDE.md"] = f"<!-- {HDR} -->\n# CLAUDE.md\n\n{claude}"
         blocks["CLAUDE.md"] = "## Agentic workflow\n\n" + claude
         for name, c in cmds.items():

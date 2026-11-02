@@ -26,18 +26,34 @@
       "Bash(git branch -D:*)",
       "Bash(make approve:*)",
       "Bash(python3 tools/approve.py:*)",
-      "Bash(cat .env:*)"
+      "Bash(cat .env:*)",
+      "Bash(sudo:*)",
+      "Bash(mkfs:*)",
+      "Bash(shred:*)",
+      "Bash(diskutil eraseDisk:*)",
+      "Bash(diskutil eraseVolume:*)"
     ]
   },
   "model": "sonnet",
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Edit|Write|MultiEdit|Bash",
+        "matcher": "Edit|Write|MultiEdit|Bash|Read",
         "hooks": [
           {
             "type": "command",
             "command": "python3 \"$CLAUDE_PROJECT_DIR/tools/gate_guard.py\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/tools/context_watch.py\""
           }
         ]
       }

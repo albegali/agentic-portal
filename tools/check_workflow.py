@@ -12,7 +12,8 @@ Chain:     naming of Story/Analysis/Refined Story/Brief/Spec/RUN/spike note; Spe
            RUN without an open §6 deviation; RUN still open on a cancelled story; Spec Done / RUN Closed with an unchecked
            acceptance criterion or gate; template placeholders left in Briefs, Specs and RUNs past Draft. --git: closed artifacts changed later without a Revisions line;
            on a story branch, code committed before or with the RUN §2 approval (base: $WF_BASE, origin/$GITHUB_BASE_REF or main).
-Adapters:  generated tool files are up to date (tools/render_agents.py --check).
+Adapters:  generated tool files are up to date (tools/render_agents.py --check); the always-loaded prefix (AGENTS.md, CLAUDE.md,
+           command and agent descriptions) within project.toml [context] prefix_budget tokens (0 = off), reported in the text view.
 --json:    contract envelope `check`, data {"ok", "errors", "warnings", "counts", "issues": [{"level", "area", "message"}]}
            (same exit code: a workflow with errors is still a successful check, reported in data).
 """
@@ -233,6 +234,17 @@ def unchecked(text: str, heading_rx: str) -> list[str]:
     return [m.strip() for m in UNCHECKED.findall(sec) if not re.search(r"\b(deferred|n/a|not applicable)\b", m, re.I)]
 
 
+def unplanned_steps(text: str) -> list[str]:
+    """RUN §3 `### Steps` lines (top-level bullets, placeholders skipped) that do not start with a TSK ID of the §1 Plan.
+    A plan without TSK IDs (RUNs before 1.11) is not checked."""
+    plan = set(re.findall(r"^\s*-\s*(TSK-[A-Za-z]+\d{4}-\d+)\b", wf.heading_section(text, r"^###\s+Plan\b") or "", re.M))
+    if not plan:
+        return []
+    steps = re.findall(r"^-\s*(.+)$", wf.heading_section(wf.heading_section(text, r"^#\s+3\.") or "", r"^###\s+Steps\b") or "", re.M)
+    real = [s for s in steps if "<ID>" not in s and not PLACEHOLDER.search("- " + s)]
+    return [s for s in real if (s.split(":")[0].split()[:1] or [""])[0] not in plan]
+
+
 PLACEHOLDER = re.compile(r"^\s*(?:-\s*)?(?:…|\.\.\.)\s*$|^\s*-\s*Step \d+:\s*…\s*$|(?:^|[\s(])<[A-Z][^<>\n]{0,60}>|\bYYYY-MM-DD\b|\bN?FR-xx\b")
 
 
@@ -344,6 +356,9 @@ def check_chain() -> None:
             E.append(f"RUN-{i}: Execution Strategy missing")
         if s and s not in ("Draft", "Stopped", "Cancelled") and not wf.run_approved(t):
             E.append(f"RUN-{i}: status {s} without recorded approval (§2)")
+        if s == "Executing" and (bad := unplanned_steps(t)):
+            W.append(f"RUN-{i}: Executing with §3 Steps lines that do not start with a §1 Plan task (`- TSK-…-NN: done · files: … · "
+                     f"tests: … · next: …`, the resume checkpoint): " + "; ".join(b[:60] for b in bad))
         if s == "Blocked" and not wf.open_deviations(t):
             W.append(f"RUN-{i}: Blocked without a §6 deviation awaiting approval (`Scope impact: Requires approval`)")
         if s not in ("Closed", "Cancelled") and (gone := stories.get(i, {}).get("status")) in ("cancelled", "superseded"):
@@ -498,6 +513,15 @@ def check_adapters() -> None:
         if model != balanced:
             W.append(f"{s}: session default model {model!r} is not the balanced tier {balanced!r}: "
                      "follow-ups outside a command run on it (set it, or keep it on purpose)")
+    used, budget = prefix()
+    if budget and used > budget:
+        W.append(f"always-loaded prefix ~{used} tokens over the budget of {budget} (project.toml [context] prefix_budget): "
+                 "shorten AGENTS.md, CLAUDE.md or the command/agent descriptions in workflow/workflow.toml (each token is paid on every call)")
+
+
+def prefix() -> tuple[int, int]:
+    """(tokens, budget) of what every agent call loads; budget 0 = no check."""
+    return sum(wf.prefix_tokens().values()), int(wf.project().get("context", {}).get("prefix_budget", 0) or 0)
 
 
 def main() -> None:
@@ -522,7 +546,8 @@ def main() -> None:
     if "--json" in sys.argv:
         wf.dump_envelope("check", {"ok": not E, "errors": len(E), "warnings": len(W), "counts": counts, "issues": issues})
         sys.exit(1 if E else 0)
-    print(" · ".join(f"{k} {v}" for k, v in counts.items()))
+    used, budget = prefix()
+    print(" · ".join(f"{k} {v}" for k, v in counts.items()) + f" · prefix ~{used}" + (f"/{budget}" if budget else "") + " tokens")
     for w in W:
         print("WARN ", w)
     for e in E:

@@ -16,7 +16,7 @@ from functools import lru_cache
 ROOT = os.path.abspath(os.environ.get("WF_ROOT") or os.path.join(os.path.dirname(__file__), ".."))
 TIERS = ("fast", "balanced", "deep")
 SCHEMA = 1  # legacy flat --json of context.py (outside the contract)
-CONTRACT_VERSION = "1.0"  # semver of the --json envelope (tools/README.md "JSON contract"): minor adds fields, major breaks
+CONTRACT_VERSION = "1.1"  # semver of the --json envelope (tools/README.md "JSON contract"): minor adds fields, major breaks
 
 for _s in (sys.stdout, sys.stderr):  # the text views print → ≈ ⚠ ✓: a cp1252 console or pipe (Windows) must not crash
     try:
@@ -83,6 +83,17 @@ def fail_envelope(tool: str, code: str, message: str, exit_code: int = 1) -> Non
 def approx_tokens(chars: int) -> int:
     """Rough token estimate (≈ 4 characters per token) for context budgets."""
     return (chars + 3) // 4
+
+
+PREFIX_DESCRIBED = (".claude/commands/*.md", ".claude/agents/*.md")
+
+
+def prefix_tokens() -> dict[str, int]:
+    """Tokens loaded into every call of an agent session (Claude Code's view, the largest): AGENTS.md, CLAUDE.md and the
+    command and agent descriptions listed in the system prompt."""
+    out = {p: approx_tokens(len(read(p))) for p in ("AGENTS.md", "CLAUDE.md") if exists(p)}
+    out["descriptions"] = approx_tokens(sum(len(front(read(p), "description") or "") for pat in PREFIX_DESCRIBED for p in matches(pat)))
+    return out
 
 
 def load_toml(p: str) -> dict:
@@ -171,49 +182,71 @@ SECURITY_SECTIONS = ("security", "privacy")
 BRANCH_ID = re.compile(r"(?:^|/)([A-Za-z]+\d{4})-[\w.-]+$")
 
 
+SKELETON_SOURCE = "https://github.com/albegali/agentic-skeleton"
+
+
+def _git(*a: str) -> str | None:
+    import subprocess
+    try:
+        r = subprocess.run(["git", *a], cwd=ROOT, capture_output=True, text=True, encoding="utf-8", timeout=30,
+                           stdin=subprocess.DEVNULL, env={**os.environ, "GIT_TERMINAL_PROMPT": "0"})
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    return r.stdout if r.returncode == 0 else None
+
+
+@lru_cache(maxsize=None)
+def branch_refs(fmt: str = "%(refname:short)") -> tuple[tuple[str, ...], frozenset[str]]:
+    """for-each-ref lines of the project's own branches, and the remotes they come from: local branches and every remote
+    except the upstream skeleton (`[skeleton] source`, fetched by `make sync-skeleton`), unless `main` tracks it (the
+    skeleton itself). Another remote's branches are not the project's: not claims, not stale story branches (#61)."""
+    norm = lambda u: re.sub(r"(\.git)?/*$", "", u.strip()).lower()
+    skeleton = norm(project().get("skeleton", {}).get("source") or SKELETON_SOURCE)
+    tracked = (_git("rev-parse", "--abbrev-ref", "main@{upstream}") or "origin/").split("/", 1)[0].strip()
+    urls = dict(re.match(r"remote\.(.+)\.url\s+(.*)", line).groups()
+                for line in (_git("config", "--get-regexp", r"^remote\..*\.url$") or "").splitlines() if " " in line)
+    remotes = {r for r, url in urls.items() if r == tracked or norm(url) != skeleton}
+    out = _git("for-each-ref", f"--format={fmt}", "refs/heads", *(f"refs/remotes/{r}" for r in sorted(remotes)))
+    return (tuple(out.splitlines()) if out else ()), frozenset(remotes)
+
+
+def short_branch(ref: str, remotes: frozenset[str]) -> str:
+    """Branch name without its remote prefix (`origin/pr0101-x` → `pr0101-x`)."""
+    head = ref.split("/", 1)
+    return head[1] if len(head) == 2 and head[0] in remotes else ref
+
+
 def story_branches() -> dict[str, list[dict]]:
     """Story branches, local and remote (`<id-lowercase>-<slug>`): {ID: [{"ref", "author"}]}. A pushed story branch is
     a claim the whole team sees, without writing to main."""
-    import subprocess
-    try:
-        r = subprocess.run(["git", "for-each-ref", "--format=%(refname:short)\t%(authorname)\t%(authoremail)", "refs/heads", "refs/remotes"],
-                           cwd=ROOT, capture_output=True, text=True, encoding="utf-8", timeout=30)
-    except (OSError, subprocess.TimeoutExpired):
-        return {}
+    lines, remotes = branch_refs("%(refname:short)\t%(authorname)\t%(authoremail)")
     out: dict[str, list[dict]] = {}
     ids = set(stories())
-    for line in r.stdout.splitlines() if r.returncode == 0 else []:
+    for line in lines:
         ref, name, email = (line.split("\t") + ["", ""])[:3]
         if (m := BRANCH_ID.search(ref)) and (i := norm_id(m.group(1))) in ids and not ref.endswith("/HEAD"):
-            short = ref.split("/", 1)[1] if ref.startswith(("origin/", "upstream/")) else ref
+            short = short_branch(ref, remotes)
             if not any(b["branch"] == short for b in out.get(i, [])):
                 out.setdefault(i, []).append({"ref": ref, "branch": short, "author": name, "email": email.strip("<>")})
     return out
 
 
 def stale_branches(max_days: int | None = None) -> list[dict]:
-    """Trunk-based development: branches (local and remote, not main, not spikes) whose oldest commit not yet in main is
+    """Trunk-based development: the project's branches (`branch_refs`; not main, not spikes) whose oldest commit not in main is
     older than `[git] max_branch_age_days` (default 3): [{"branch", "days", "commits"}], oldest first."""
-    import subprocess
     if max_days is None:
         max_days = int(project().get("git", {}).get("max_branch_age_days", 3))
-    def git(*a: str) -> str | None:
-        try:
-            r = subprocess.run(["git", *a], cwd=ROOT, capture_output=True, text=True, encoding="utf-8", timeout=30)
-        except (OSError, subprocess.TimeoutExpired):
-            return None
-        return r.stdout if r.returncode == 0 else None
-    trunk = next((t for t in ("origin/main", "main") if git("rev-parse", "--verify", "-q", t) is not None), None)
-    refs = git("for-each-ref", "--format=%(refname:short)", "refs/heads", "refs/remotes")
-    if not trunk or refs is None:
+    trunk = next((t for t in ("origin/main", "main") if _git("rev-parse", "--verify", "-q", t) is not None), None)
+    refs, remotes = branch_refs()
+    if not trunk:
         return []
     seen, out, now = set(), [], dt.datetime.now().timestamp()
-    for ref in refs.split():
-        short = ref.split("/", 1)[1] if ref.startswith("origin/") else ref
-        if short in ("main", "HEAD", "origin") or short.startswith(("spike/", "backup/")) or short in seen:
+    for ref in refs:
+        short = short_branch(ref, remotes)
+        if short in ("main", "HEAD") or short in remotes or short.startswith(("spike/", "backup/")) or short in seen:
             continue
         seen.add(short)
-        times = git("log", f"{trunk}..{ref}", "--format=%ct")
+        times = _git("log", f"{trunk}..{ref}", "--format=%ct")
         times = times.split() if times else []
         if times and (days := int((now - int(times[-1])) // 86400)) > max_days:
             out.append({"branch": short, "days": days, "commits": len(times)})
