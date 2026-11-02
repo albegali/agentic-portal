@@ -240,7 +240,7 @@ Summary:
 
 > Actions only a person can do that the story still waits for (a tag, a release, a setting, a sign-off), one per line.
 > `make next` lists the open ones of every RUN; a RUN cannot close with Goal achieved `Yes` while one is open.
-- [ ] Skeleton PR #41 merged 2026-11-02 and tag v1.18.0 exists; confirm the release (then bump `SKELETON_PIN` in a portal story) — owner: Alberto Galimberti — since: 2026-10-22
+- [x] Skeleton PR #41 merged 2026-11-02 and tag v1.18.0 exists; confirm the release (then bump `SKELETON_PIN` in a portal story) — owner: Alberto Galimberti — since: 2026-10-22
 
 ---
 
@@ -248,4 +248,4 @@ Summary:
 
 > Post-closure only: factual corrections (links, typos, recorded results), one line each with date and source.
 > A change in behaviour is a new story with `supersedes = "AP0105"` in `backlog/stories.toml`, never a revision.
-
+- 2026-11-02: owner action closed, v1.18.0 release confirmed and superseded by the skeleton 1.25.2 sync (project-journal/decisions/2026-11-02-ap0105-release-confirmed.md).
