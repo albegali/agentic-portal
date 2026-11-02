@@ -178,7 +178,7 @@ Facts, not ticks (`make check` reads them):
 - AC: 6/6 met (AC1–AC5 by `tools/tests/test_gates.py`; AC6 by skeleton CI on 3.11 and 3.14, see CI)
 - Tests: skeleton `python -m unittest discover` → pass (127 tests, Python 3.12; `test_gates` 12 tests also on 3.14)
 - Out-of-scope changes: none
-- CI: green — skeleton PR https://github.com/albegali/agentic-skeleton/pull/41 (merged 2026-11-02; check 3.11, 3.14, macOS, Windows, secrets pass); portal PR https://github.com/albegali/agentic-portal/pull/10 (checks recorded after push)
+- CI: green — skeleton PR https://github.com/albegali/agentic-skeleton/pull/41 (merged 2026-11-02; check 3.11, 3.14, macOS, Windows, secrets pass); portal PR https://github.com/albegali/agentic-portal/pull/10 (all checks pass)
 
 ---
 
@@ -237,7 +237,7 @@ Summary:
 
 > Actions only a person can do that the story still waits for (a tag, a release, a setting, a sign-off), one per line.
 > `make next` lists the open ones of every RUN; a RUN cannot close with Goal achieved `Yes` while one is open.
-- [ ] Merge skeleton PR #41, tag and release 1.18.0 (then bump `SKELETON_PIN` in a portal story) — owner: Alberto Galimberti — since: 2026-10-22
+- [ ] Skeleton PR #41 merged 2026-11-02 and tag v1.18.0 exists; confirm the release (then bump `SKELETON_PIN` in a portal story) — owner: Alberto Galimberti — since: 2026-10-22
 
 ---
 
