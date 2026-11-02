@@ -68,9 +68,9 @@ The agent is not allowed to:
 
 - [x] Full test suite green
 - [x] Build and lint pass
-- [ ] App starts and the smoke path works (`make run`)
+- [x] App starts and the smoke path works (`make run`) — n/a, no runtime change (RUN §5 #2)
 - [x] No public interface change (API, CLI, formats)
-- [ ] Release notes / advisories of each upgraded package read; breaking changes listed in the RUN
+- [x] Release notes / advisories of each upgraded package read; breaking changes listed in the RUN — none (RUN §5 #2)
 - [x] Lockfile diff limited to the intended packages (no lockfile change expected)
 
 ---

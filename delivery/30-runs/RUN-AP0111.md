@@ -11,7 +11,7 @@
 ---
 
 ## Status
-Persisted
+Tuning
 
 ---
 
@@ -90,6 +90,13 @@ Date: 2026-11-02
 - Impact: none on code.
 - Verified: Yes
 
+### Entry #2 (Review #1)
+- Issue: CI `green` in §8 not backed; Spec §7 release notes and smoke unrecorded; stray Spec edit in the working tree.
+- Fix: stray Spec edit discarded (it reverted AC ticks and status to Ready). Release notes: `tools/CHANGELOG.md` 1.25.1 read, breaking changes: none ("Upgrade: nothing to do by hand"). Smoke `make run`: n/a, no runtime change beyond the validator subset (server suite green). CI on head 741c83e: `portal-ci` success (run 41516926536); `workflow-check` FAILED (run 41516926661): `RUN-AP0111: code committed before the strategy approval (87dc32d …)`: the skeleton upgrade commit precedes the approval commit cd55ca6, and `check_approval_order` counts it as code.
+- Impact: none on code. Not fixable in scope: the Spec forbids amending 87dc32d, and reordering needs a history rewrite of a pushed branch (owner decision); a skeleton exemption goes upstream.
+- Verified: No (workflow-check red)
+- Owner decision (`project-journal/decisions/2026-11-02-approval-order-skeleton-sync.md`): fix upstream in skeleton 1.25.2 (exempt skeleton-sync commits in `check_approval_order`); no rebase or force-push. Next: `make sync-skeleton`, then `/persist AP0111`.
+
 ---
 
 # 7. Persistence / Reconciliation
@@ -114,10 +121,25 @@ Summary:
 - AC: 4/4
 - Tests: `PY=python3.14 make gates ID=AP0111` → pass (default python3 is 3.12, below the required 3.14)
 - Out-of-scope changes: none
-- CI: green — https://github.com/albegali/agentic-portal/pull/11
+- CI: red — portal-ci success (https://github.com/albegali/agentic-portal/actions/runs/41516926536), workflow-check failure (https://github.com/albegali/agentic-portal/actions/runs/41516926661): approval-order check on 87dc32d, see §5 Entry #2
 
 ---
 
 # 9. Closure
 
 - Tasks deferred: none
+
+---
+
+# 11. Review
+
+### Review #1
+- Date: 2026-11-02
+- Reviewer: review agent
+- Outcome: changes-requested
+- Findings:
+  - RUN-AP0111.md:117 → `CI: green` is not backed: the only completed `portal-ci` run on PR #11 (41477640370, 16:03Z) failed; the runs on head 741c83e (41516926536 portal-ci, 41516926661 workflow-check) are still in progress → wait for both to complete; if green, record the run URL in `CI:`; if not, fix.
+  - SPEC-AP0111-validator-anyof.md:73 → Spec §7 "Release notes of each upgraded package read; breaking changes listed in the RUN" is unchecked and the RUN (Risks / Execution Log) records no result → read the 1.25.1 release notes and note "none" or the list in the RUN; check the box.
+  - SPEC-AP0111-validator-anyof.md:71 → "App starts and the smoke path works" unchecked without justification → run `make run` smoke or note n/a (no runtime change) in the RUN.
+  - SPEC-AP0111-validator-anyof.md → uncommitted local modification in the working tree (git status) → commit or discard it before closing.
+- Checked, no findings: Brief/Spec/RUN aligned; AC1–AC4 map to existing tests (`test_any_of`, `test_unsupported_keyword_raises_at_load`, `SkeletonSchemasTest`); scope limited to validator.py, its test, ADR-002 revision line (cites owner decision), no skeleton/`schemas/` edits in the story commits (NFR-14); gates pass; no secrets in diff.
