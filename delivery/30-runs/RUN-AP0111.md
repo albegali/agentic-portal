@@ -114,7 +114,7 @@ Summary:
 - AC: 4/4
 - Tests: `PY=python3.14 make gates ID=AP0111` → pass (default python3 is 3.12, below the required 3.14)
 - Out-of-scope changes: none
-- CI:
+- CI: green — https://github.com/albegali/agentic-portal/pull/11
 
 ---
 
