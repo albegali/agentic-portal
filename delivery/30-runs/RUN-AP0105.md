@@ -136,10 +136,10 @@ Tuning accepted by: Alberto Galimberti
 Date: 2026-10-22
 
 ### Entry #1
-- Issue:
-- Fix:
-- Impact:
-- Verified: Yes / No
+- Issue: skeleton CI `other-os (windows-latest)` failed in `test_approve_commits_the_field_alone_as_the_owner`: `os.path.relpath` returns `\` on Windows, the test expected `/`.
+- Fix: `tools/tests/test_gates.py` line 132 normalizes the separator (`.replace(os.sep, "/")`); second commit of skeleton PR #41.
+- Impact: test only, no code or contract change.
+- Verified: Yes (`test_gates` 12 tests OK on Python 3.14 locally; Windows confirmed by skeleton CI: `other-os (windows-latest)` pass)
 
 ### Entry #2
 - …
@@ -178,15 +178,17 @@ Facts, not ticks (`make check` reads them):
 - AC: 6/6 met (AC1–AC5 by `tools/tests/test_gates.py`; AC6 by skeleton CI on 3.11 and 3.14, see CI)
 - Tests: skeleton `python -m unittest discover` → pass (127 tests, Python 3.12; `test_gates` 12 tests also on 3.14)
 - Out-of-scope changes: none
-- CI: red — skeleton PR https://github.com/albegali/agentic-skeleton/pull/41: `other-os (windows-latest)` fails in `test_gates.test_approve_commits_the_field_alone_as_the_owner` (test compares `\\` and `/` path separators; code is fine); check 3.11, 3.14, macOS green, `secrets` pending. Portal PR https://github.com/albegali/agentic-portal/pull/10: all checks green except `e2e` still queued at the time of writing.
+- CI: green — skeleton PR https://github.com/albegali/agentic-skeleton/pull/41 (merged 2026-11-02; check 3.11, 3.14, macOS, Windows, secrets pass); portal PR https://github.com/albegali/agentic-portal/pull/10 (checks recorded after push)
 
 ---
 
 ### Gates
-> Written by `make gates` on 2026-10-22T16:54+02:00; do not edit by hand.
+> Written by `make gates` on 2026-11-02T16:04+01:00; do not edit by hand.
 - test: `${PY:-python3} -m unittest discover -s server/tests -q && ${PY:-python3} scripts/check_deps.py server && ${PY:-python3} -m unittest discover -s scripts/tests -q && npm --prefix web test -- --run` → pass (OK)
 - lint: `${PY:-python3} -m compileall -q server scripts && npm --prefix web run lint && npm --prefix web run typecheck` → pass (> tsc --noEmit)
 - secrets: `/opt/homebrew/opt/python@3.14/bin/python3.14 tools/secret_scan.py --branch` → pass (secret scan: OK)
+
+
 
 
 
@@ -211,7 +213,7 @@ Summary:
 
 # 10. Next Steps
 
-- Follow-ups: `/run AP0105 tuning: normalize path separators in test_gates (Windows CI)`, then `/persist AP0105` again.
+- Follow-ups: bump `SKELETON_PIN` in a portal story that consumes the skeleton release.
 - Risks:
 - Improvements:
 
