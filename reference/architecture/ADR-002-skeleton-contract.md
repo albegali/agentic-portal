@@ -55,3 +55,4 @@ Later minor versions (not in v1.0):
 ## Reversibility
 High: every screen depends on the contract. Additions are cheap (minor versions); a new major needs a coordinated release.
 - Revision 2026-10-22, AP0105 delivered upstream (skeleton 1.18.0, contract 1.1; Spec §10 confirmed by the Spec `Ready`): `approve` sets the same fields as `make approve` (owner and date in the commit trailers, no `## Gates` line) and commits on the current branch; only `request-changes` writes the `## Gates` line (spec, strategy, inception, stack, spike, refined; not deviation, tuning, workshop). This narrows the 2026-10-20 line above.
+- Revision 2026-11-02, owner decision `project-journal/decisions/2026-11-02-validator-anyof.md` (AP0111): the validator subset gains `anyOf` (valid when at least one alternative matches), used by skeleton 1.25.1 `gates.schema.json`; no upstream change.

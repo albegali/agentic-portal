@@ -61,6 +61,17 @@ class KeywordTest(unittest.TestCase):
         self.assertTrue(errs({"not": {"required": ["error"]}}, {"error": 1}))
         self.assertEqual(errs({"not": {"required": ["error"]}}, {}), [])
 
+    def test_any_of(self):
+        s = {"anyOf": [{"type": "string"}, {"type": "integer"}]}
+        self.assertEqual(errs(s, "a"), [])
+        self.assertEqual(errs(s, 1), [])
+        self.assertTrue(errs(s, 1.5))
+        self.assertEqual(errs({"anyOf": [{"type": "string"}, {"minLength": 1}]}, "a"), [])  # both match
+        nested = {"properties": {"d": {"anyOf": [{"required": ["a"]}, {"required": ["b"]}]}}}
+        self.assertEqual(errs(nested, {"d": {"b": 1}}), [])
+        self.assertTrue(errs(nested, {"d": {}}))
+        check_subset({"anyOf": [{"type": "object", "properties": {"a": {"type": "string"}}}]})
+
     def test_refs_local_and_sibling(self):
         shared = {"$defs": {"c": {"type": "string", "pattern": "^1"}}}
         main = {"properties": {"a": {"$ref": "shared.schema.json#/$defs/c"}, "b": {"$ref": "#/$defs/n"}},
@@ -74,7 +85,7 @@ class KeywordTest(unittest.TestCase):
         check_subset({"$schema": "x", "$id": "y", "title": "t", "description": "d", "type": "object"})
 
     def test_unsupported_keyword_raises_at_load(self):
-        for bad in ({"anyOf": []}, {"properties": {"a": {"format": "uri"}}}, {"items": {"minItems": 1}},
+        for bad in ({"allOf": []}, {"anyOf": [{"format": "uri"}]}, {"properties": {"a": {"format": "uri"}}}, {"items": {"minItems": 1}},
                     {"oneOf": [{"allOf": []}]}, {"$defs": {"x": {"if": {}}}}):
             with self.assertRaises(UnsupportedSchemaKeyword, msg=bad):
                 check_subset(bad)
